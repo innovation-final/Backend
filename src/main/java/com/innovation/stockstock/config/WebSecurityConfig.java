@@ -1,12 +1,18 @@
 package com.innovation.stockstock.config;
 
+import com.innovation.stockstock.security.jwt.JwtAuthEntryPoint;
+import com.innovation.stockstock.security.jwt.JwtAuthFilter;
+import com.innovation.stockstock.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
@@ -15,6 +21,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebMvcConfigurationSupport {
+
+    private final JwtProvider jwtProvider;
+    private final JwtAuthEntryPoint jwtAuthEntryPoint;
 
     private static final String[] PERMIT_URL_ARRAY = {
             /* swagger v2 */
@@ -45,8 +54,20 @@ public class WebSecurityConfig extends WebMvcConfigurationSupport {
                 .cors()
                 .and()
                 .csrf().disable()
+
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthEntryPoint)
+                .and()
+                .addFilterBefore(new JwtAuthFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
+
                 .authorizeRequests()
-                .antMatchers(PERMIT_URL_ARRAY).permitAll();
+                .antMatchers("/api/auth/**").authenticated()
+                .antMatchers(PERMIT_URL_ARRAY).permitAll()
+                .mvcMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .anyRequest().permitAll();
+
         return http.build();
     }
 
