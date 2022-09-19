@@ -4,9 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.innovation.stockstock.dto.KakaoMemberInfoDto;
+import com.innovation.stockstock.dto.ResponseDto;
+import com.innovation.stockstock.dto.TokenDto;
 import com.innovation.stockstock.entity.Member;
 import com.innovation.stockstock.repository.MemberRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
+import com.innovation.stockstock.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -17,27 +20,31 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
+@Service
 public class MemberService {
 
     @Value("${kakao-restapi-key}")
-    private final String kakaoKey;
+    private String kakaoKey;
     private final MemberRepository memberRepository;
+    private final JwtProvider jwtProvider;
 
     // 토큰 발급 요청(POST)
     // key = value 타입의 데이터를 보내줘야 함
     // RestTemplate rt = new RestTemplate()
-    public void kakaoLogin(String code) throws JsonProcessingException {
+    public ResponseEntity<?> kakaoLogin(String code,HttpServletResponse response) throws JsonProcessingException {
         String accessToken = getAccessToken(code);
         KakaoMemberInfoDto kakaoMemberInfo = getKakaoMemberInfo(accessToken);
         Member kakaoUser = registerKakaoUserIfNeed(kakaoMemberInfo);
         Authentication authentication = forceLogin(kakaoUser);
         kakaoMembersAuthorizationInput(kakaoUser, authentication, response);
+        return ResponseEntity.ok().body(ResponseDto.success("Kakao OAuth Success"));
     }
 
     private String getAccessToken(String code) throws JsonProcessingException{
@@ -115,18 +122,20 @@ public class MemberService {
         }
         return kakaoMember;
     }
-    private Authentication forceLogin(Member kakaoUser) {
+    private Authentication forceLogin(Member kakaoMember) {
         // 4. 강제 로그인 처리
-        UserDetails userDetails = new UserDetailsImpl(kakaoUser);
+        UserDetails userDetails = new UserDetailsImpl(kakaoMember);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        return authentication;
     }
 
     private void kakaoMembersAuthorizationInput(Member kakaoUser, Authentication authentication, HttpServletResponse response) {
         // response header에 token 추가
-        UserDetailsImpl userDetailsImpl = ((UserDetailsImpl) authentication.getPrincipal());
-        String token = tokenProvider.createToken(kakaoUser);
-        response.addHeader("access-token", token);
+        TokenDto token = jwtProvider.generateTokenDto(kakaoUser);
+
+        response.addHeader("Authorization", "BEARER " + token.getAccessToken());
+        response.addHeader("refresh-token",token.getRefreshToken());
     }
 
 }

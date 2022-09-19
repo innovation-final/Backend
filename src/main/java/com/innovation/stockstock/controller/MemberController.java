@@ -44,13 +44,12 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    // Redirect URI : http://localhost:8080/api/member/login/kakao
-    // 로그인 요청 주소 (GET)
+
     // https://kauth.kakao.com/oauth/authorize?client_id={REST_API_KEY}&redirect_uri={REDIRECT_URI}&response_type=code
+    // 로그인 요청
     @GetMapping("/api/member/login/kakao")
-    public void kakaoLogin(@RequestParam String code) throws JsonProcessingException {
-        // authorizedCode: 카카오 서버로부터 받은 인가 코드
-        memberService.kakaoLogin(code);
+    public ResponseEntity<?> kakaoLogin(@RequestParam String code,HttpServletResponse response) throws JsonProcessingException {
+       return memberService.kakaoLogin(code,response);
     }
 
 }
