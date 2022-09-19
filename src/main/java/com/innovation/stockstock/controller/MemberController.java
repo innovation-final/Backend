@@ -7,10 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.innovation.stockstock.service.MemberService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -41,4 +41,16 @@ public class MemberController {
     public ResponseEntity<?> redirectGoogleLogin(@RequestParam(value = "code") String authCode, HttpServletResponse response) throws JsonProcessingException {
         return googleMemberService.googleLogin(authCode, response);
     }
+
+    private final MemberService memberService;
+
+    // Redirect URI : http://localhost:8080/api/member/login/kakao
+    // 로그인 요청 주소 (GET)
+    // https://kauth.kakao.com/oauth/authorize?client_id={REST_API_KEY}&redirect_uri={REDIRECT_URI}&response_type=code
+    @GetMapping("/api/member/login/kakao")
+    public void kakaoLogin(@RequestParam String code) throws JsonProcessingException {
+        // authorizedCode: 카카오 서버로부터 받은 인가 코드
+        memberService.kakaoLogin(code);
+    }
+
 }
