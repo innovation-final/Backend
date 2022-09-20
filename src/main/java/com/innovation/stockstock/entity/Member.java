@@ -18,12 +18,13 @@ public class Member {
     private String email;
     private String nickname;
 
+
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comment;
+
 
     public Member(String email, String nickname) {
         this.email = email;
         this.nickname = nickname;
     }
-
 }
