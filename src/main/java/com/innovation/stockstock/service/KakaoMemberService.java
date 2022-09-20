@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
 @Service
-public class MemberService {
+public class KakaoMemberService {
 
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
