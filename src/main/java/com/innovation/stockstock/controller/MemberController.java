@@ -49,8 +49,8 @@ public class MemberController {
     }
 
 
-    // https://kauth.kakao.com/oauth/authorize?client_id={REST_API_KEY}&redirect_uri={REDIRECT_URI}&response_type=code
     // 로그인 요청
+    // https://kauth.kakao.com/oauth/authorize?client_id={REST_API_KEY}&redirect_uri={REDIRECT_URI}&response_type=code
     @GetMapping("/api/member/login/kakao")
     public ResponseEntity<Object> moveKakaoInitUrl() {
         try {
@@ -61,10 +61,8 @@ public class MemberController {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-
         return ResponseEntity.badRequest().build();
     }
-
     @GetMapping("/user/kakao/callback")
     public ResponseEntity<?> redirectKakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
        return memberService.kakaoLogin(code, kakaoKey, response);

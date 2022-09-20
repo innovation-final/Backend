@@ -33,8 +33,6 @@ public class MemberService {
     private final JwtProvider jwtProvider;
 
     // 토큰 발급 요청(POST)
-    // key = value 타입의 데이터를 보내줘야 함
-    // RestTemplate rt = new RestTemplate()
     public ResponseEntity<?> kakaoLogin(String code, String kakaoKey, HttpServletResponse response) throws JsonProcessingException {
         String accessToken = getAccessToken(code, kakaoKey);
 
@@ -46,14 +44,12 @@ public class MemberService {
     }
 
     private String getAccessToken(String code, String kakaoKey) throws JsonProcessingException{
-        // 1. "인가 코드"로 "액세스 토큰" 요청
+        // "인가 코드"로 "액세스 토큰" 요청
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
         // HTTP Body 생성
-        // LinkedHashMap 입력순서를 보장하는 HashMap
-        // MultiValueMap 중복된키로 들어오는 밸류값들을 온전하게 저장하고 싶을 때 사용.
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakaoKey);
@@ -63,7 +59,7 @@ public class MemberService {
         // Http Header 와 Http Body를 하나의 오브젝트에 담기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
 
-        // HTTP 요청 보내기 그리고 response의 응답을 받기
+        // HTTP 요청 보내기 그리고 response의 응답 받기
         // RestTemplate : 간편하게 rest API 호출할 수 있는 스프링 내장 클래스
         RestTemplate rt = new RestTemplate();
 
@@ -85,7 +81,7 @@ public class MemberService {
     }
     private KakaoMemberInfoDto getKakaoMemberInfo(String accessToken) throws JsonProcessingException{
         HttpHeaders headers = new HttpHeaders();
-        // 2. 토큰으로 카카오 API 호출
+        // 토큰으로 카카오 API 호출
         // HTTP Header 생성
         headers.add("Authorization", "Bearer " + accessToken);
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -120,7 +116,7 @@ public class MemberService {
         return kakaoMember;
     }
     private void forceLogin(Member kakaoMember) {
-        // 4. 강제 로그인 처리
+        // 강제 로그인 처리
         UserDetails userDetails = new UserDetailsImpl(kakaoMember);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
