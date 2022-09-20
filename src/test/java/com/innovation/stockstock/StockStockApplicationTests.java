@@ -1,6 +1,7 @@
 package com.innovation.stockstock;
 
 import com.innovation.stockstock.controller.MemberController;
+
 import com.innovation.stockstock.entity.Member;
 import com.innovation.stockstock.entity.Post;
 import com.innovation.stockstock.repository.MemberRepository;
