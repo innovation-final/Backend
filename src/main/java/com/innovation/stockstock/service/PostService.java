@@ -1,8 +1,11 @@
 package com.innovation.stockstock.service;
 
 import com.innovation.stockstock.ErrorCode;
+import com.innovation.stockstock.dto.CommentResponseDto;
+import com.innovation.stockstock.dto.PostResponseDto;
 import com.innovation.stockstock.dto.PostRequestDto;
 import com.innovation.stockstock.dto.ResponseDto;
+import com.innovation.stockstock.entity.Comment;
 import com.innovation.stockstock.entity.Member;
 import com.innovation.stockstock.entity.Post;
 import com.innovation.stockstock.repository.PostRepository;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,17 +27,53 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final JwtProvider jwtProvider;
+
     public ResponseEntity<?> getAllPosts() {
+        List<PostResponseDto> responseDtoList = new ArrayList<>();
         List<Post> posts = postRepository.findAll();
-        return ResponseEntity.ok().body(ResponseDto.success(posts));
+        for (Post post : posts) {
+            PostResponseDto responseDto = PostResponseDto.builder()
+                    .id(post.getId())
+                    .title(post.getTitle())
+                    .content(post.getContent())
+                    .stockName(post.getStockName())
+                    .likes(post.getLikes())
+                    .dislikes(post.getDislikes())
+                    .nickname(post.getMember().getNickname())
+                    .build();
+            responseDtoList.add(responseDto);
+        }
+        return ResponseEntity.ok().body(ResponseDto.success(responseDtoList));
     }
 
+    @Transactional // 지연로딩 에러 해결
     public ResponseEntity<?> getPost(Long postId) {
+        List<CommentResponseDto> responseDtoList = new ArrayList<>();
         Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
-        return ResponseEntity.ok().body(ResponseDto.success(post));
+        for (Comment comment : post.getComments()) {
+            CommentResponseDto responseDto = CommentResponseDto.builder()
+                    .id(comment.getId())
+                    .content(comment.getContent())
+                    .nickname(comment.getMember().getNickname())
+                    .build();
+            responseDtoList.add(responseDto);
+        }
+        return ResponseEntity.ok().body(ResponseDto.success(
+                PostResponseDto.builder()
+                        .id(post.getId())
+                        .title(post.getTitle())
+                        .content(post.getContent())
+                        .stockName(post.getStockName())
+                        .likes(post.getLikes())
+                        .dislikes(post.getDislikes())
+                        .nickname(post.getMember().getNickname())
+                        .comments(responseDtoList)
+                        .build()
+                )
+        );
     }
 
     public ResponseEntity<?> writePost(PostRequestDto requestDto, HttpServletRequest request) {

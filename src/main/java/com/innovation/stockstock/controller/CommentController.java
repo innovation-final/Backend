@@ -1,6 +1,6 @@
 package com.innovation.stockstock.controller;
 
-import com.innovation.stockstock.dto.CommentDto;
+import com.innovation.stockstock.dto.CommentRequestDto;
 import com.innovation.stockstock.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,17 +13,17 @@ public class CommentController {
     private final CommentService commentService; // final
 
     @PostMapping(value = "/api/auth/comment/{postId}")
-    public ResponseEntity<Object> postComment(@PathVariable int postId,@RequestBody CommentDto commentDto) {
-        return commentService.postComment(postId,commentDto);
+    public ResponseEntity<Object> postComment(@PathVariable Long postId,@RequestBody CommentRequestDto commentRequestDto) {
+        return commentService.postComment(postId, commentRequestDto);
     }
 
     @PutMapping(value = "/api/auth/comment/{commentId}")
-    public ResponseEntity<Object> putComment(@PathVariable int commentId, @RequestBody CommentDto commentDto) {
-        return commentService.putComment(commentId,commentDto);
+    public ResponseEntity<Object> putComment(@PathVariable Long commentId, @RequestBody CommentRequestDto commentRequestDto) {
+        return commentService.putComment(commentId, commentRequestDto);
     }
 
     @DeleteMapping(value = "/api/auth/comment/{commentId}")
-    public ResponseEntity<Object> deleteComment(@PathVariable int commentId) {
+    public ResponseEntity<Object> deleteComment(@PathVariable Long commentId) {
         return commentService.deleteComment(commentId);
     }
 }

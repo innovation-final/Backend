@@ -7,15 +7,16 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Entity(name = "dislikePost")
+@Entity
 @Getter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class Dislike {
+@AllArgsConstructor
+public class LikePost {
 
     @Id
     @GeneratedValue
+    @Column(name = "like_id")
     private Long id;
 
     @JoinColumn(name = "member_id", nullable = false)
@@ -23,7 +24,7 @@ public class Dislike {
     private Member member;
 
     @JoinColumn(name = "post_id", nullable = false)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
 
 }

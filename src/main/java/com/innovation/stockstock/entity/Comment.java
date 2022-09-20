@@ -1,6 +1,7 @@
 package com.innovation.stockstock.entity;
 
-import com.innovation.stockstock.dto.CommentDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.innovation.stockstock.dto.CommentRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,22 +16,24 @@ import javax.persistence.*;
 @NoArgsConstructor // Class 'Comment' should have [public, protected] no-arg constructor
 public class Comment {
 
-
     @Id
     @GeneratedValue
+    @Column(name = "comment_id")
     private Long id;
 
+    @Column(nullable = false)
     private String content;
 
     @JoinColumn(name = "member_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
-    @JoinColumn(name="post_id",nullable = false)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="post_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private Post post;
-    public void update(CommentDto commentDto) {
-        this.content = commentDto.getContent();
+    public void update(CommentRequestDto commentRequestDto) {
+        this.content = commentRequestDto.getContent();
     }
 
 }

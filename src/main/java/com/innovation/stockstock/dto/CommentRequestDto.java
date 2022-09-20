@@ -3,7 +3,7 @@ package com.innovation.stockstock.dto;
 import lombok.Getter;
 
 @Getter
-public class CommentDto {
+public class CommentRequestDto {
 
     private String content;
 }
