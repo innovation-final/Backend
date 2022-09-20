@@ -36,14 +36,12 @@ public class MemberService {
     private final JwtProvider jwtProvider;
 
     // 토큰 발급 요청(POST)
-    // key = value 타입의 데이터를 보내줘야 함
-    // RestTemplate rt = new RestTemplate()
     public ResponseEntity<?> kakaoLogin(String code,HttpServletResponse response) throws JsonProcessingException {
         String accessToken = getAccessToken(code);
         KakaoMemberInfoDto kakaoMemberInfo = getKakaoMemberInfo(accessToken);
         Member kakaoUser = registerKakaoUserIfNeed(kakaoMemberInfo);
-        Authentication authentication = forceLogin(kakaoUser);
-        kakaoMembersAuthorizationInput(kakaoUser, authentication, response);
+        forceLogin(kakaoUser);
+        kakaoMembersAuthorizationInput(kakaoUser, response);
         return ResponseEntity.ok().body(ResponseDto.success("Kakao OAuth Success"));
     }
 
@@ -104,20 +102,18 @@ public class MemberService {
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
-        Long id = jsonNode.get("id").asLong();
         String email = jsonNode.get("kakao_account").get("email").asText();
         String nickname = jsonNode.get("properties").get("nickname").asText();
 
-        return new KakaoMemberInfoDto(id, nickname, email);
+        return new KakaoMemberInfoDto(nickname, email);
     }
     private Member registerKakaoUserIfNeed(KakaoMemberInfoDto kakaoMemberInfo){
-        Long kakaoId = kakaoMemberInfo.getId();
         String kakaoEmail = kakaoMemberInfo.getEmail();
         Member kakaoMember = memberRepository.findByEmail(kakaoEmail).orElse(null);
 
         if(kakaoMember == null){
             String nickname = kakaoMemberInfo.getNickname();
-            kakaoMember = new Member(kakaoEmail, nickname, kakaoId);
+            kakaoMember = new Member(kakaoEmail, nickname);
             memberRepository.save(kakaoMember);
         }
         return kakaoMember;
@@ -130,10 +126,9 @@ public class MemberService {
         return authentication;
     }
 
-    private void kakaoMembersAuthorizationInput(Member kakaoUser, Authentication authentication, HttpServletResponse response) {
+    private void kakaoMembersAuthorizationInput(Member kakaoUser, HttpServletResponse response) {
         // response header에 token 추가
         TokenDto token = jwtProvider.generateTokenDto(kakaoUser);
-
         response.addHeader("Authorization", "BEARER " + token.getAccessToken());
         response.addHeader("refresh-token",token.getRefreshToken());
     }
