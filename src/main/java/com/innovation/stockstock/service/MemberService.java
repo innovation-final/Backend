@@ -37,6 +37,7 @@ public class MemberService {
     // RestTemplate rt = new RestTemplate()
     public ResponseEntity<?> kakaoLogin(String code, String kakaoKey, HttpServletResponse response) throws JsonProcessingException {
         String accessToken = getAccessToken(code, kakaoKey);
+
         KakaoMemberInfoDto kakaoMemberInfo = getKakaoMemberInfo(accessToken);
         Member kakaoUser = registerKakaoUserIfNeed(kakaoMemberInfo);
         forceLogin(kakaoUser);
@@ -112,17 +113,13 @@ public class MemberService {
         return new KakaoMemberInfoDto(nickname, email);
     }
     private Member registerKakaoUserIfNeed(KakaoMemberInfoDto kakaoMemberInfo){
-        String nickname = kakaoMemberInfo.getNickname();
         String kakaoEmail = kakaoMemberInfo.getEmail();
-        Member kakaoMember;
-        if (kakaoEmail == null) {
-            kakaoMember = new Member(kakaoEmail, nickname);
-        } else {
-            kakaoMember = memberRepository.findByEmail(kakaoEmail).orElse(null);
+        Member kakaoMember = memberRepository.findByEmail(kakaoEmail).orElse(null);
 
-            if(kakaoMember == null){
-                kakaoMember = new Member(kakaoEmail, nickname);
-            }
+        if(kakaoMember == null){
+            String nickname = kakaoMemberInfo.getNickname();
+            kakaoMember = new Member(kakaoEmail, nickname);
+            memberRepository.save(kakaoMember);
         }
         memberRepository.save(kakaoMember);
         return kakaoMember;
@@ -137,7 +134,6 @@ public class MemberService {
     private void kakaoMembersAuthorizationInput(Member kakaoUser, HttpServletResponse response) {
         // response header에 token 추가
         TokenDto token = jwtProvider.generateTokenDto(kakaoUser);
-
         response.addHeader("Authorization", "BEARER " + token.getAccessToken());
         response.addHeader("refresh-token",token.getRefreshToken());
     }
