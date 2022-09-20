@@ -15,13 +15,13 @@ public class LikeController {
     private final LikeService likeService;
 
     @PostMapping("/api/auth/post/like/{postId}")
-    public ResponseEntity<?> doLike(@PathVariable Long id) {
-        return likeService.doLike(id);
+    public ResponseEntity<?> doLike(@PathVariable int postId) {
+        return likeService.doLike(postId);
     }
 
     @PostMapping("/api/auth/post/dislike/{postId}")
-    public ResponseEntity<?> disLike(@PathVariable Long id) {
-        return likeService.disLike(id);
+    public ResponseEntity<?> disLike(@PathVariable int postId) {
+        return likeService.disLike(postId);
     }
 
 }

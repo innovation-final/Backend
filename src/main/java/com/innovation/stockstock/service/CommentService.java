@@ -26,7 +26,7 @@ public class CommentService {
     @Transactional
     public ResponseEntity<Object> postComment(CommentDto commentDto) {
         Member member = getMember();
-        Post post = isPresentPost(commentDto.getPostId());
+        Post post = isPresentPost(Long.valueOf(commentDto.getPostId()));
         if(member==null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.INVALID_TOKEN));
         }
@@ -39,17 +39,16 @@ public class CommentService {
     }
 
     @Transactional
-    public ResponseEntity<Object> putComment(Long commentId, CommentDto commentDto) {
+    public ResponseEntity<Object> putComment(int commentId, CommentDto commentDto) {
         Member member = getMember();
-        Comment comment = isPresentComment(commentId);
+        Comment comment = isPresentComment(Long.valueOf(commentId));
         if(member==null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.INVALID_TOKEN));
         }
         if(comment==null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
-        if(!comment.getMember().equals(member)){
-            // 이렇게 객체 비교를 해도 동일값이 나오나? equal 오버라이딩해야할 듯?
+        if(!comment.getMember().getId().equals(member.getId())){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NOT_ALLOWED));
         }
         comment.update(commentDto);
@@ -58,16 +57,16 @@ public class CommentService {
     }
 
     @Transactional
-    public ResponseEntity<Object> deleteComment(Long commentId) {
+    public ResponseEntity<Object> deleteComment(int commentId) {
         Member member = getMember();
-        Comment comment = isPresentComment(commentId);
+        Comment comment = isPresentComment(Long.valueOf(commentId));
         if(member==null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.INVALID_TOKEN));
         }
         if(comment==null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
-        if(!comment.getMember().equals(member)){
+        if(!comment.getMember().getId().equals(member.getId())){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NOT_ALLOWED));
         }
         commentRepository.delete(comment);

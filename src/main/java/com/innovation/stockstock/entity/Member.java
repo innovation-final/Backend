@@ -1,18 +1,14 @@
 package com.innovation.stockstock.entity;
 
-<<<<<<< HEAD
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
-=======
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import javax.persistence.*;
 import java.util.ArrayList;
->>>>>>> main
+
 import java.util.List;
 
 @Entity
@@ -28,10 +24,9 @@ public class Member {
     private String email;
     private String nickname;
 
-    
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<Post> posts = new ArrayList<>();
+    private List<Post> posts= new ArrayList<>();
 
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
@@ -41,7 +36,7 @@ public class Member {
     @JsonIgnore
     private List<Like> likes;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Dislike> dislikes;
 

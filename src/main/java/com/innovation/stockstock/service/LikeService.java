@@ -30,9 +30,9 @@ public class LikeService {
     }
 
     @Transactional
-    public ResponseEntity<Object> doLike(Long postId) {
+    public ResponseEntity<Object> doLike(int postId) {
         Member member = getMember();
-        Post post = isPresentPost(postId);
+        Post post = isPresentPost(Long.valueOf(postId));
         Optional<Like> isDoneLike = likeRepository.findByPostAndMember(post,member);
         if(member==null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NOT_ALLOWED));
@@ -50,9 +50,9 @@ public class LikeService {
         }
     }
     @Transactional
-    public ResponseEntity<Object> disLike(Long postId) {
+    public ResponseEntity<Object> disLike(int postId) {
         Member member = getMember();
-        Post post = isPresentPost(postId);
+        Post post = isPresentPost(Long.valueOf(postId));
         Optional<Dislike> isDoneDislike = dislikeRepository.findByPostAndMember(post,member);
         if(member==null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NOT_ALLOWED));

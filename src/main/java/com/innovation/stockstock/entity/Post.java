@@ -1,6 +1,8 @@
 package com.innovation.stockstock.entity;
 
 import com.innovation.stockstock.dto.PostRequestDto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
