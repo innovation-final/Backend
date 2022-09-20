@@ -11,7 +11,6 @@ import com.innovation.stockstock.repository.MemberRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import com.innovation.stockstock.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -30,24 +29,22 @@ import javax.servlet.http.HttpServletResponse;
 @Service
 public class MemberService {
 
-    @Value("${kakao-restapi-key}")
-    private String kakaoKey;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
 
     // 토큰 발급 요청(POST)
     // key = value 타입의 데이터를 보내줘야 함
     // RestTemplate rt = new RestTemplate()
-    public ResponseEntity<?> kakaoLogin(String code,HttpServletResponse response) throws JsonProcessingException {
-        String accessToken = getAccessToken(code);
+    public ResponseEntity<?> kakaoLogin(String code, String kakaoKey, HttpServletResponse response) throws JsonProcessingException {
+        String accessToken = getAccessToken(code, kakaoKey);
         KakaoMemberInfoDto kakaoMemberInfo = getKakaoMemberInfo(accessToken);
         Member kakaoUser = registerKakaoUserIfNeed(kakaoMemberInfo);
-        Authentication authentication = forceLogin(kakaoUser);
-        kakaoMembersAuthorizationInput(kakaoUser, authentication, response);
+        forceLogin(kakaoUser);
+        kakaoMembersAuthorizationInput(kakaoUser, response);
         return ResponseEntity.ok().body(ResponseDto.success("Kakao OAuth Success"));
     }
 
-    private String getAccessToken(String code) throws JsonProcessingException{
+    private String getAccessToken(String code, String kakaoKey) throws JsonProcessingException{
         // 1. "인가 코드"로 "액세스 토큰" 요청
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
@@ -59,7 +56,7 @@ public class MemberService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakaoKey);
-        body.add("redirect_uri", "http://localhost:8080/api/member/login/kakao");
+        body.add("redirect_uri", "http://localhost:8080/user/kakao/callback");
         body.add("code", code);
 
         // Http Header 와 Http Body를 하나의 오브젝트에 담기
@@ -104,33 +101,40 @@ public class MemberService {
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
-        Long id = jsonNode.get("id").asLong();
-        String email = jsonNode.get("kakao_account").get("email").asText();
         String nickname = jsonNode.get("properties").get("nickname").asText();
+        String email;
+        try {
+            email = jsonNode.get("kakao_account").get("email").asText();
+        } catch (Exception e) {
+            email = null;
+        }
 
-        return new KakaoMemberInfoDto(id, nickname, email);
+        return new KakaoMemberInfoDto(nickname, email);
     }
     private Member registerKakaoUserIfNeed(KakaoMemberInfoDto kakaoMemberInfo){
-        Long kakaoId = kakaoMemberInfo.getId();
+        String nickname = kakaoMemberInfo.getNickname();
         String kakaoEmail = kakaoMemberInfo.getEmail();
-        Member kakaoMember = memberRepository.findByEmail(kakaoEmail).orElse(null);
+        Member kakaoMember;
+        if (kakaoEmail == null) {
+            kakaoMember = new Member(kakaoEmail, nickname);
+        } else {
+            kakaoMember = memberRepository.findByEmail(kakaoEmail).orElse(null);
 
-        if(kakaoMember == null){
-            String nickname = kakaoMemberInfo.getNickname();
-            kakaoMember = new Member(kakaoEmail, nickname, kakaoId);
-            memberRepository.save(kakaoMember);
+            if(kakaoMember == null){
+                kakaoMember = new Member(kakaoEmail, nickname);
+            }
         }
+        memberRepository.save(kakaoMember);
         return kakaoMember;
     }
-    private Authentication forceLogin(Member kakaoMember) {
+    private void forceLogin(Member kakaoMember) {
         // 4. 강제 로그인 처리
         UserDetails userDetails = new UserDetailsImpl(kakaoMember);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return authentication;
     }
 
-    private void kakaoMembersAuthorizationInput(Member kakaoUser, Authentication authentication, HttpServletResponse response) {
+    private void kakaoMembersAuthorizationInput(Member kakaoUser, HttpServletResponse response) {
         // response header에 token 추가
         TokenDto token = jwtProvider.generateTokenDto(kakaoUser);
 
