@@ -24,14 +24,11 @@ public class CommentService {
     private final PostRepository postRepository;
 
     @Transactional
-    public ResponseEntity<Object> postComment(CommentDto commentDto) {
+    public ResponseEntity<Object> postComment(int postId,CommentDto commentDto) {
         Member member = getMember();
-        Post post = isPresentPost(Long.valueOf(commentDto.getPostId()));
+        Post post = isPresentPost(Long.valueOf(postId));
         if(member==null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.INVALID_TOKEN));
-        }
-        if(post==null){
-            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
         Comment comment = Comment.builder().post(post).content(commentDto.getContent()).member(member).build();
         commentRepository.save(comment);
