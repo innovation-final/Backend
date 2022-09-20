@@ -103,12 +103,7 @@ public class MemberService {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
         String nickname = jsonNode.get("properties").get("nickname").asText();
-        String email;
-        try {
-            email = jsonNode.get("kakao_account").get("email").asText();
-        } catch (Exception e) {
-            email = null;
-        }
+        String email = jsonNode.get("kakao_account").get("email").asText();
 
         return new KakaoMemberInfoDto(nickname, email);
     }
@@ -121,7 +116,7 @@ public class MemberService {
             kakaoMember = new Member(kakaoEmail, nickname);
             memberRepository.save(kakaoMember);
         }
-        memberRepository.save(kakaoMember);
+
         return kakaoMember;
     }
     private void forceLogin(Member kakaoMember) {
