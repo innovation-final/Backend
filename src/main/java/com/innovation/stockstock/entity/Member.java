@@ -2,8 +2,6 @@ package com.innovation.stockstock.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import javax.persistence.*;
 import javax.persistence.*;
 
 @Entity
@@ -21,5 +19,4 @@ public class Member {
         this.email = email;
         this.nickname = nickname;
     }
-
 }

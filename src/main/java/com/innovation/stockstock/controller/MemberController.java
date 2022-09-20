@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.innovation.stockstock.config.GoogleConfigUtils;
 import com.innovation.stockstock.service.GoogleMemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +19,13 @@ import java.net.URISyntaxException;
 @RestController
 @RequiredArgsConstructor
 public class MemberController {
+
+    @Value("${kakao-restapi-key}")
+    private String kakaoKey;
+    private final MemberService memberService;
     private final GoogleMemberService googleMemberService;
     private final GoogleConfigUtils googleConfigUtils;
+
 
     @GetMapping(value = "/api/member/login/google")
     public ResponseEntity<Object> moveGoogleInitUrl() {
@@ -42,14 +48,26 @@ public class MemberController {
         return googleMemberService.googleLogin(authCode, response);
     }
 
-    private final MemberService memberService;
-
 
     // https://kauth.kakao.com/oauth/authorize?client_id={REST_API_KEY}&redirect_uri={REDIRECT_URI}&response_type=code
     // 로그인 요청
     @GetMapping("/api/member/login/kakao")
-    public ResponseEntity<?> kakaoLogin(@RequestParam String code,HttpServletResponse response) throws JsonProcessingException {
-       return memberService.kakaoLogin(code,response);
+    public ResponseEntity<Object> moveKakaoInitUrl() {
+        try {
+            URI redirectUri = new URI("https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoKey + "&redirect_uri=http://localhost:8080/user/kakao/callback&response_type=code");
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setLocation(redirectUri);
+            return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        return ResponseEntity.badRequest().build();
+    }
+
+    @GetMapping("/user/kakao/callback")
+    public ResponseEntity<?> redirectKakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+       return memberService.kakaoLogin(code, kakaoKey, response);
     }
 
 }
