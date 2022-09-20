@@ -39,7 +39,7 @@ public class JwtProvider {
 
         int ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30분
         String accessToken = Jwts.builder()
-                .setSubject(member.getNickname())
+                .setSubject(member.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(now + ACCESS_TOKEN_EXPIRE_TIME))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -78,8 +78,8 @@ public class JwtProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        String username = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        String email = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }

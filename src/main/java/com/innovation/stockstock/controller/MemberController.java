@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import com.innovation.stockstock.service.MemberService;
+import com.innovation.stockstock.service.KakaoMemberService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,7 +22,7 @@ public class MemberController {
 
     @Value("${kakao-restapi-key}")
     private String kakaoKey;
-    private final MemberService memberService;
+    private final KakaoMemberService kakaoMemberService;
     private final GoogleMemberService googleMemberService;
     private final GoogleConfigUtils googleConfigUtils;
 
@@ -49,8 +49,6 @@ public class MemberController {
     }
 
 
-    // https://kauth.kakao.com/oauth/authorize?client_id={REST_API_KEY}&redirect_uri={REDIRECT_URI}&response_type=code
-    // 로그인 요청
     @GetMapping("/api/member/login/kakao")
     public ResponseEntity<Object> moveKakaoInitUrl() {
         try {
@@ -67,7 +65,7 @@ public class MemberController {
 
     @GetMapping("/user/kakao/callback")
     public ResponseEntity<?> redirectKakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-       return memberService.kakaoLogin(code, kakaoKey, response);
+       return kakaoMemberService.kakaoLogin(code, kakaoKey, response);
     }
 
 }
