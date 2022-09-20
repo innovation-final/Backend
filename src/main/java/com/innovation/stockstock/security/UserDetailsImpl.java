@@ -1,11 +1,13 @@
 package com.innovation.stockstock.security;
 
 import com.innovation.stockstock.entity.Member;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+@Getter
 public class UserDetailsImpl implements UserDetails {
 
     private final Member member;

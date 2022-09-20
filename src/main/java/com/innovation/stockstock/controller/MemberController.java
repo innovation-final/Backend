@@ -48,7 +48,6 @@ public class MemberController {
         return googleMemberService.googleLogin(authCode, response);
     }
 
-
     @GetMapping("/api/member/login/kakao")
     public ResponseEntity<Object> moveKakaoInitUrl() {
         try {
@@ -59,10 +58,8 @@ public class MemberController {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-
         return ResponseEntity.badRequest().build();
     }
-
     @GetMapping("/user/kakao/callback")
     public ResponseEntity<?> redirectKakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
        return kakaoMemberService.kakaoLogin(code, kakaoKey, response);
