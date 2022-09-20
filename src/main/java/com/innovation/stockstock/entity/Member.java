@@ -36,7 +36,7 @@ public class Member {
     @JsonIgnore
     private List<Like> likes;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Dislike> dislikes;
 
