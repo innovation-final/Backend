@@ -2,9 +2,10 @@ package com.innovation.stockstock.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import javax.persistence.*;
-import javax.persistence.*;
+import com.innovation.stockstock.entity.Comment;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -16,17 +17,13 @@ public class Member {
     private Long id;
     private String email;
     private String nickname;
-    private Long kakaoId;
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comment;
 
     public Member(String email, String nickname) {
         this.email = email;
         this.nickname = nickname;
     }
 
-    public Member(String email, String nickname, Long kakaoId) {
-        this.email = email;
-        this.nickname = nickname;
-        this.kakaoId = kakaoId;
-
-    }
 }

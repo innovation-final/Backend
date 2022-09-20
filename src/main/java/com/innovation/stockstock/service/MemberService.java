@@ -42,8 +42,8 @@ public class MemberService {
         String accessToken = getAccessToken(code);
         KakaoMemberInfoDto kakaoMemberInfo = getKakaoMemberInfo(accessToken);
         Member kakaoUser = registerKakaoUserIfNeed(kakaoMemberInfo);
-        Authentication authentication = forceLogin(kakaoUser);
-        kakaoMembersAuthorizationInput(kakaoUser, authentication, response);
+        forceLogin(kakaoUser);
+        kakaoMembersAuthorizationInput(kakaoUser, response);
         return ResponseEntity.ok().body(ResponseDto.success("Kakao OAuth Success"));
     }
 
@@ -111,13 +111,12 @@ public class MemberService {
         return new KakaoMemberInfoDto(id, nickname, email);
     }
     private Member registerKakaoUserIfNeed(KakaoMemberInfoDto kakaoMemberInfo){
-        Long kakaoId = kakaoMemberInfo.getId();
         String kakaoEmail = kakaoMemberInfo.getEmail();
         Member kakaoMember = memberRepository.findByEmail(kakaoEmail).orElse(null);
 
         if(kakaoMember == null){
             String nickname = kakaoMemberInfo.getNickname();
-            kakaoMember = new Member(kakaoEmail, nickname, kakaoId);
+            kakaoMember = new Member(kakaoEmail, nickname);
             memberRepository.save(kakaoMember);
         }
         return kakaoMember;
@@ -130,10 +129,9 @@ public class MemberService {
         return authentication;
     }
 
-    private void kakaoMembersAuthorizationInput(Member kakaoUser, Authentication authentication, HttpServletResponse response) {
+    private void kakaoMembersAuthorizationInput(Member kakaoUser, HttpServletResponse response) {
         // response header에 token 추가
         TokenDto token = jwtProvider.generateTokenDto(kakaoUser);
-
         response.addHeader("Authorization", "BEARER " + token.getAccessToken());
         response.addHeader("refresh-token",token.getRefreshToken());
     }
