@@ -13,7 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 public class Post {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "post_id")
     private Long id;
 
@@ -23,9 +24,7 @@ public class Post {
     @Lob
     @Column(nullable = false)
     private String content;
-
     private String stockName;
-
     private Long likes;
     private Long dislikes;
 

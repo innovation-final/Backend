@@ -13,7 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Date;
@@ -52,9 +51,8 @@ public class JwtProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        //RefreshToken refreshTokenObject = new RefreshToken(user.getNickname(), refreshToken);
-        //
-        //refreshTokenRepository.save(refreshTokenObject);
+        // RefreshToken refreshTokenObject = new RefreshToken(user.getNickname(), refreshToken);
+        // refreshTokenRepository.save(refreshTokenObject);
 
         return new TokenDto(accessToken, refreshToken);
     }
@@ -80,7 +78,6 @@ public class JwtProvider {
     public Authentication getAuthentication(String token) {
         String email = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 }
