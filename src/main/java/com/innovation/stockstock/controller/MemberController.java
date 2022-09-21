@@ -22,6 +22,8 @@ public class MemberController {
 
     @Value("${kakao-restapi-key}")
     private String kakaoKey;
+    @Value("${kakao-redirect-url}")
+    private String kakaoRedirectUrl;
     private final KakaoMemberService kakaoMemberService;
     private final GoogleMemberService googleMemberService;
     private final GoogleConfigUtils googleConfigUtils;
@@ -44,14 +46,15 @@ public class MemberController {
     }
 
     @GetMapping("login/oauth2/code/google")
-    public ResponseEntity<?> redirectGoogleLogin(@RequestParam(value = "code") String authCode, HttpServletResponse response) throws JsonProcessingException {
-        return googleMemberService.googleLogin(authCode, response);
+    public ResponseEntity<?> redirectGoogleLogin(@RequestParam(value = "code") String authCode, HttpServletResponse response) throws JsonProcessingException, URISyntaxException {
+        googleMemberService.googleLogin(authCode, response);
+        return goMainPageIfSuccessful();
     }
 
     @GetMapping("/api/member/login/kakao")
     public ResponseEntity<Object> moveKakaoInitUrl() {
         try {
-            URI redirectUri = new URI("https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoKey + "&redirect_uri=https://hakjoonkim.shop/user/kakao/callback&response_type=code");
+            URI redirectUri = new URI("https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoKey + "&redirect_uri=" + kakaoRedirectUrl + "&response_type=code");
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setLocation(redirectUri);
             return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
@@ -61,8 +64,17 @@ public class MemberController {
         return ResponseEntity.badRequest().build();
     }
     @GetMapping("/user/kakao/callback")
-    public ResponseEntity<?> redirectKakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-       return kakaoMemberService.kakaoLogin(code, kakaoKey, response);
+    public ResponseEntity<?> redirectKakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException, URISyntaxException {
+        kakaoMemberService.kakaoLogin(code, kakaoKey, kakaoRedirectUrl, response);
+        return goMainPageIfSuccessful();
+    }
+
+    private ResponseEntity<Object> goMainPageIfSuccessful() throws URISyntaxException {
+        String MAIN_PAGE_URL = "http://localhost:3000";
+        URI redirectUri = new URI(MAIN_PAGE_URL);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(redirectUri);
+        return new ResponseEntity<>(httpHeaders, HttpStatus.PERMANENT_REDIRECT);
     }
 
 }
