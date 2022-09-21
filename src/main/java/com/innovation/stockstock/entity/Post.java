@@ -48,6 +48,8 @@ public class Post extends Timestamped {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
         this.stockName = requestDto.getStockName();
+        this.likes = 0L;
+        this.dislikes = 0L;
         this.member = member;
     }
 
@@ -59,26 +61,18 @@ public class Post extends Timestamped {
 
     public void updateLikes(Boolean isAdded) {
         if (isAdded) {
-            if (likes == null) {
-                this.likes = 1L;
-            } else {
-                this.likes++;
-            }
+            this.likes++;
         } else {
-            if (likes != null && likes > 0L) {
+            if (likes > 0L) {
                 this.likes--;
             }
         }
     }
     public void updateDislikes(Boolean isAdded) {
         if (isAdded) {
-            if (dislikes == null) {
-                this.dislikes = 1L;
-            } else {
-                this.dislikes++;
-            }
+            this.dislikes++;
         } else {
-            if (dislikes != null && dislikes > 0L) {
+            if (dislikes > 0L) {
                 this.dislikes--;
             }
         }
