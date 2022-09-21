@@ -40,8 +40,8 @@ public class PostService {
                     .id(comment.getId())
                     .content(comment.getContent())
                     .member(comment.getMember())
-                    .createdAt(comment.getCreatedAt())
-                    .modifiedAt(comment.getModifiedAt())
+                    .createdAt(String.valueOf(comment.getCreatedAt()))
+                    .modifiedAt(String.valueOf(comment.getModifiedAt()))
                     .build();
             responseDtoList.add(responseDto);
         }
@@ -55,6 +55,8 @@ public class PostService {
                         .dislikes(post.getDislikes())
                         .member(post.getMember())
                         .comments(responseDtoList)
+                        .createdAt(String.valueOf(post.getCreatedAt()))
+                        .modifiedAt(String.valueOf(post.getModifiedAt()))
                         .build()
                 )
         );
