@@ -4,7 +4,6 @@ import com.innovation.stockstock.entity.Member;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -18,6 +17,6 @@ public class PostResponseDto {
     private Long dislikes;
     private Member member;
     private List<CommentResponseDto> comments;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private String createdAt;
+    private String modifiedAt;
 }

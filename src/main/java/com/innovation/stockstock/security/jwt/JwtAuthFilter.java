@@ -24,6 +24,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             assert jwt != null;
             validateToken(request, jwt.getAccessToken(), jwt.getRefreshToken());
         } catch (Exception ex) {
+            request.setAttribute("INVALID_JWT", "INVALID_JWT");
             logger.error("Could not set user authentication in security context", ex);
         }
 
