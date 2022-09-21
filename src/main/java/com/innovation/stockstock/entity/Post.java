@@ -78,7 +78,7 @@ public class Post {
                 this.dislikes++;
             }
         } else {
-            if (dislikes != null && likes > 0L) {
+            if (dislikes != null && dislikes > 0L) {
                 this.dislikes--;
             }
         }

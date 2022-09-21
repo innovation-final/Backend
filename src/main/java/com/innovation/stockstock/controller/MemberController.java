@@ -51,7 +51,7 @@ public class MemberController {
     @GetMapping("/api/member/login/kakao")
     public ResponseEntity<Object> moveKakaoInitUrl() {
         try {
-            URI redirectUri = new URI("https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoKey + "&redirect_uri=http://localhost:8080/user/kakao/callback&response_type=code");
+            URI redirectUri = new URI("https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoKey + "&redirect_uri=https://hakjoonkim.shop/user/kakao/callback&response_type=code");
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setLocation(redirectUri);
             return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
