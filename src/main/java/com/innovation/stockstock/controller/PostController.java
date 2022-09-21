@@ -25,6 +25,16 @@ public class PostController {
         return postService.getPost(postId);
     }
 
+    @GetMapping("/api/post/likes")
+    public ResponseEntity<?> getPostsByLikes() {
+        return ResponseEntity.ok().body(postService.getPostsByLikes());
+    }
+
+    @GetMapping("/api/post/old")
+    public ResponseEntity<?> getPostsByOldTime() {
+        return ResponseEntity.ok().body(postService.getPostsByOldTime());
+    }
+
     @PostMapping("/api/auth/post")
     public ResponseEntity<?> writePost(@RequestBody PostRequestDto requestDto, HttpServletRequest request) {
         return postService.writePost(requestDto, request);

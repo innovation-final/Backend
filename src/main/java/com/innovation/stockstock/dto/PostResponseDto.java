@@ -1,8 +1,10 @@
 package com.innovation.stockstock.dto;
 
+import com.innovation.stockstock.entity.Member;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -14,6 +16,8 @@ public class PostResponseDto {
     private String stockName;
     private Long likes;
     private Long dislikes;
-    private String nickname;
+    private Member member;
     private List<CommentResponseDto> comments;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 }

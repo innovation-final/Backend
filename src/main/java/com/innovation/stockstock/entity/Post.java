@@ -11,7 +11,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Post {
+public class Post extends Timestamped {
 
     @Id
     @GeneratedValue
@@ -77,7 +77,7 @@ public class Post {
                 this.dislikes++;
             }
         } else {
-            if (dislikes != null && likes > 0L) {
+            if (dislikes != null && dislikes > 0L) {
                 this.dislikes--;
             }
         }
