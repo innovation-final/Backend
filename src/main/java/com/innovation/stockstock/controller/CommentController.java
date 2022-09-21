@@ -13,17 +13,17 @@ public class CommentController {
     private final CommentService commentService; // final
 
     @PostMapping(value = "/api/auth/comment/{postId}")
-    public ResponseEntity<Object> postComment(@PathVariable Long postId,@RequestBody CommentRequestDto commentRequestDto) {
+    public ResponseEntity<?> postComment(@PathVariable Long postId,@RequestBody CommentRequestDto commentRequestDto) {
         return commentService.postComment(postId, commentRequestDto);
     }
 
     @PutMapping(value = "/api/auth/comment/{commentId}")
-    public ResponseEntity<Object> putComment(@PathVariable Long commentId, @RequestBody CommentRequestDto commentRequestDto) {
+    public ResponseEntity<?> putComment(@PathVariable Long commentId, @RequestBody CommentRequestDto commentRequestDto) {
         return commentService.putComment(commentId, commentRequestDto);
     }
 
     @DeleteMapping(value = "/api/auth/comment/{commentId}")
-    public ResponseEntity<Object> deleteComment(@PathVariable Long commentId) {
+    public ResponseEntity<?> deleteComment(@PathVariable Long commentId) {
         return commentService.deleteComment(commentId);
     }
 }

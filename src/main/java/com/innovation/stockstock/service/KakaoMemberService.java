@@ -54,7 +54,7 @@ public class KakaoMemberService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakaoKey);
-        body.add("redirect_uri", kakaoRedirectUrl);
+        body.add("redirect_uri", kakaoUri);
         body.add("code", code);
 
         // Http Header 와 Http Body를 하나의 오브젝트에 담기

@@ -1,5 +1,6 @@
 package com.innovation.stockstock.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.innovation.stockstock.entity.Member;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +14,6 @@ public class CommentResponseDto {
     private Long id;
     private String content;
     private Member member;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private String createdAt;
+    private String modifiedAt;
 }

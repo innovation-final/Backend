@@ -129,8 +129,8 @@ public class PostService {
                     .likes(post.getLikes())
                     .dislikes(post.getDislikes())
                     .member(post.getMember())
-                    .createdAt(post.getCreatedAt())
-                    .modifiedAt(post.getModifiedAt())
+                    .createdAt(String.valueOf(post.getCreatedAt()))
+                    .modifiedAt(String.valueOf(post.getModifiedAt()))
                     .build();
             responseDtoList.add(responseDto);
         }

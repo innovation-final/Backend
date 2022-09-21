@@ -59,7 +59,7 @@ public class MemberController {
     public ResponseEntity<Object> moveKakaoInitUrl() {
         try {
 
-            URI redirectUri = new URI("https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoKey + "&redirect_uri=" + kakaoRedirectUrl + "&response_type=code");
+            URI redirectUri = new URI("https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoKey + "&redirect_uri=" + kakaoUri + "&response_type=code");
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setLocation(redirectUri);
             return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
@@ -70,12 +70,12 @@ public class MemberController {
     }
     @GetMapping("/user/kakao/callback")
     public ResponseEntity<?> redirectKakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException, URISyntaxException {
-        kakaoMemberService.kakaoLogin(code, kakaoKey, kakaoRedirectUrl, response);
+        kakaoMemberService.kakaoLogin(code, kakaoKey, kakaoUri, response);
         return goMainPageIfSuccessful();
     }
 
     private ResponseEntity<Object> goMainPageIfSuccessful() throws URISyntaxException {
-        String MAIN_PAGE_URL = "http://localhost:3000";
+        String MAIN_PAGE_URL = "http://localhost:8080";
         URI redirectUri = new URI(MAIN_PAGE_URL);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
