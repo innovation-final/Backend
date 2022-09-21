@@ -12,6 +12,7 @@ import com.innovation.stockstock.service.KakaoMemberService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
@@ -48,8 +49,12 @@ public class MemberController {
     }
 
     @GetMapping("login/oauth2/code/google")
-    public ResponseEntity<?> redirectGoogleLogin(@RequestParam(value = "code") String authCode, HttpServletResponse response) throws JsonProcessingException {
-        return googleMemberService.googleLogin(authCode, response);
+    public ResponseEntity<?> redirectGoogleLogin(@RequestParam(value = "code") String authCode, HttpServletResponse response) throws JsonProcessingException, URISyntaxException {
+        googleMemberService.googleLogin(authCode, response);
+        URI redirectUri = new URI("http://localhost:3000");
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(redirectUri);
+        return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
     }
 
     @GetMapping("/api/member/login/kakao")
@@ -65,8 +70,11 @@ public class MemberController {
         return ResponseEntity.badRequest().build();
     }
     @GetMapping("/user/kakao/callback")
-    public ResponseEntity<?> redirectKakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-       return kakaoMemberService.kakaoLogin(code, kakaoKey, response);
+    public ResponseEntity<Object> redirectKakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException, URISyntaxException {
+        kakaoMemberService.kakaoLogin(code, kakaoKey, response);
+        URI redirectUri = new URI("http://localhost:3000");
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(redirectUri);
+        return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
     }
-
 }

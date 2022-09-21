@@ -11,6 +11,7 @@ import com.innovation.stockstock.repository.MemberRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import com.innovation.stockstock.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -29,6 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 @Service
 public class KakaoMemberService {
 
+    @Value("${kakao.redirect.uri}")
+    private String kakaoUri;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
 
@@ -53,7 +56,7 @@ public class KakaoMemberService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakaoKey);
-        body.add("redirect_uri", "https://hakjoonkim.shop/user/kakao/callback");
+        body.add("redirect_uri", kakaoUri);
         body.add("code", code);
 
         // Http Header 와 Http Body를 하나의 오브젝트에 담기
