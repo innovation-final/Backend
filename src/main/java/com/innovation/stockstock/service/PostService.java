@@ -28,24 +28,6 @@ public class PostService {
     private final PostRepository postRepository;
     private final JwtProvider jwtProvider;
 
-    public ResponseEntity<?> getAllPosts() {
-        List<PostResponseDto> responseDtoList = new ArrayList<>();
-        List<Post> posts = postRepository.findAll();
-        for (Post post : posts) {
-            PostResponseDto responseDto = PostResponseDto.builder()
-                    .id(post.getId())
-                    .title(post.getTitle())
-                    .content(post.getContent())
-                    .stockName(post.getStockName())
-                    .likes(post.getLikes())
-                    .dislikes(post.getDislikes())
-                    .nickname(post.getMember().getNickname())
-                    .build();
-            responseDtoList.add(responseDto);
-        }
-        return ResponseEntity.ok().body(ResponseDto.success(responseDtoList));
-    }
-
     @Transactional // 지연로딩 에러 해결
     public ResponseEntity<?> getPost(Long postId) {
         List<CommentResponseDto> responseDtoList = new ArrayList<>();
@@ -57,7 +39,9 @@ public class PostService {
             CommentResponseDto responseDto = CommentResponseDto.builder()
                     .id(comment.getId())
                     .content(comment.getContent())
-                    .nickname(comment.getMember().getNickname())
+                    .member(comment.getMember())
+                    .createdAt(comment.getCreatedAt())
+                    .modifiedAt(comment.getModifiedAt())
                     .build();
             responseDtoList.add(responseDto);
         }
@@ -69,11 +53,29 @@ public class PostService {
                         .stockName(post.getStockName())
                         .likes(post.getLikes())
                         .dislikes(post.getDislikes())
-                        .nickname(post.getMember().getNickname())
+                        .member(post.getMember())
                         .comments(responseDtoList)
                         .build()
                 )
         );
+    }
+
+    public ResponseEntity<?> getAllPosts() {
+        List<Post> posts = postRepository.findAllByOrderByCreatedAtDesc();
+        List<PostResponseDto> responseDtoList = makePostResponse(posts);
+        return ResponseEntity.ok().body(ResponseDto.success(responseDtoList));
+    }
+
+    public ResponseDto<?> getPostsByLikes() {
+        List<Post> posts = postRepository.findAllByOrderByLikesDesc();
+        List<PostResponseDto> responseDtoList = makePostResponse(posts);
+        return ResponseDto.success(responseDtoList);
+    }
+
+    public ResponseDto<?> getPostsByOldTime() {
+        List<Post> posts = postRepository.findAllByOrderByCreatedAt();
+        List<PostResponseDto> responseDtoList = makePostResponse(posts);
+        return ResponseDto.success(responseDtoList);
     }
 
     public ResponseEntity<?> writePost(PostRequestDto requestDto, HttpServletRequest request) {
@@ -114,5 +116,24 @@ public class PostService {
         Authentication authentication = jwtProvider.getAuthentication(request.getHeader("Authorization").substring(7));
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         return userDetails.getMember();
+    }
+
+    private static List<PostResponseDto> makePostResponse(List<Post> posts) {
+        List<PostResponseDto> responseDtoList = new ArrayList<>();
+        for (Post post : posts) {
+            PostResponseDto responseDto = PostResponseDto.builder()
+                    .id(post.getId())
+                    .title(post.getTitle())
+                    .content(post.getContent())
+                    .stockName(post.getStockName())
+                    .likes(post.getLikes())
+                    .dislikes(post.getDislikes())
+                    .member(post.getMember())
+                    .createdAt(post.getCreatedAt())
+                    .modifiedAt(post.getModifiedAt())
+                    .build();
+            responseDtoList.add(responseDto);
+        }
+        return responseDtoList;
     }
 }

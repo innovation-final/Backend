@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor // 이게 있어야 Builder가 작동됨.
 @NoArgsConstructor // Class 'Comment' should have [public, protected] no-arg constructor
-public class Comment {
+public class Comment extends Timestamped {
 
     @Id
     @GeneratedValue
