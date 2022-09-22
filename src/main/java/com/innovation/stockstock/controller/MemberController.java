@@ -18,22 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.http.HttpResponse;
 
 @RestController
 @RequiredArgsConstructor
 public class MemberController {
-
     @Value("${kakao.restapi.key}")
     private String kakaoKey;
     @Value("${kakao.redirect.uri}")
     private String kakaoUri;
-
     private final KakaoMemberService kakaoMemberService;
     private final GoogleMemberService googleMemberService;
     private final GoogleConfigUtils googleConfigUtils;
-
-
-    @GetMapping(value = "/api/member/login/google")
+    @GetMapping(value = "/api/member/login/google/re")
     public ResponseEntity<Object> moveGoogleInitUrl() {
         String authUrl = googleConfigUtils.googleInitUrl();
         URI redirectUri;
@@ -45,20 +42,15 @@ public class MemberController {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-
         return ResponseEntity.badRequest().build();
     }
-
-    @GetMapping("login/oauth2/code/google")
+    @GetMapping("/api/member/login/google")
     public ResponseEntity<?> redirectGoogleLogin(@RequestParam(value = "code") String authCode, HttpServletResponse response) throws JsonProcessingException, URISyntaxException {
-        googleMemberService.googleLogin(authCode, response);
-        return goMainPageIfSuccessful();
+        return ResponseEntity.ok(googleMemberService.googleLogin(authCode, response));
     }
-
-    @GetMapping("/api/member/login/kakao")
+    @GetMapping("/api/member/login/kakao/re")
     public ResponseEntity<Object> moveKakaoInitUrl() {
         try {
-
             URI redirectUri = new URI("https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoKey + "&redirect_uri=" + kakaoUri + "&response_type=code");
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setLocation(redirectUri);
@@ -68,17 +60,15 @@ public class MemberController {
         }
         return ResponseEntity.badRequest().build();
     }
-    @GetMapping("/user/kakao/callback")
+    @GetMapping("/api/member/login/kakao")
     public ResponseEntity<?> redirectKakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException, URISyntaxException {
-        kakaoMemberService.kakaoLogin(code, kakaoKey, kakaoUri, response);
-        return goMainPageIfSuccessful();
+        return ResponseEntity.ok(kakaoMemberService.kakaoLogin(code, kakaoKey, kakaoUri, response));
     }
-
-    private ResponseEntity<Object> goMainPageIfSuccessful() throws URISyntaxException {
-        String MAIN_PAGE_URL = "http://localhost:8080";
-        URI redirectUri = new URI(MAIN_PAGE_URL);
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(redirectUri);
-        return new ResponseEntity<>(httpHeaders, HttpStatus.PERMANENT_REDIRECT);
-    }
+//    private ResponseEntity<Object> goMainPageIfSuccessful() throws URISyntaxException {
+//        String MAIN_PAGE_URL = "http://localhost:8080";
+//        URI redirectUri = new URI(MAIN_PAGE_URL);
+//        HttpHeaders httpHeaders = new HttpHeaders();
+//        httpHeaders.setLocation(redirectUri);
+//        return new ResponseEntity<>(httpHeaders, HttpStatus.PERMANENT_REDIRECT);
+//    }
 }
