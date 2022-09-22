@@ -68,14 +68,32 @@ public class PostService {
         return ResponseEntity.ok().body(ResponseDto.success(responseDtoList));
     }
 
+    public ResponseDto<?> getFivePosts() {
+        List<Post> posts = postRepository.findFirst5ByOrderByCreatedAtDesc();
+        List<PostResponseDto> responseDtoList = makePostResponse(posts);
+        return ResponseDto.success(responseDtoList);
+    }
+
     public ResponseDto<?> getPostsByLikes() {
         List<Post> posts = postRepository.findAllByOrderByLikesDesc();
         List<PostResponseDto> responseDtoList = makePostResponse(posts);
         return ResponseDto.success(responseDtoList);
     }
 
+    public ResponseDto<?> getFivePostsByLikes() {
+        List<Post> posts = postRepository.findFirst5ByOrderByLikesDesc();
+        List<PostResponseDto> responseDtoList = makePostResponse(posts);
+        return ResponseDto.success(responseDtoList);
+    }
+
     public ResponseDto<?> getPostsByOldTime() {
         List<Post> posts = postRepository.findAllByOrderByCreatedAt();
+        List<PostResponseDto> responseDtoList = makePostResponse(posts);
+        return ResponseDto.success(responseDtoList);
+    }
+
+    public ResponseDto<?> getFivePostsByOldTime() {
+        List<Post> posts = postRepository.findFirst5ByOrderByCreatedAt();
         List<PostResponseDto> responseDtoList = makePostResponse(posts);
         return ResponseDto.success(responseDtoList);
     }

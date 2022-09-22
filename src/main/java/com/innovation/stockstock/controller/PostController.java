@@ -15,14 +15,19 @@ public class PostController {
 
     private final PostService postService;
 
+    @GetMapping("/api/post/{postId}")
+    public ResponseEntity<?> getPost(@PathVariable Long postId) {
+        return postService.getPost(postId);
+    }
+
     @GetMapping("/api/post")
     public ResponseEntity<?> getAllPosts() {
         return postService.getAllPosts();
     }
 
-    @GetMapping("/api/post/{postId}")
-    public ResponseEntity<?> getPost(@PathVariable Long postId) {
-        return postService.getPost(postId);
+    @GetMapping("/api/post/main")
+    public ResponseEntity<?> getFivePosts() {
+        return ResponseEntity.ok().body(postService.getFivePosts());
     }
 
     @GetMapping("/api/post/likes")
@@ -30,9 +35,19 @@ public class PostController {
         return ResponseEntity.ok().body(postService.getPostsByLikes());
     }
 
+    @GetMapping("/api/post/likes/main")
+    public ResponseEntity<?> getFivePostsByLikes() {
+        return ResponseEntity.ok().body(postService.getFivePostsByLikes());
+    }
+
     @GetMapping("/api/post/old")
     public ResponseEntity<?> getPostsByOldTime() {
         return ResponseEntity.ok().body(postService.getPostsByOldTime());
+    }
+
+    @GetMapping("/api/post/old/main")
+    public ResponseEntity<?> getFivePostsByOldTime() {
+        return ResponseEntity.ok().body(postService.getFivePostsByOldTime());
     }
 
     @PostMapping("/api/auth/post")
