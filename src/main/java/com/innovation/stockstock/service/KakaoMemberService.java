@@ -30,15 +30,18 @@ import javax.servlet.http.HttpServletResponse;
 @Service
 public class KakaoMemberService {
 
-    @Value("${kakao.redirect.uri}")
-    private String kakaoUri;
+    @Value("${kakao-restapi-key}")
+    private String kakaoKey;
+    @Value("${kakao-redirect-url}")
+    private String kakaoRedirectUrl;
+
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
 
     // 토큰 발급 요청(POST)
-    public ResponseDto kakaoLogin(String code, String kakaoKey, String kakaoRedirectUrl, HttpServletResponse response) throws JsonProcessingException {
-        String accessToken = getAccessToken(code, kakaoKey, kakaoRedirectUrl);
 
+    public void kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+        String accessToken = getAccessToken(code);
         KakaoMemberInfoDto kakaoMemberInfo = getKakaoMemberInfo(accessToken);
         Member kakaoUser = registerKakaoUserIfNeed(kakaoMemberInfo);
         forceLogin(kakaoUser);
@@ -46,7 +49,7 @@ public class KakaoMemberService {
         return ResponseDto.success("Login success");
     }
 
-    private String getAccessToken(String code, String kakaoKey, String kakaoRedirectUrl) throws JsonProcessingException{
+    private String getAccessToken(String code) throws JsonProcessingException{
         // "인가 코드"로 "액세스 토큰" 요청
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
