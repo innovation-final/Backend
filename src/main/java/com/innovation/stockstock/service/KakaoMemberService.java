@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.innovation.stockstock.dto.KakaoMemberInfoDto;
-import com.innovation.stockstock.dto.ResponseDto;
 import com.innovation.stockstock.dto.TokenDto;
 import com.innovation.stockstock.entity.Member;
 import com.innovation.stockstock.repository.MemberRepository;
@@ -38,6 +37,18 @@ public class KakaoMemberService {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
 
+<<<<<<< HEAD
+=======
+    // 토큰 발급 요청(POST)
+
+    public void kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+        String accessToken = getAccessToken(code);
+        KakaoMemberInfoDto kakaoMemberInfo = getKakaoMemberInfo(accessToken);
+        Member kakaoUser = registerKakaoUserIfNeed(kakaoMemberInfo);
+        forceLogin(kakaoUser);
+        kakaoMembersAuthorizationInput(kakaoUser, response);
+    }
+>>>>>>> origin/main
 
     private String getAccessToken(String code) throws JsonProcessingException{
         // "인가 코드"로 "액세스 토큰" 요청
