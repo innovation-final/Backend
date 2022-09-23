@@ -37,18 +37,6 @@ public class GoogleMemberService {
     private final MemberRepository memberRepository;
     private final GoogleConfigUtils googleConfigUtils;
     private final JwtProvider jwtProvider;
-    public ResponseDto googleLogin(String authCode, HttpServletResponse response) throws JsonProcessingException {
-        GoogleLoginDto userInfo = getGoogleUserInfo(authCode);
-
-        Member googleUser = signupGoogleUserIfNeeded(userInfo);
-
-        forceLogin(googleUser);
-
-        TokenDto tokenDto = jwtProvider.generateTokenDto(googleUser);
-        response.addHeader("Authorization","BEARER " + tokenDto.getAccessToken());
-        response.addHeader("refresh-token",tokenDto.getRefreshToken());
-        return ResponseDto.success("Login Success");
-    }
     private GoogleLoginDto getGoogleUserInfo(String authCode) throws JsonProcessingException {
         // HTTP 통신을 위해 RestTemplate 활용
         RestTemplate restTemplate = new RestTemplate();
@@ -83,7 +71,18 @@ public class GoogleMemberService {
 
         return userInfoDto;
     }
+    public ResponseDto googleLogin(String authCode, HttpServletResponse response) throws JsonProcessingException {
+        GoogleLoginDto userInfo = getGoogleUserInfo(authCode);
 
+        Member googleUser = signupGoogleUserIfNeeded(userInfo);
+
+        forceLogin(googleUser);
+
+        TokenDto tokenDto = jwtProvider.generateTokenDto(googleUser);
+        response.addHeader("Authorization","BEARER " + tokenDto.getAccessToken());
+        response.addHeader("refresh-token",tokenDto.getRefreshToken());
+        return ResponseDto.success("Login Success");
+    }
     private Member signupGoogleUserIfNeeded(GoogleLoginDto userInfo) {
         String email = userInfo.getEmail();
         Member googleUser = memberRepository.findByEmail(email).orElse(null);

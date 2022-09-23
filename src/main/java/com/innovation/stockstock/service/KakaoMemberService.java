@@ -38,14 +38,6 @@ public class KakaoMemberService {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
 
-    // 토큰 발급 요청(POST)
-    public void kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
-        String accessToken = getAccessToken(code);
-        KakaoMemberInfoDto kakaoMemberInfo = getKakaoMemberInfo(accessToken);
-        Member kakaoUser = registerKakaoUserIfNeed(kakaoMemberInfo);
-        forceLogin(kakaoUser);
-        kakaoMembersAuthorizationInput(kakaoUser, response);
-    }
 
     private String getAccessToken(String code) throws JsonProcessingException{
         // "인가 코드"로 "액세스 토큰" 요청
@@ -131,6 +123,14 @@ public class KakaoMemberService {
         TokenDto token = jwtProvider.generateTokenDto(kakaoUser);
         response.addHeader("Authorization", "BEARER " + token.getAccessToken());
         response.addHeader("refresh-token",token.getRefreshToken());
+    }
+    // 토큰 발급 요청(POST)
+    public void kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+        String accessToken = getAccessToken(code);
+        KakaoMemberInfoDto kakaoMemberInfo = getKakaoMemberInfo(accessToken);
+        Member kakaoUser = registerKakaoUserIfNeed(kakaoMemberInfo);
+        forceLogin(kakaoUser);
+        kakaoMembersAuthorizationInput(kakaoUser, response);
     }
 
 }
