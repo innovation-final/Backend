@@ -1,6 +1,6 @@
 package com.innovation.stockstock.security.jwt;
 
-import com.innovation.stockstock.dto.TokenDto;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,32 +20,35 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            TokenDto jwt = getJwtFromRequest(request);
-            assert jwt != null;
-            validateToken(request, jwt.getAccessToken(), jwt.getRefreshToken());
-        } catch (Exception ex) {
-            request.setAttribute("INVALID_JWT", "INVALID_JWT");
-            logger.error("Could not set user authentication in security context", ex);
+            String path = request.getServletPath();
+            if (path.startsWith("/api/auth/reissue")) {
+                filterChain.doFilter(request, response);
+            } else {
+                String accessToken = getAccessTokenFromRequest(request);
+                if (accessToken != null && jwtProvider.validateToken(accessToken)) {
+                    Authentication auth = jwtProvider.getAuthentication(accessToken);
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                } else {
+                    request.setAttribute("INVALID_JWT", "INVALID_JWT");
+                }
+            }
+        } catch (ExpiredJwtException e) {
+            request.setAttribute("EXPIRED_JWT", "EXPIRED_JWT");
+            logger.error("Could not set user authentication in security context", e);
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private void validateToken(HttpServletRequest request, String accessToken, String refreshToken) {
-        if (accessToken != null && jwtProvider.validateToken(accessToken) && jwtProvider.validateToken(refreshToken)) {
-            Authentication auth = jwtProvider.getAuthentication(accessToken);
-            SecurityContextHolder.getContext().setAuthentication(auth);
-        } else {
-            request.setAttribute("INVALID_JWT", "INVALID_JWT");
-        }
-    }
-
-    private TokenDto getJwtFromRequest(HttpServletRequest request) {
+    private String getAccessTokenFromRequest(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization");
-        String refreshToken = request.getHeader("refresh-token");
-        if (refreshToken != null && accessToken.startsWith("BEARER ")) {
-            return new TokenDto(accessToken.substring("BEARER ".length()), refreshToken);
+        if (accessToken.startsWith("BEARER ")) {
+            return accessToken.substring("BEARER ".length());
         }
         return null;
+    }
+
+    private String getRefreshTokenFromRequest(HttpServletRequest request) {
+        return request.getHeader("refresh-token");
     }
 }

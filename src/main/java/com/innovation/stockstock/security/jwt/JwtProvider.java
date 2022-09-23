@@ -2,6 +2,7 @@ package com.innovation.stockstock.security.jwt;
 
 import com.innovation.stockstock.dto.TokenDto;
 import com.innovation.stockstock.entity.Member;
+
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -52,14 +53,10 @@ public class JwtProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        //RefreshToken refreshTokenObject = new RefreshToken(user.getNickname(), refreshToken);
-        //
-        //refreshTokenRepository.save(refreshTokenObject);
-
         return new TokenDto(accessToken, refreshToken);
     }
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(String token) throws ExpiredJwtException {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
@@ -67,8 +64,6 @@ public class JwtProvider {
             log.error("Invalid JWT signature");
         } catch (MalformedJwtException ex) {
             log.error("Invalid JWT token");
-        } catch (ExpiredJwtException ex) {
-            log.error("Expired JWT token");
         } catch (UnsupportedJwtException ex) {
             log.error("Unsupported JWT token");
         } catch (IllegalArgumentException ex) {
