@@ -64,7 +64,7 @@ public class PostController {
         return postService.deletePost(postId, request);
     }
 
-    @GetMapping("/api/post/read")
+    @GetMapping("/api/post/get")
     public ResponseEntity<?> getAllPostsByPages(@RequestParam("page") int page,
                                                 @RequestParam("size") int size,
                                                 @RequestParam("sortBy") String sortBy,

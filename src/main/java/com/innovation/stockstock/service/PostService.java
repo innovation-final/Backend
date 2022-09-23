@@ -13,6 +13,10 @@ import com.innovation.stockstock.repository.PostRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import com.innovation.stockstock.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -180,7 +184,9 @@ public class PostService {
         Sort sort = Sort.by(direction, sortBy);
         Pageable pageable = PageRequest.of(page,size,sort);
         Page<Post> posts = postRepository.findAll(pageable);
-        return ResponseEntity.ok().body(ResponseDto.success(posts));
+        List<Post> postList = posts.getContent();
+        List<PostResponseDto> responseDtoList = makePostResponse(postList);
+        return ResponseEntity.ok().body(ResponseDto.success(responseDtoList));
     }
 
 }
