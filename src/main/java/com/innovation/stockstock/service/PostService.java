@@ -8,7 +8,6 @@ import com.innovation.stockstock.dto.ResponseDto;
 import com.innovation.stockstock.entity.*;
 import com.innovation.stockstock.repository.DislikeRepository;
 import com.innovation.stockstock.repository.LikeRepository;
-import com.innovation.stockstock.repository.MemberRepository;
 import com.innovation.stockstock.repository.PostRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import com.innovation.stockstock.security.jwt.JwtProvider;
@@ -25,51 +24,42 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostService {
 
-    private final MemberRepository memberRepository;
     private final DislikeRepository dislikeRepository;
     private final LikeRepository likeRepository;
     private final JwtProvider jwtProvider;
     private final PostRepository postRepository;
-    private static PostResponseDto makePostOneResponse(Post post,List<CommentResponseDto> responseDtoList,boolean isDoneLike,boolean isDoneDislike){
-        return PostResponseDto.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .stockName(post.getStockName())
-                .likes(post.getLikes())
-                .dislikes(post.getDislikes())
-                .member(post.getMember())
-                .comments(responseDtoList)
-                .createdAt(String.valueOf(post.getCreatedAt()))
-                .modifiedAt(String.valueOf(post.getModifiedAt()))
-                .isDoneLike(isDoneLike)
-                .isDoneDisLike(isDoneDislike)
-                .build();
-    }
+    @Transactional // 지연로딩 에러 해결
+    public ResponseEntity<?> getPost(Long postId,HttpServletRequest request) {
 
-    private static List<PostResponseDto> makePostResponse(List<Post> posts) {
-        List<PostResponseDto> responseDtoList = new ArrayList<>();
-        for (Post post : posts) {
-            PostResponseDto responseDto = PostResponseDto.builder()
-                    .id(post.getId())
-                    .title(post.getTitle())
-                    .content(post.getContent())
-                    .stockName(post.getStockName())
-                    .likes(post.getLikes())
-                    .dislikes(post.getDislikes())
-                    .member(post.getMember())
-                    .createdAt(String.valueOf(post.getCreatedAt()))
-                    .modifiedAt(String.valueOf(post.getModifiedAt()))
+        List<CommentResponseDto> responseDtoList = new ArrayList<>();
+        Post post = postRepository.findById(postId).orElse(null);
+        if (post == null) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+        }
+
+        for (Comment comment : post.getComments()) {
+            CommentResponseDto responseDto = CommentResponseDto.builder()
+                    .id(comment.getId())
+                    .content(comment.getContent())
+                    .member(comment.getMember())
+                    .createdAt(String.valueOf(comment.getCreatedAt()))
+                    .modifiedAt(String.valueOf(comment.getModifiedAt()))
                     .build();
             responseDtoList.add(responseDto);
         }
-        return responseDtoList;
-    }
+        // 로그인 안 한 멤버일 때.
+        String accessToken = request.getHeader("Authorization");
+        if(accessToken==null) {
+            return ResponseEntity.ok().body(ResponseDto.success(makePostOneResponse(post, responseDtoList, false, false)));
+        }
 
-    private Member getMemberFromJwt(HttpServletRequest request) {
-        Authentication authentication = jwtProvider.getAuthentication(request.getHeader("Authorization").substring(7));
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        return userDetails.getMember();
+        // 로그인한 멤버일 때.
+        Member member = getMemberFromJwt(request);
+        // 멤버가 좋아요를 눌렀는 지 여부를 확인
+        boolean isDonelike = likeRepository.existsByMemberAndPost(member, post);
+        boolean isDoneDislike = dislikeRepository.existsByMemberAndPost(member,post);
+        PostResponseDto postResponseDto = makePostOneResponse(post,responseDtoList,isDonelike,isDoneDislike);
+        return ResponseEntity.ok().body(ResponseDto.success(postResponseDto));
     }
     public ResponseEntity<?> getAllPosts() {
         List<Post> posts = postRepository.findAllByOrderByCreatedAtDesc();
@@ -141,38 +131,46 @@ public class PostService {
         }
     }
 
-    @Transactional // 지연로딩 에러 해결
-    public ResponseEntity<?> getPost(Long postId,HttpServletRequest request) {
+    private static PostResponseDto makePostOneResponse(Post post,List<CommentResponseDto> responseDtoList,boolean isDoneLike,boolean isDoneDislike){
+        return PostResponseDto.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .stockName(post.getStockName())
+                .likes(post.getLikes())
+                .dislikes(post.getDislikes())
+                .member(post.getMember())
+                .comments(responseDtoList)
+                .createdAt(String.valueOf(post.getCreatedAt()))
+                .modifiedAt(String.valueOf(post.getModifiedAt()))
+                .isDoneLike(isDoneLike)
+                .isDoneDisLike(isDoneDislike)
+                .build();
+    }
 
-        List<CommentResponseDto> responseDtoList = new ArrayList<>();
-        Post post = postRepository.findById(postId).orElse(null);
-        if (post == null) {
-            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
-        }
-
-        for (Comment comment : post.getComments()) {
-            CommentResponseDto responseDto = CommentResponseDto.builder()
-                    .id(comment.getId())
-                    .content(comment.getContent())
-                    .member(comment.getMember())
-                    .createdAt(String.valueOf(comment.getCreatedAt()))
-                    .modifiedAt(String.valueOf(comment.getModifiedAt()))
+    private static List<PostResponseDto> makePostResponse(List<Post> posts) {
+        List<PostResponseDto> responseDtoList = new ArrayList<>();
+        for (Post post : posts) {
+            PostResponseDto responseDto = PostResponseDto.builder()
+                    .id(post.getId())
+                    .title(post.getTitle())
+                    .content(post.getContent())
+                    .stockName(post.getStockName())
+                    .likes(post.getLikes())
+                    .dislikes(post.getDislikes())
+                    .member(post.getMember())
+                    .createdAt(String.valueOf(post.getCreatedAt()))
+                    .modifiedAt(String.valueOf(post.getModifiedAt()))
                     .build();
             responseDtoList.add(responseDto);
         }
-        // 로그인 안 한 멤버일 때.
-        String accessToken = request.getHeader("Authorization");
-        if(accessToken==null) {
-            return ResponseEntity.ok().body(ResponseDto.success(makePostOneResponse(post, responseDtoList, false, false)));
-        }
+        return responseDtoList;
+    }
 
-        // 로그인한 멤버일 때.
-        Member member = getMemberFromJwt(request);
-        // 멤버가 좋아요를 눌렀는 지 여부를 확인
-        boolean isDonelike = likeRepository.existsByMemberAndPost(member, post);
-        boolean isDoneDislike = dislikeRepository.existsByMemberAndPost(member,post);
-        PostResponseDto postResponseDto = makePostOneResponse(post,responseDtoList,isDonelike,isDoneDislike);
-        return ResponseEntity.ok().body(ResponseDto.success(postResponseDto));
+    private Member getMemberFromJwt(HttpServletRequest request) {
+        Authentication authentication = jwtProvider.getAuthentication(request.getHeader("Authorization").substring(7));
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        return userDetails.getMember();
     }
 
 
