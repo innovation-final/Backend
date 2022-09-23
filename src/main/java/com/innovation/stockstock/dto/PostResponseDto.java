@@ -20,4 +20,6 @@ public class PostResponseDto {
     private List<CommentResponseDto> comments;
     private String createdAt;
     private String modifiedAt;
+    private boolean isDoneLike=false;
+    private boolean isDoneDisLike=false;
 }
