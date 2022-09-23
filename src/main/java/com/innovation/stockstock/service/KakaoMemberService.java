@@ -39,14 +39,12 @@ public class KakaoMemberService {
     private final JwtProvider jwtProvider;
 
     // 토큰 발급 요청(POST)
-
     public void kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         String accessToken = getAccessToken(code);
         KakaoMemberInfoDto kakaoMemberInfo = getKakaoMemberInfo(accessToken);
         Member kakaoUser = registerKakaoUserIfNeed(kakaoMemberInfo);
         forceLogin(kakaoUser);
         kakaoMembersAuthorizationInput(kakaoUser, response);
-        return ResponseDto.success("Login success");
     }
 
     private String getAccessToken(String code) throws JsonProcessingException{
@@ -59,7 +57,7 @@ public class KakaoMemberService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakaoKey);
-        body.add("redirect_uri", kakaoUri);
+        body.add("redirect_uri", kakaoRedirectUrl);
         body.add("code", code);
 
         // Http Header 와 Http Body를 하나의 오브젝트에 담기
