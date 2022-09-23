@@ -181,11 +181,11 @@ public class PostService {
                 .build();
     }
 
-//    public ResponseEntity<?> getAllPostsByPages(int page, int size, String sortBy, boolean isAsc) {
-//        Sort.Direction direction = isAsc? Sort.Direction.ASC : Sort.Direction.DESC;
-//        Sort sort = Sort.by(direction, sortBy);
-//        Pageable pageable = PageRequest.of(page,size,sort);
-//        Page<Post> posts = postRepository.findAll(pageable);
-//        return ResponseEntity.ok().body(ResponseDto.success(posts));
-//    }
+    public ResponseEntity<?> getAllPostsByPages(int page, int size, String sortBy, boolean isAsc) {
+        Sort.Direction direction = isAsc? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page,size,sort);
+        Page<Post> posts = postRepository.findAll(pageable);
+        return ResponseEntity.ok().body(ResponseDto.success(posts));
+    }
 }

@@ -19,7 +19,6 @@ public class PostController {
     public ResponseEntity<?> getPost(@PathVariable Long postId,HttpServletRequest request) {
         return postService.getPost(postId,request);
     }
-
     @GetMapping("/api/post")
     public ResponseEntity<?> getAllPosts() {
         return postService.getAllPosts();
@@ -63,5 +62,13 @@ public class PostController {
     @DeleteMapping("/api/auth/post/{postId}")
     public ResponseEntity<?> deletePost(@PathVariable Long postId, HttpServletRequest request) {
         return postService.deletePost(postId, request);
+    }
+
+    @GetMapping("/api/post/read")
+    public ResponseEntity<?> getAllPostsByPages(@RequestParam("page") int page,
+                                                @RequestParam("size") int size,
+                                                @RequestParam("sortBy") String sortBy,
+                                                @RequestParam("isAsc") boolean isAsc){
+        return postService.getAllPostsByPages(page, size, sortBy, isAsc);
     }
 }
