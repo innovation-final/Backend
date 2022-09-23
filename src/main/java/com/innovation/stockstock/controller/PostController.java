@@ -15,15 +15,15 @@ public class PostController {
 
     private final PostService postService;
 
-    @GetMapping("/api/post/{postId}")
-    public ResponseEntity<?> getPost(@PathVariable Long postId,HttpServletRequest request) {
-        return postService.getPost(postId,request);
-    }
     @GetMapping("/api/post")
     public ResponseEntity<?> getAllPosts() {
         return postService.getAllPosts();
     }
 
+    @GetMapping("/api/post/{postId}")
+    public ResponseEntity<?> getPost(@PathVariable Long postId,HttpServletRequest request) {
+        return postService.getPost(postId,request);
+    }
     @GetMapping("/api/post/main")
     public ResponseEntity<?> getFivePosts() {
         return ResponseEntity.ok().body(postService.getFivePosts());
@@ -71,4 +71,5 @@ public class PostController {
                                                 @RequestParam("isAsc") boolean isAsc){
         return postService.getAllPostsByPages(page, size, sortBy, isAsc);
     }
+
 }
