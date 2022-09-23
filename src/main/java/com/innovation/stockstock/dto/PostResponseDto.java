@@ -13,12 +13,12 @@ public class PostResponseDto {
     private String title;
     private String content;
     private String stockName;
+    private boolean isDoneLike;
+    private boolean isDoneDisLike;
     private Long likes;
     private Long dislikes;
     private Member member;
     private List<CommentResponseDto> comments;
     private String createdAt;
     private String modifiedAt;
-    private boolean isDoneLike;
-    private boolean isDoneDisLike;
 }

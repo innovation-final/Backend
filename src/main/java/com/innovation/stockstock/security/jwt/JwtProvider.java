@@ -2,7 +2,6 @@ package com.innovation.stockstock.security.jwt;
 
 import com.innovation.stockstock.dto.TokenDto;
 import com.innovation.stockstock.entity.Member;
-
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -14,7 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Date;
@@ -57,6 +55,7 @@ public class JwtProvider {
     }
 
     public boolean validateToken(String token) throws ExpiredJwtException {
+
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
@@ -75,7 +74,6 @@ public class JwtProvider {
     public Authentication getAuthentication(String token) {
         String email = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 }
