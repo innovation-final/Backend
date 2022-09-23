@@ -1,6 +1,5 @@
 package com.innovation.stockstock.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.innovation.stockstock.entity.Member;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +19,6 @@ public class PostResponseDto {
     private List<CommentResponseDto> comments;
     private String createdAt;
     private String modifiedAt;
-    private boolean isDoneLike=false;
-    private boolean isDoneDisLike=false;
+    private boolean isDoneLike;
+    private boolean isDoneDisLike;
 }
