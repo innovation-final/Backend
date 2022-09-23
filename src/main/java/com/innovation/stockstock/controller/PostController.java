@@ -16,8 +16,8 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping("/api/post/{postId}")
-    public ResponseEntity<?> getPost(@PathVariable Long postId) {
-        return postService.getPost(postId);
+    public ResponseEntity<?> getPost(@PathVariable Long postId,HttpServletRequest request) {
+        return postService.getPost(postId,request);
     }
 
     @GetMapping("/api/post")

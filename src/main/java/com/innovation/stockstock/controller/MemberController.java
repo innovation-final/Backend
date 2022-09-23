@@ -6,15 +6,18 @@ import com.innovation.stockstock.service.GoogleMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import com.innovation.stockstock.service.KakaoMemberService;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import javax.servlet.http.HttpServletResponse;
+
 
 @RestController
 @RequiredArgsConstructor
 public class MemberController {
-
     private final KakaoMemberService kakaoMemberService;
     private final GoogleMemberService googleMemberService;
 
@@ -30,5 +33,4 @@ public class MemberController {
         kakaoMemberService.kakaoLogin(code, response);
         return ResponseEntity.ok().body(ResponseDto.success("Kakao OAuth Success"));
     }
-
 }

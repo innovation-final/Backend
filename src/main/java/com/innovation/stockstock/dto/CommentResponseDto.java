@@ -1,5 +1,6 @@
 package com.innovation.stockstock.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.innovation.stockstock.entity.Member;
 import lombok.Builder;
 import lombok.Getter;
