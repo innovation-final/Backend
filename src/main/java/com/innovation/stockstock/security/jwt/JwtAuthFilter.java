@@ -47,8 +47,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
         return null;
     }
-
-    private String getRefreshTokenFromRequest(HttpServletRequest request) {
-        return request.getHeader("refresh-token");
-    }
 }

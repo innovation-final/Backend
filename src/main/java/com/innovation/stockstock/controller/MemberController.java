@@ -2,25 +2,23 @@ package com.innovation.stockstock.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.innovation.stockstock.dto.ResponseDto;
-import com.innovation.stockstock.repository.RefreshTokenRepository;
-import com.innovation.stockstock.security.UserDetailsImpl;
 import com.innovation.stockstock.service.GoogleMemberService;
+import com.innovation.stockstock.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import com.innovation.stockstock.service.KakaoMemberService;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor
 public class MemberController {
 
+    private final MemberService memberService;
     private final KakaoMemberService kakaoMemberService;
     private final GoogleMemberService googleMemberService;
-    private final RefreshTokenRepository refreshTokenRepository;
 
 
     @GetMapping("/api/member/login/google")
@@ -35,10 +33,13 @@ public class MemberController {
         return ResponseEntity.ok().body(ResponseDto.success("Kakao OAuth Success"));
     }
 
-    @GetMapping("/api/auth/member/logout")
+    @PostMapping("/api/auth/reissue")
+    public ResponseEntity<?> reissueJwt(HttpServletRequest request, HttpServletResponse response) {
+        return memberService.reissueJwt(request, response);
+    }
+
+    @DeleteMapping ("/api/auth/member/logout")
     public ResponseEntity<?> logout() {
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        refreshTokenRepository.deleteById(userDetails.getMember().getEmail());
-        return ResponseEntity.ok().body(ResponseDto.success("Logout Success"));
+        return ResponseEntity.ok().body(memberService.logout());
     }
 }
