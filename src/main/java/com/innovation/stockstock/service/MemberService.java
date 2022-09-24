@@ -26,11 +26,13 @@ public class MemberService {
 
     @Transactional
     public ResponseEntity<?> reissueJwt(HttpServletRequest request, HttpServletResponse response) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Member member = userDetails.getMember();
+        //UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        //Member member = userDetails.getMember();
 
         String refreshToken = request.getHeader("refresh-token");
 
+        UserDetailsImpl userDetails = (UserDetailsImpl) jwtProvider.getAuthentication(refreshToken).getPrincipal();
+        Member member = userDetails.getMember();
         try {
             RefreshToken tokenFromDB = refreshTokenRepository.findById(member.getEmail()).orElse(null);
 
