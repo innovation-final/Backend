@@ -9,7 +9,9 @@ import com.innovation.stockstock.config.GoogleConfigUtils;
 import com.innovation.stockstock.dto.GoogleLoginDto;
 import com.innovation.stockstock.dto.TokenDto;
 import com.innovation.stockstock.entity.Member;
+import com.innovation.stockstock.entity.RefreshToken;
 import com.innovation.stockstock.repository.MemberRepository;
+import com.innovation.stockstock.repository.RefreshTokenRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import com.innovation.stockstock.security.jwt.JwtProvider;
 import com.innovation.stockstock.vo.GoogleLoginRequestVo;
@@ -34,8 +36,10 @@ import javax.servlet.http.HttpServletResponse;
 public class GoogleMemberService {
 
     private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final GoogleConfigUtils googleConfigUtils;
     private final JwtProvider jwtProvider;
+
     public void googleLogin(String authCode, HttpServletResponse response) throws JsonProcessingException {
         GoogleLoginDto userInfo = getGoogleUserInfo(authCode);
 
@@ -43,10 +47,11 @@ public class GoogleMemberService {
 
         forceLogin(googleUser);
 
-        TokenDto tokenDto = jwtProvider.generateTokenDto(googleUser);
-        response.addHeader("Authorization","BEARER " + tokenDto.getAccessToken());
-        response.addHeader("refresh-token",tokenDto.getRefreshToken());
+        String refreshToken = sendJwt(response, googleUser);
+
+        refreshTokenRepository.save(new RefreshToken(googleUser, refreshToken));
     }
+
     private GoogleLoginDto getGoogleUserInfo(String authCode) throws JsonProcessingException {
         // HTTP 통신을 위해 RestTemplate 활용
         RestTemplate restTemplate = new RestTemplate();
@@ -98,5 +103,13 @@ public class GoogleMemberService {
         UserDetails userDetails = new UserDetailsImpl(googleUser);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private String sendJwt(HttpServletResponse response, Member googleUser) {
+        TokenDto tokenDto = jwtProvider.generateTokenDto(googleUser);
+        response.addHeader("Authorization","BEARER " + tokenDto.getAccessToken());
+        response.addHeader("refresh-token",tokenDto.getRefreshToken());
+
+        return tokenDto.getRefreshToken();
     }
 }
