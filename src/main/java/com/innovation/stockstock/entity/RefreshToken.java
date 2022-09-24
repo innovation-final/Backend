@@ -3,7 +3,6 @@ package com.innovation.stockstock.entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 

@@ -7,11 +7,12 @@ import lombok.Getter;
 @Getter
 public class StockResponseDto {
     Long id;
-    int code;
+    String code;
     int current_price;
     int volumn;
-    int volumn_amount;
+    int traded_volume;
     String date;
     int start_price;
-    int final_price;
+    int higher_price;
+    int lower_price;
 }
