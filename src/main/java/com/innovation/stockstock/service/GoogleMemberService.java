@@ -86,7 +86,6 @@ public class GoogleMemberService {
 
         return userInfoDto;
     }
-
     private Member signupGoogleUserIfNeeded(GoogleLoginDto userInfo) {
         String email = userInfo.getEmail();
         Member googleUser = memberRepository.findByEmail(email).orElse(null);

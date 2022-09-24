@@ -12,8 +12,8 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Builder
-@AllArgsConstructor // 이게 있어야 Builder가 작동됨.
-@NoArgsConstructor // Class 'Comment' should have [public, protected] no-arg constructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class Comment extends Timestamped {
 
     @Id
@@ -32,6 +32,7 @@ public class Comment extends Timestamped {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private Post post;
+
     public void update(CommentRequestDto commentRequestDto) {
         this.content = commentRequestDto.getContent();
     }
