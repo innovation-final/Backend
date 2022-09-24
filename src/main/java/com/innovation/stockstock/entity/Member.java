@@ -1,6 +1,5 @@
 package com.innovation.stockstock.entity;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,7 +7,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
-
 import java.util.List;
 
 @Entity
