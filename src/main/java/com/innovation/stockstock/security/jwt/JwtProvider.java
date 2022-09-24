@@ -2,6 +2,7 @@ package com.innovation.stockstock.security.jwt;
 
 import com.innovation.stockstock.dto.TokenDto;
 import com.innovation.stockstock.entity.Member;
+
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -55,7 +56,6 @@ public class JwtProvider {
     }
 
     public boolean validateToken(String token) throws ExpiredJwtException {
-
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
