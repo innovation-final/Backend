@@ -3,9 +3,11 @@ package com.innovation.stockstock.controller;
 import com.innovation.stockstock.dto.PostRequestDto;
 import com.innovation.stockstock.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -14,11 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 public class PostController {
 
     private final PostService postService;
-
-    @GetMapping("/api/post")
-    public ResponseEntity<?> getAllPosts() {
-        return postService.getAllPosts();
-    }
 
     @GetMapping("/api/post/{postId}")
     public ResponseEntity<?> getPost(@PathVariable Long postId,HttpServletRequest request) {
@@ -29,19 +26,9 @@ public class PostController {
         return ResponseEntity.ok().body(postService.getFivePosts());
     }
 
-    @GetMapping("/api/post/likes")
-    public ResponseEntity<?> getPostsByLikes() {
-        return ResponseEntity.ok().body(postService.getPostsByLikes());
-    }
-
     @GetMapping("/api/post/likes/main")
     public ResponseEntity<?> getFivePostsByLikes() {
         return ResponseEntity.ok().body(postService.getFivePostsByLikes());
-    }
-
-    @GetMapping("/api/post/old")
-    public ResponseEntity<?> getPostsByOldTime() {
-        return ResponseEntity.ok().body(postService.getPostsByOldTime());
     }
 
     @GetMapping("/api/post/old/main")
@@ -64,12 +51,8 @@ public class PostController {
         return postService.deletePost(postId, request);
     }
 
-    @GetMapping("/api/post/get")
-    public ResponseEntity<?> getAllPostsByPages(@RequestParam("page") int page,
-                                                @RequestParam("size") int size,
-                                                @RequestParam("sortBy") String sortBy,
-                                                @RequestParam("isAsc") boolean isAsc){
-        return postService.getAllPostsByPages(page, size, sortBy, isAsc);
+    @GetMapping("/api/post")
+    public ResponseEntity<?> getAllPostsByPages(@PageableDefault(page = 0,size=10,sort="createdAt",direction= Sort.Direction.DESC) Pageable pageable){
+            return postService.getAllPostsByPages(pageable);
     }
-
 }
