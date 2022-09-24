@@ -23,10 +23,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (path.startsWith("/api/auth/reissue")) {
                 filterChain.doFilter(request, response);
             } else {
-                String accessToken = getAccessTokenFromRequest(request);
+                String accessToken = getAccessTokenFromRequest(request);// 에러
                 if (accessToken != null && jwtProvider.validateToken(accessToken)) {
                     Authentication auth = jwtProvider.getAuthentication(accessToken);
                     SecurityContextHolder.getContext().setAuthentication(auth);
+                    filterChain.doFilter(request, response);
                 } else {
                     request.setAttribute("INVALID_JWT", "INVALID_JWT");
                 }
@@ -35,7 +36,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             request.setAttribute("EXPIRED_JWT", "EXPIRED_JWT");
             logger.error("Could not set user authentication in security context", e);
         }
-
         filterChain.doFilter(request, response);
     }
 
