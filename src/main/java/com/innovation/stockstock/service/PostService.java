@@ -30,6 +30,7 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final JwtProvider jwtProvider;
     private final PostRepository postRepository;
+
     private static PostResponseDto makePostOneResponse(Post post,List<CommentResponseDto> responseDtoList,boolean isDoneLike,boolean isDoneDislike){
         return PostResponseDto.builder()
                 .id(post.getId())
