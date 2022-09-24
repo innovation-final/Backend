@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.innovation.stockstock.config.GoogleConfigUtils;
 import com.innovation.stockstock.dto.GoogleLoginDto;
-import com.innovation.stockstock.dto.ResponseDto;
 import com.innovation.stockstock.dto.TokenDto;
 import com.innovation.stockstock.entity.Member;
 import com.innovation.stockstock.repository.MemberRepository;
@@ -37,6 +36,17 @@ public class GoogleMemberService {
     private final MemberRepository memberRepository;
     private final GoogleConfigUtils googleConfigUtils;
     private final JwtProvider jwtProvider;
+    public void googleLogin(String authCode, HttpServletResponse response) throws JsonProcessingException {
+        GoogleLoginDto userInfo = getGoogleUserInfo(authCode);
+
+        Member googleUser = signupGoogleUserIfNeeded(userInfo);
+
+        forceLogin(googleUser);
+
+        TokenDto tokenDto = jwtProvider.generateTokenDto(googleUser);
+        response.addHeader("Authorization","BEARER " + tokenDto.getAccessToken());
+        response.addHeader("refresh-token",tokenDto.getRefreshToken());
+    }
     private GoogleLoginDto getGoogleUserInfo(String authCode) throws JsonProcessingException {
         // HTTP 통신을 위해 RestTemplate 활용
         RestTemplate restTemplate = new RestTemplate();
@@ -70,18 +80,6 @@ public class GoogleMemberService {
         GoogleLoginDto userInfoDto = objectMapper.readValue(resultJson, new TypeReference<>() {});
 
         return userInfoDto;
-    }
-    public ResponseDto googleLogin(String authCode, HttpServletResponse response) throws JsonProcessingException {
-        GoogleLoginDto userInfo = getGoogleUserInfo(authCode);
-
-        Member googleUser = signupGoogleUserIfNeeded(userInfo);
-
-        forceLogin(googleUser);
-
-        TokenDto tokenDto = jwtProvider.generateTokenDto(googleUser);
-        response.addHeader("Authorization","BEARER " + tokenDto.getAccessToken());
-        response.addHeader("refresh-token",tokenDto.getRefreshToken());
-        return ResponseDto.success("Login Success");
     }
     private Member signupGoogleUserIfNeeded(GoogleLoginDto userInfo) {
         String email = userInfo.getEmail();
