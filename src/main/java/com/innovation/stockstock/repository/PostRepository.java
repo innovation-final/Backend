@@ -10,11 +10,6 @@ import java.util.List;
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     Page<Post> findAll(Pageable pageable);
-    List<Post> findAllByOrderByLikesDesc();
-
-    List<Post> findAllByOrderByCreatedAtDesc();
-
-    List<Post> findAllByOrderByCreatedAt();
 
     List<Post> findFirst5ByOrderByCreatedAtDesc();
 
