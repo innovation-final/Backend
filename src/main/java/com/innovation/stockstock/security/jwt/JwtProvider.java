@@ -37,7 +37,7 @@ public class JwtProvider {
         long now = new Date().getTime();
 
 
-        int ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60; // 30분
+        int ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 1; // 1분
         String accessToken = Jwts.builder()
                 .setSubject(member.getEmail())
                 .setIssuedAt(new Date())
@@ -46,7 +46,7 @@ public class JwtProvider {
                 .compact();
 
 
-        int REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 2; // 2주일
+        int REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 2; // 2분
         String refreshToken = Jwts.builder()
                 .setSubject(member.getEmail())
                 .setIssuedAt(new Date())

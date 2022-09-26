@@ -26,7 +26,6 @@ public class MemberService {
 
     @Transactional
     public ResponseEntity<?> reissueJwt(HttpServletRequest request, HttpServletResponse response) {
-            //Member member = getMember();
 
         String refreshToken = request.getHeader("refresh-token");
         Member member;
