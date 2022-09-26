@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import com.innovation.stockstock.service.KakaoMemberService;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -43,5 +42,4 @@ public class MemberController {
     public ResponseEntity<?> logout() {
         return ResponseEntity.ok().body(memberService.logout());
     }
-
 }

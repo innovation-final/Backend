@@ -2,7 +2,6 @@ package com.innovation.stockstock.security.jwt;
 
 import com.innovation.stockstock.dto.TokenDto;
 import com.innovation.stockstock.entity.Member;
-
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -37,7 +36,8 @@ public class JwtProvider {
     public TokenDto generateTokenDto(Member member) {
         long now = new Date().getTime();
 
-        int ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30분
+
+        int ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60; // 30분
         String accessToken = Jwts.builder()
                 .setSubject(member.getEmail())
                 .setIssuedAt(new Date())
@@ -45,8 +45,10 @@ public class JwtProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        int REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 14; // 2주일
+
+        int REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 2; // 2주일
         String refreshToken = Jwts.builder()
+                .setSubject(member.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRE_TIME))
                 .signWith(key, SignatureAlgorithm.HS256)

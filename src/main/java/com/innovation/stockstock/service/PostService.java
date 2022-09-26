@@ -1,10 +1,7 @@
 package com.innovation.stockstock.service;
 
 import com.innovation.stockstock.ErrorCode;
-import com.innovation.stockstock.dto.CommentResponseDto;
-import com.innovation.stockstock.dto.PostResponseDto;
-import com.innovation.stockstock.dto.PostRequestDto;
-import com.innovation.stockstock.dto.ResponseDto;
+import com.innovation.stockstock.dto.*;
 import com.innovation.stockstock.entity.*;
 import com.innovation.stockstock.repository.DislikeRepository;
 import com.innovation.stockstock.repository.LikeRepository;
@@ -12,6 +9,8 @@ import com.innovation.stockstock.repository.PostRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import com.innovation.stockstock.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -81,11 +80,6 @@ public class PostService {
         PostResponseDto postResponseDto = makePostOneResponse(post,responseDtoList,isDonelike,isDoneDislike);
         return ResponseEntity.ok().body(ResponseDto.success(postResponseDto));
     }
-    public ResponseEntity<?> getAllPosts() {
-        List<Post> posts = postRepository.findAllByOrderByCreatedAtDesc();
-        List<PostResponseDto> responseDtoList = makePostResponse(posts);
-        return ResponseEntity.ok().body(ResponseDto.success(responseDtoList));
-    }
 
     public ResponseDto<?> getFivePosts() {
         List<Post> posts = postRepository.findFirst5ByOrderByCreatedAtDesc();
@@ -93,20 +87,8 @@ public class PostService {
         return ResponseDto.success(responseDtoList);
     }
 
-    public ResponseDto<?> getPostsByLikes() {
-        List<Post> posts = postRepository.findAllByOrderByLikesDesc();
-        List<PostResponseDto> responseDtoList = makePostResponse(posts);
-        return ResponseDto.success(responseDtoList);
-    }
-
     public ResponseDto<?> getFivePostsByLikes() {
         List<Post> posts = postRepository.findFirst5ByOrderByLikesDesc();
-        List<PostResponseDto> responseDtoList = makePostResponse(posts);
-        return ResponseDto.success(responseDtoList);
-    }
-
-    public ResponseDto<?> getPostsByOldTime() {
-        List<Post> posts = postRepository.findAllByOrderByCreatedAt();
         List<PostResponseDto> responseDtoList = makePostResponse(posts);
         return ResponseDto.success(responseDtoList);
     }
@@ -193,12 +175,10 @@ public class PostService {
         return userDetails.getMember();
     }
 
-
-//    public ResponseEntity<?> getAllPostsByPages(int page, int size, String sortBy, boolean isAsc) {
-//        Sort.Direction direction = isAsc? Sort.Direction.ASC : Sort.Direction.DESC;
-//        Sort sort = Sort.by(direction, sortBy);
-//        Pageable pageable = PageRequest.of(page,size,sort);
-//        Page<Post> posts = postRepository.findAll(pageable);
-//        return ResponseEntity.ok().body(ResponseDto.success(posts));
-//    }
+    public ResponseEntity<?> getAllPostsByPages(Pageable pageable) {
+        Page<Post> posts = postRepository.findAll(pageable);
+        List<Post> postList = posts.getContent();
+        List<PostResponseDto> responseDtoList = makePostResponse(postList);
+        return ResponseEntity.ok().body(ResponseDto.success(responseDtoList));
+    }
 }
