@@ -23,11 +23,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (path.startsWith("/api/auth/reissue")) {
                 filterChain.doFilter(request, response);
             } else {
-                String accessToken = getAccessTokenFromRequest(request);// 에러
+                String accessToken = getAccessTokenFromRequest(request);
                 if (accessToken != null && jwtProvider.validateToken(accessToken)) {
                     Authentication auth = jwtProvider.getAuthentication(accessToken);
                     SecurityContextHolder.getContext().setAuthentication(auth);
-                    filterChain.doFilter(request, response);
                 } else {
                     request.setAttribute("INVALID_JWT", "INVALID_JWT");
                 }
