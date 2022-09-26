@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -72,13 +73,17 @@ public class PostService {
             return ResponseEntity.ok().body(ResponseDto.success(makePostOneResponse(post, responseDtoList, false, false)));
         }
 
-        // 로그인한 멤버일 때.
-        Member member = getMemberFromJwt(request);
-        // 멤버가 좋아요를 눌렀는 지 여부를 확인
-        boolean isDonelike = likeRepository.existsByMemberAndPost(member, post);
-        boolean isDoneDislike = dislikeRepository.existsByMemberAndPost(member,post);
-        PostResponseDto postResponseDto = makePostOneResponse(post,responseDtoList,isDonelike,isDoneDislike);
-        return ResponseEntity.ok().body(ResponseDto.success(postResponseDto));
+        try {
+            // 로그인한 멤버일 때.
+            Member member = getMemberFromJwt(request);
+            // 멤버가 좋아요를 눌렀는 지 여부를 확인
+            boolean isDonelike = likeRepository.existsByMemberAndPost(member, post);
+            boolean isDoneDislike = dislikeRepository.existsByMemberAndPost(member, post);
+            PostResponseDto postResponseDto = makePostOneResponse(post, responseDtoList, isDonelike, isDoneDislike);
+            return ResponseEntity.ok().body(ResponseDto.success(postResponseDto));
+        }catch(Exception e){
+            return ResponseEntity.ok().body(ResponseDto.success(makePostOneResponse(post,responseDtoList,false,false)));
+        }
     }
 
     public ResponseDto<?> getFivePosts() {
@@ -179,6 +184,10 @@ public class PostService {
         Page<Post> posts = postRepository.findAll(pageable);
         List<Post> postList = posts.getContent();
         List<PostResponseDto> responseDtoList = makePostResponse(postList);
-        return ResponseEntity.ok().body(ResponseDto.success(responseDtoList));
+        Long totalSum = posts.getTotalElements();
+        HashMap<Object,Object> response = new HashMap<>();
+        response.put("총 게시글 개수",totalSum);
+        response.put("페이지당 게시글",responseDtoList);
+        return ResponseEntity.ok().body(ResponseDto.success(response));
     }
 }
