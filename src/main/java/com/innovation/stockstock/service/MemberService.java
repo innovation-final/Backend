@@ -34,6 +34,7 @@ public class MemberService {
             UserDetailsImpl userDetails = (UserDetailsImpl) jwtProvider.getAuthentication(refreshToken).getPrincipal();
             member = userDetails.getMember();
         } catch (ExpiredJwtException e) {
+            refreshTokenRepository.deleteByToken(refreshToken);
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.REFRESH_TOKEN_EXPIRED));
         }
 
@@ -53,12 +54,6 @@ public class MemberService {
 
         tokenFromDB.updateToken(tokenDto.getRefreshToken());
         return ResponseEntity.ok().body(ResponseDto.success("Reissue Success"));
-    }
-
-    private Member getMember() {
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Member member = userDetails.getMember();
-        return member;
     }
 
     public ResponseDto<?> logout() {
