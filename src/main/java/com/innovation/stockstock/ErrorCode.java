@@ -29,8 +29,10 @@ public enum ErrorCode {
     REFRESH_TOKEN_EXPIRED("REFRESH_TOKEN_EXPIRED", "Refresh Token Expired"),
 
     //유저의 권한 없는 요청
-    NOT_ALLOWED("NOT_ALLOWED", "Only The Writer Is Allowed");
+    NOT_ALLOWED("NOT_ALLOWED", "Only The Writer Is Allowed"),
 
+    // 용량 초과
+    FILE_SIZE_EXCEED("FILE_SIZE_EXCEED","File size exceeded. Limit is 20KB.");
     private final String code;
     private final String message;
 }

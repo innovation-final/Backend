@@ -16,11 +16,19 @@ import java.util.List;
 @AllArgsConstructor
 public class Member {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "member_id")
     private Long id;
     private String email;
     private String nickname;
+    private String profileImg;
+
+    private float totalReturnRate;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Achievements> achievements= new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
@@ -42,5 +50,16 @@ public class Member {
     public Member(String email, String nickname) {
         this.email = email;
         this.nickname = nickname;
+    }
+
+    public void update(String nickname,String profileImg) {
+        this.nickname = nickname;
+        this.profileImg = profileImg;
+    }
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+    public void updateProfileImg(String profileImg) {
+        this.profileImg = profileImg;
     }
 }
