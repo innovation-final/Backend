@@ -28,29 +28,9 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final JwtProvider jwtProvider;
     private final PostRepository postRepository;
-<<<<<<< HEAD
 
-    private static PostResponseDto makePostOneResponse(Post post,List<CommentResponseDto> responseDtoList,boolean isDoneLike,boolean isDoneDislike){
-        return PostResponseDto.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .stockName(post.getStockName())
-                .likes(post.getLikes())
-                .dislikes(post.getDislikes())
-                .member(post.getMember())
-                .comments(responseDtoList)
-                .createdAt(String.valueOf(post.getCreatedAt()))
-                .modifiedAt(String.valueOf(post.getModifiedAt()))
-                .isDoneLike(isDoneLike)
-                .isDoneDisLike(isDoneDislike)
-                .build();
-    }
-=======
     @Transactional // 지연로딩 에러 해결
     public ResponseEntity<?> getPost(Long postId,HttpServletRequest request) {
->>>>>>> origin/main
-
         List<CommentResponseDto> responseDtoList = new ArrayList<>();
         Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
