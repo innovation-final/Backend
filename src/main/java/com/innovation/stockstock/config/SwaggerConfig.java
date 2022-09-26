@@ -37,7 +37,7 @@ public class SwaggerConfig {
     }
 
     // swagger에서 jwt 토큰값 넣기위한 설정
-    private ApiKey apiKey(){return new ApiKey("JWT","access-token","header");}
+    private ApiKey apiKey(){return new ApiKey("Authorization","Authorization","header");}
 
     private SecurityContext securityContext() {
         return springfox
@@ -52,7 +52,7 @@ public class SwaggerConfig {
         AuthorizationScope authorizationScope = new AuthorizationScope("global","accessEverything");
         AuthorizationScope[] authorizationScopes=new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
-        return Arrays.asList(new SecurityReference("JWT",authorizationScopes));
+        return Arrays.asList(new SecurityReference("Authorization",authorizationScopes));
 
     }
 
