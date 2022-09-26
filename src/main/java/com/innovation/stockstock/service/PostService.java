@@ -28,9 +28,9 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final JwtProvider jwtProvider;
     private final PostRepository postRepository;
+
     @Transactional // 지연로딩 에러 해결
     public ResponseEntity<?> getPost(Long postId,HttpServletRequest request) {
-
         List<CommentResponseDto> responseDtoList = new ArrayList<>();
         Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
