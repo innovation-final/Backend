@@ -52,13 +52,18 @@ public class PostService {
             return ResponseEntity.ok().body(ResponseDto.success(makePostOneResponse(post, responseDtoList, false, false)));
         }
 
-        // 로그인한 멤버일 때.
-        Member member = getMemberFromJwt(request);
-        // 멤버가 좋아요를 눌렀는 지 여부를 확인
-        boolean isDonelike = likeRepository.existsByMemberAndPost(member, post);
-        boolean isDoneDislike = dislikeRepository.existsByMemberAndPost(member,post);
-        PostResponseDto postResponseDto = makePostOneResponse(post,responseDtoList,isDonelike,isDoneDislike);
-        return ResponseEntity.ok().body(ResponseDto.success(postResponseDto));
+        try {
+            // 로그인한 멤버일 때.
+            Member member = getMemberFromJwt(request);
+            // 멤버가 좋아요를 눌렀는 지 여부를 확인
+            boolean isDonelike = likeRepository.existsByMemberAndPost(member, post);
+            boolean isDoneDislike = dislikeRepository.existsByMemberAndPost(member, post);
+            PostResponseDto postResponseDto = makePostOneResponse(post, responseDtoList, isDonelike, isDoneDislike);
+            return ResponseEntity.ok().body(ResponseDto.success(postResponseDto));
+        } catch (Exception e) {
+            return ResponseEntity.ok().body(ResponseDto.success(makePostOneResponse(post, responseDtoList, false, false)));
+        }
+
     }
 
     public ResponseDto<?> getFivePosts() {

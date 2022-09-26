@@ -26,32 +26,33 @@ public class MemberService {
 
     @Transactional
     public ResponseEntity<?> reissueJwt(HttpServletRequest request, HttpServletResponse response) {
-        //UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        //Member member = userDetails.getMember();
 
         String refreshToken = request.getHeader("refresh-token");
+        Member member;
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) jwtProvider.getAuthentication(refreshToken).getPrincipal();
-        Member member = userDetails.getMember();
         try {
-            RefreshToken tokenFromDB = refreshTokenRepository.findById(member.getEmail()).orElse(null);
-
-            if (!jwtProvider.validateToken(refreshToken)) {
-                return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.INVALID_TOKEN));
-            } else if (tokenFromDB == null) {
-                return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
-            } else if (!refreshToken.equals(tokenFromDB.getToken())) {
-                return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.REFRESH_TOKEN_NOT_ALLOWED));
-            }
-
-            TokenDto tokenDto = jwtProvider.generateTokenDto(member);
-            response.addHeader("Authorization", "BEARER " + tokenDto.getAccessToken());
-            response.addHeader("refresh-token", tokenDto.getRefreshToken());
-
-            tokenFromDB.updateToken(tokenDto.getRefreshToken());
+            UserDetailsImpl userDetails = (UserDetailsImpl) jwtProvider.getAuthentication(refreshToken).getPrincipal();
+            member = userDetails.getMember();
         } catch (ExpiredJwtException e) {
+            refreshTokenRepository.deleteByToken(refreshToken);
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.REFRESH_TOKEN_EXPIRED));
         }
+
+        RefreshToken tokenFromDB = refreshTokenRepository.findById(member.getEmail()).orElse(null);
+
+        if (!jwtProvider.validateToken(refreshToken)) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.INVALID_TOKEN));
+        } else if (tokenFromDB == null) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
+        } else if (!refreshToken.equals(tokenFromDB.getToken())) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.REFRESH_TOKEN_NOT_ALLOWED));
+        }
+
+        TokenDto tokenDto = jwtProvider.generateTokenDto(member);
+        response.addHeader("Authorization", "BEARER " + tokenDto.getAccessToken());
+        response.addHeader("refresh-token", tokenDto.getRefreshToken());
+
+        tokenFromDB.updateToken(tokenDto.getRefreshToken());
         return ResponseEntity.ok().body(ResponseDto.success("Reissue Success"));
     }
 
