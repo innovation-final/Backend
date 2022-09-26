@@ -36,6 +36,7 @@ public class JwtProvider {
     public TokenDto generateTokenDto(Member member) {
         long now = new Date().getTime();
 
+
         int ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60; // 30분
         String accessToken = Jwts.builder()
                 .setSubject(member.getEmail())
@@ -43,6 +44,7 @@ public class JwtProvider {
                 .setExpiration(new Date(now + ACCESS_TOKEN_EXPIRE_TIME))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+
 
         int REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 2; // 2주일
         String refreshToken = Jwts.builder()
