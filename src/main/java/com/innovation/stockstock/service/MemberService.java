@@ -56,6 +56,12 @@ public class MemberService {
         return ResponseEntity.ok().body(ResponseDto.success("Reissue Success"));
     }
 
+    private Member getMember() {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Member member = userDetails.getMember();
+        return member;
+    }
+
     public ResponseDto<?> logout() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         refreshTokenRepository.deleteById(userDetails.getMember().getEmail());

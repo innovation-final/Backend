@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -27,9 +28,9 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final JwtProvider jwtProvider;
     private final PostRepository postRepository;
+
     @Transactional // 지연로딩 에러 해결
     public ResponseEntity<?> getPost(Long postId,HttpServletRequest request) {
-
         List<CommentResponseDto> responseDtoList = new ArrayList<>();
         Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
@@ -60,10 +61,9 @@ public class PostService {
             boolean isDoneDislike = dislikeRepository.existsByMemberAndPost(member, post);
             PostResponseDto postResponseDto = makePostOneResponse(post, responseDtoList, isDonelike, isDoneDislike);
             return ResponseEntity.ok().body(ResponseDto.success(postResponseDto));
-        } catch (Exception e) {
-            return ResponseEntity.ok().body(ResponseDto.success(makePostOneResponse(post, responseDtoList, false, false)));
+        }catch(Exception e){
+            return ResponseEntity.ok().body(ResponseDto.success(makePostOneResponse(post,responseDtoList,false,false)));
         }
-
     }
 
     public ResponseDto<?> getFivePosts() {
@@ -164,6 +164,10 @@ public class PostService {
         Page<Post> posts = postRepository.findAll(pageable);
         List<Post> postList = posts.getContent();
         List<PostResponseDto> responseDtoList = makePostResponse(postList);
-        return ResponseEntity.ok().body(ResponseDto.success(responseDtoList));
+        Long totalSum = posts.getTotalElements();
+        HashMap<Object,Object> response = new HashMap<>();
+        response.put("총 게시글 개수",totalSum);
+        response.put("페이지당 게시글",responseDtoList);
+        return ResponseEntity.ok().body(ResponseDto.success(response));
     }
 }
