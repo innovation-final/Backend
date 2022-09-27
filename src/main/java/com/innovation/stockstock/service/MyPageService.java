@@ -69,6 +69,7 @@ public class MyPageService {
             String s3FileName = UUID.randomUUID() + "-" + profileImg.getOriginalFilename();
             ObjectMetadata objMeta = new ObjectMetadata();
             objMeta.setContentLength(profileImg.getSize());
+            objMeta.setContentType(profileImg.getContentType()); // 이 값을 설정해야 다운로드가 되지 않음
             s3Client.putObject(bucket, s3FileName, profileImg.getInputStream(), objMeta);
 
             String imgUrl = s3Client.getUrl(bucket, s3FileName).toString();
@@ -79,6 +80,7 @@ public class MyPageService {
             String s3FileName = UUID.randomUUID() + "-" + profileImg.getOriginalFilename();
             ObjectMetadata objMeta = new ObjectMetadata();
             objMeta.setContentLength(profileImg.getSize());
+            objMeta.setContentType(profileImg.getContentType());
             s3Client.putObject(bucket, s3FileName, profileImg.getInputStream(), objMeta);
             String imgUrl = s3Client.getUrl(bucket, s3FileName).toString();
             member.update(nickname, imgUrl);
