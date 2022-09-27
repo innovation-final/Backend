@@ -38,15 +38,10 @@ public class MyPageController {
         return ResponseEntity.ok().body(myPageService.deleteMyAccount(request));
     }
 
-    @ExceptionHandler(SizeLimitExceededException.class)
-    protected ResponseEntity<?> SizeLimitExceededException(SizeLimitExceededException e) {
-        log.info("SizeLimitExceededException", e);
+    @ExceptionHandler({SizeLimitExceededException.class,MaxUploadSizeExceededException.class})
+    protected ResponseEntity<?> MaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
+        log.info("MaxUploadSizeExceededException", e);
         return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.FILE_SIZE_EXCEED));
     }
 
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    protected ResponseEntity<?> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
-        log.info("handleMaxUploadSizeExceededException", e);
-        return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.FILE_SIZE_EXCEED));
-    }
 }
