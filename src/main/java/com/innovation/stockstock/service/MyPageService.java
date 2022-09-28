@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +80,8 @@ public class MyPageService {
     }
 
     private String uploadS3(MultipartFile profileImg, Member member) throws IOException {
-        fileDelete(member.getProfileImg());
+        String imgUrl = member.getProfileImg();
+        if(imgUrl!=null){fileDelete(imgUrl);}
         String s3FileName = UUID.randomUUID() + "-" + profileImg.getOriginalFilename();
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setContentLength(profileImg.getSize());
