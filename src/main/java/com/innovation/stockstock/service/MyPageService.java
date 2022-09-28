@@ -1,5 +1,6 @@
 package com.innovation.stockstock.service;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.innovation.stockstock.dto.AchievementsResponseDto;
@@ -66,27 +67,27 @@ public class MyPageService {
             memberRepository.save(member);
             return ResponseDto.success("Nickname Changed");
         } else if (nickname == null && profileImg!=null) {
-            String s3FileName = UUID.randomUUID() + "-" + profileImg.getOriginalFilename();
-            ObjectMetadata objMeta = new ObjectMetadata();
-            objMeta.setContentLength(profileImg.getSize());
-            objMeta.setContentType(profileImg.getContentType()); // 이 값을 설정해야 다운로드가 되지 않음
-            s3Client.putObject(bucket, s3FileName, profileImg.getInputStream(), objMeta);
-
-            String imgUrl = s3Client.getUrl(bucket, s3FileName).toString();
+            String imgUrl=uploadS3(profileImg, member);;
             member.updateProfileImg(imgUrl);
             memberRepository.save(member);
             return ResponseDto.success("Profile_Img Changed");
         } else {
-            String s3FileName = UUID.randomUUID() + "-" + profileImg.getOriginalFilename();
-            ObjectMetadata objMeta = new ObjectMetadata();
-            objMeta.setContentLength(profileImg.getSize());
-            objMeta.setContentType(profileImg.getContentType());
-            s3Client.putObject(bucket, s3FileName, profileImg.getInputStream(), objMeta);
-            String imgUrl = s3Client.getUrl(bucket, s3FileName).toString();
+            String imgUrl = uploadS3(profileImg, member);
             member.update(nickname, imgUrl);
             memberRepository.save(member);
             return ResponseDto.success("Nickname And Profile_Img Changed");
         }
+    }
+
+    private String uploadS3(MultipartFile profileImg, Member member) throws IOException {
+        String imgUrl = member.getProfileImg();
+        if(imgUrl!=null){fileDelete(imgUrl);}
+        String s3FileName = UUID.randomUUID() + "-" + profileImg.getOriginalFilename();
+        ObjectMetadata objMeta = new ObjectMetadata();
+        objMeta.setContentLength(profileImg.getSize());
+        objMeta.setContentType(profileImg.getContentType()); // 이 값을 설정해야 다운로드가 되지 않음
+        s3Client.putObject(bucket, s3FileName, profileImg.getInputStream(), objMeta);
+       return s3Client.getUrl(bucket, s3FileName).toString();
     }
 
     public ResponseDto<?> deleteMyAccount(HttpServletRequest request) {
@@ -101,4 +102,12 @@ public class MyPageService {
         return userDetails.getMember();
     }
 
+    public void fileDelete(String url){
+        try{
+            log.info(url.substring(51));
+            s3Client.deleteObject(this.bucket,url.substring(51));
+        }catch (AmazonServiceException e){
+            log.error(e.getErrorMessage());
+        }
+    }
 }
