@@ -27,7 +27,7 @@ public class MyPageController {
         return ResponseEntity.ok().body(myPageService.getMyProfile(request));
     }
 
-    @PatchMapping("/api/auth/mypage")
+    @PutMapping("/api/auth/mypage")
     public ResponseEntity<?> changeProfile(HttpServletRequest request, @RequestParam(value="nickname",required = false) String nickname,
                                            @RequestPart(value = "img",required = false) MultipartFile multipartFile) throws IOException {
         return ResponseEntity.ok().body(myPageService.changeProfile(request, nickname, multipartFile));

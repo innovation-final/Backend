@@ -32,7 +32,7 @@ public enum ErrorCode {
     NOT_ALLOWED("NOT_ALLOWED", "Only The Writer Is Allowed"),
 
     // 용량 초과
-    FILE_SIZE_EXCEED("FILE_SIZE_EXCEED","File size exceeded. Limit is 20KB.");
+    FILE_SIZE_EXCEED("FILE_SIZE_EXCEED","File size exceeded. Limit is 128KB.");
     private final String code;
     private final String message;
 }
