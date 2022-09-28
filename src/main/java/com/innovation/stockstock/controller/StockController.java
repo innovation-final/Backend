@@ -3,6 +3,7 @@ package com.innovation.stockstock.controller;
 import com.innovation.stockstock.dto.StockResponseDto;
 import com.innovation.stockstock.entity.Stock;
 import com.innovation.stockstock.repository.StockRepository;
+import com.innovation.stockstock.service.StockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,12 +14,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StockController {
     private final StockRepository stockRepository;
+    private final StockService stockService;
 
     @GetMapping("/api/stock/get")
-    public ResponseEntity<?> getInfo(){
+    public ResponseEntity<?> getInfo() {
         List<Stock> stocks = stockRepository.findAll();
         List<StockResponseDto> stockResponseDtoList = new ArrayList<>();
-        for (int i=0;i< stocks.size();i++){
+        for (int i = 0; i < stocks.size(); i++) {
             Stock stock = stocks.get(i);
             StockResponseDto responseDto = StockResponseDto.builder()
                     .id(stock.getId())
@@ -33,5 +35,10 @@ public class StockController {
             stockResponseDtoList.add(responseDto);
         }
         return ResponseEntity.ok(stockResponseDtoList);
+    }
+
+    @GetMapping("/api/stock/rank/{criteria}")
+    public ResponseEntity<?> getRank(@PathVariable String criteria) {
+        return ResponseEntity.ok().body(stockService.getRank(criteria));
     }
 }
