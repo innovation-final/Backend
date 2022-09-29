@@ -1,7 +1,7 @@
 package com.innovation.stockstock.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.innovation.stockstock.dto.PostRequestDto;
+import com.innovation.stockstock.dto.request.PostRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;

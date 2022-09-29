@@ -1,6 +1,6 @@
 package com.innovation.stockstock.controller;
 
-import com.innovation.stockstock.dto.CommentRequestDto;
+import com.innovation.stockstock.dto.request.CommentRequestDto;
 import com.innovation.stockstock.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

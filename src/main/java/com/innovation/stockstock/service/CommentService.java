@@ -1,8 +1,8 @@
 package com.innovation.stockstock.service;
 
 import com.innovation.stockstock.ErrorCode;
-import com.innovation.stockstock.dto.CommentRequestDto;
-import com.innovation.stockstock.dto.ResponseDto;
+import com.innovation.stockstock.dto.request.CommentRequestDto;
+import com.innovation.stockstock.dto.response.ResponseDto;
 import com.innovation.stockstock.entity.Comment;
 import com.innovation.stockstock.entity.Member;
 import com.innovation.stockstock.entity.Post;

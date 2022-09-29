@@ -1,4 +1,4 @@
-package com.innovation.stockstock.dto;
+package com.innovation.stockstock.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

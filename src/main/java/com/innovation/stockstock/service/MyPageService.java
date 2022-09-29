@@ -3,9 +3,9 @@ package com.innovation.stockstock.service;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.innovation.stockstock.dto.AchievementsResponseDto;
-import com.innovation.stockstock.dto.ProfileResponseDto;
-import com.innovation.stockstock.dto.ResponseDto;
+import com.innovation.stockstock.dto.response.AchievementsResponseDto;
+import com.innovation.stockstock.dto.response.ProfileResponseDto;
+import com.innovation.stockstock.dto.response.ResponseDto;
 import com.innovation.stockstock.entity.Achievements;
 import com.innovation.stockstock.entity.Member;
 import com.innovation.stockstock.repository.MemberRepository;
@@ -67,7 +67,7 @@ public class MyPageService {
             memberRepository.save(member);
             return ResponseDto.success("Nickname Changed");
         } else if (nickname == null && profileImg!=null) {
-            String imgUrl=uploadS3(profileImg, member);;
+            String imgUrl=uploadS3(profileImg, member);
             member.updateProfileImg(imgUrl);
             memberRepository.save(member);
             return ResponseDto.success("Profile_Img Changed");
