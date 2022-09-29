@@ -1,7 +1,10 @@
 package com.innovation.stockstock.service;
 
 import com.innovation.stockstock.ErrorCode;
-import com.innovation.stockstock.dto.*;
+import com.innovation.stockstock.dto.request.PostRequestDto;
+import com.innovation.stockstock.dto.response.CommentResponseDto;
+import com.innovation.stockstock.dto.response.PostResponseDto;
+import com.innovation.stockstock.dto.response.ResponseDto;
 import com.innovation.stockstock.entity.*;
 import com.innovation.stockstock.repository.DislikeRepository;
 import com.innovation.stockstock.repository.LikeRepository;

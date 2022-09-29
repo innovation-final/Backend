@@ -1,7 +1,7 @@
 package com.innovation.stockstock.service;
 
 import com.innovation.stockstock.ErrorCode;
-import com.innovation.stockstock.dto.ResponseDto;
+import com.innovation.stockstock.dto.response.ResponseDto;
 import com.innovation.stockstock.dto.TokenDto;
 import com.innovation.stockstock.entity.Member;
 import com.innovation.stockstock.entity.RefreshToken;

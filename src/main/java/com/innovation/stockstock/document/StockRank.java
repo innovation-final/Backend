@@ -1,4 +1,4 @@
-package com.innovation.stockstock.entity;
+package com.innovation.stockstock.document;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

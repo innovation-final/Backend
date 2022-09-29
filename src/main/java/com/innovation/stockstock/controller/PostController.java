@@ -1,6 +1,6 @@
 package com.innovation.stockstock.controller;
 
-import com.innovation.stockstock.dto.PostRequestDto;
+import com.innovation.stockstock.dto.request.PostRequestDto;
 import com.innovation.stockstock.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

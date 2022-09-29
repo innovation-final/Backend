@@ -1,9 +1,12 @@
 package com.innovation.stockstock.service;
 
-import com.innovation.stockstock.dto.ResponseDto;
-import com.innovation.stockstock.dto.StockRankResponseDto;
-import com.innovation.stockstock.entity.StockRank;
+import com.innovation.stockstock.document.Stock;
+import com.innovation.stockstock.dto.response.ResponseDto;
+import com.innovation.stockstock.dto.response.StockRankResponseDto;
+import com.innovation.stockstock.document.StockRank;
+import com.innovation.stockstock.dto.response.StockResponseDto;
 import com.innovation.stockstock.repository.StockRankRepository;
+import com.innovation.stockstock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +18,31 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StockService {
 
+    private final StockRepository stockRepository;
     private final StockRankRepository stockRankRepository;
+
+    public ResponseDto<?> getStock(String stockCode) {
+        ArrayList<Object> result = new ArrayList<>();
+        Stock stock = stockRepository.findByCode(stockCode);
+        result.add(stock.getCode());
+        result.add(stock.getName());
+        result.add(stock.getMarket());
+        List<List<String>> datas = stock.getData();
+        for (List<String> data : datas) {
+            StockResponseDto res = StockResponseDto.builder()
+                    .date(data.get(0))
+                    .open(Integer.parseInt(data.get(1)))
+                    .low(Integer.parseInt(data.get(2)))
+                    .high(Integer.parseInt(data.get(3)))
+                    .close(Integer.parseInt(data.get(4)))
+                    .volume(Long.valueOf(data.get(5)))
+                    .change(Float.parseFloat(data.get(6)))
+                    .build();
+            result.add(res);
+        }
+
+        return ResponseDto.success(result);
+    }
 
     public ResponseDto<?> getRank(String criteria) {
         List<StockRankResponseDto> responseDtoList = new ArrayList<>();

@@ -1,4 +1,4 @@
-package com.innovation.stockstock.dto;
+package com.innovation.stockstock.dto.response;
 
 import com.innovation.stockstock.ErrorCode;
 import lombok.AllArgsConstructor;

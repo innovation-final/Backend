@@ -1,7 +1,7 @@
 package com.innovation.stockstock.controller;
 
 import com.innovation.stockstock.ErrorCode;
-import com.innovation.stockstock.dto.ResponseDto;
+import com.innovation.stockstock.dto.response.ResponseDto;
 import com.innovation.stockstock.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

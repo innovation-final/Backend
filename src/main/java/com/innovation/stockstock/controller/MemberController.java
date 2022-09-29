@@ -1,7 +1,7 @@
 package com.innovation.stockstock.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.innovation.stockstock.dto.ResponseDto;
+import com.innovation.stockstock.dto.response.ResponseDto;
 import com.innovation.stockstock.service.GoogleMemberService;
 import com.innovation.stockstock.service.MemberService;
 import lombok.RequiredArgsConstructor;
