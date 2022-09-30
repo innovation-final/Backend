@@ -40,6 +40,17 @@ public class StockService {
                     .build();
             result.add(res);
         }
+        Map<String, String> current = stock.getCurrent();
+        result.add(StockResponseDto.builder()
+                .date("current")
+                .open(Integer.parseInt(current.get("first_price")))
+                .low(Integer.parseInt(current.get("low_price")))
+                .high(Integer.parseInt(current.get("high_price")))
+                .close(Integer.parseInt(current.get("last_price")))
+                .volume(Long.valueOf(current.get("volume")))
+                .tradingValue(Long.valueOf(current.get("trading_value")))
+                .change(Float.parseFloat(current.get("fluctuation_rate")))
+                .build());
 
         return ResponseDto.success(result);
     }

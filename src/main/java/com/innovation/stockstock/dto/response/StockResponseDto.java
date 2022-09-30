@@ -12,5 +12,6 @@ public class StockResponseDto {
     private int low;
     private int close;
     private Long volume;
+    private Long tradingValue;
     private float change;
 }
