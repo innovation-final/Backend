@@ -10,6 +10,7 @@ import com.innovation.stockstock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,14 +44,14 @@ public class StockService {
         }
         Map<String, String> current = stock.getCurrent();
         result.add(StockResponseDto.builder()
-                .date("current")
+                .date(String.valueOf(LocalDate.now()))
                 .open(Integer.parseInt(current.get("first_price")))
                 .high(Integer.parseInt(current.get("high_price")))
                 .low(Integer.parseInt(current.get("low_price")))
                 .close(Integer.parseInt(current.get("last_price")))
                 .volume(Long.valueOf(current.get("volume")))
                 .tradingValue(Long.valueOf(current.get("trading_value")))
-                .change(Float.parseFloat(current.get("fluctuation_rate")))
+                .change(Float.parseFloat(current.get("fluctuation_rate")) / 100)
                 .build());
 
         return ResponseDto.success(result);

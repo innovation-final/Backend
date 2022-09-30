@@ -23,11 +23,15 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
 
+    @Transactional
     public ResponseEntity<Object> postComment(Long postId, CommentRequestDto commentRequestDto) {
         Member member = getMember();
         Post post = isPresentPost(postId);
         Comment comment = Comment.builder().post(post).content(commentRequestDto.getContent()).member(member).build();
         commentRepository.save(comment);
+
+        post.updateCommentNum(true);
+
         return ResponseEntity.ok().body(ResponseDto.success("Write Comment Success"));
     }
 
@@ -56,6 +60,10 @@ public class CommentService {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NOT_ALLOWED));
         }
         commentRepository.delete(comment);
+
+        Post post = comment.getPost();
+        post.updateCommentNum(false);
+
         return ResponseEntity.ok().body(ResponseDto.success("Delete Comment Success"));
     }
 

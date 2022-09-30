@@ -27,6 +27,7 @@ public class Post extends Timestamped {
     private String stockName;
     private Long likes;
     private Long dislikes;
+    private int commentNum;
 
     @ManyToOne
     @JoinColumn(name = "member_id")
@@ -49,6 +50,7 @@ public class Post extends Timestamped {
         this.stockName = requestDto.getStockName();
         this.likes = 0L;
         this.dislikes = 0L;
+        this.commentNum = 0;
         this.member = member;
     }
 
@@ -73,6 +75,16 @@ public class Post extends Timestamped {
         } else {
             if (dislikes > 0L) {
                 this.dislikes--;
+            }
+        }
+    }
+
+    public void updateCommentNum(Boolean isAdded) {
+        if (isAdded) {
+            this.commentNum++;
+        } else {
+            if (commentNum > 0) {
+                this.commentNum--;
             }
         }
     }

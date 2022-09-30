@@ -17,6 +17,7 @@ public class PostResponseDto {
     private boolean isDoneDisLike;
     private Long likes;
     private Long dislikes;
+    private int commentNum;
     private Member member;
     private List<CommentResponseDto> comments;
     private String createdAt;
