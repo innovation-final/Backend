@@ -15,6 +15,7 @@ public class Stock {
     private String code;
     private String name;
     private String market;
+    private Long marcap;
     private List<List<String>> data;
     private Map<String, String> current;
 }

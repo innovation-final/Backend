@@ -27,6 +27,7 @@ public class StockService {
         result.add(stock.getCode());
         result.add(stock.getName());
         result.add(stock.getMarket());
+        result.add(stock.getMarcap());
         List<List<String>> datas = stock.getData();
         for (List<String> data : datas) {
             StockResponseDto res = StockResponseDto.builder()
