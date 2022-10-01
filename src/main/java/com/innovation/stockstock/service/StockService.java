@@ -1,5 +1,6 @@
 package com.innovation.stockstock.service;
 
+import com.innovation.stockstock.ErrorCode;
 import com.innovation.stockstock.document.FinTable;
 import com.innovation.stockstock.document.News;
 import com.innovation.stockstock.document.Stock;
@@ -13,6 +14,7 @@ import com.innovation.stockstock.repository.NewsRepository;
 import com.innovation.stockstock.repository.StockRankRepository;
 import com.innovation.stockstock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -29,8 +31,11 @@ public class StockService {
     private final NewsRepository newsRepository;
     private final FinTableRepository finTableRepository;
 
-    public ResponseDto<?> getStock(String stockCode) {
+    public ResponseEntity<?> getStock(String stockCode) {
         Stock stock = stockRepository.findByCode(stockCode);
+        if (stock == null) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+        }
         ArrayList<StockDetailDto> result = new ArrayList<>();
         List<List<String>> datas = stock.getData();
         for (List<String> data : datas) {
@@ -63,25 +68,32 @@ public class StockService {
                 .change(Float.parseFloat(current.get("fluctuation_rate")) / 100)
                 .build();
 
-        return ResponseDto.success(StockResponseDto.builder()
-                .code(stock.getCode())
-                .name(stock.getName())
-                .market(stock.getMarket())
-                .marCap(stock.getMarcap())
-                .stockDetail(result)
-                .current(now)
-                .build()
+        return ResponseEntity.ok().body(ResponseDto.success(StockResponseDto.builder()
+                        .code(stock.getCode())
+                        .name(stock.getName())
+                        .market(stock.getMarket())
+                        .marCap(stock.getMarcap())
+                        .stockDetail(result)
+                        .current(now)
+                        .build()
+                )
         );
     }
 
-    public ResponseDto<?> getStockNews(String stockCode) {
+    public ResponseEntity<?> getStockNews(String stockCode) {
         News news = newsRepository.findByCode(stockCode);
-        return ResponseDto.success(news.getData());
+        if (news == null) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+        }
+        return ResponseEntity.ok().body(ResponseDto.success(news.getData()));
     }
 
-    public ResponseDto<?> getStockTable(String stockCode) {
+    public ResponseEntity<?> getStockTable(String stockCode) {
         FinTable table = finTableRepository.findByCode(stockCode);
-        return ResponseDto.success(table.getData());
+        if (table == null) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+        }
+        return ResponseEntity.ok().body(ResponseDto.success(table.getData()));
     }
 
     public ResponseDto<?> getRank(String criteria) {

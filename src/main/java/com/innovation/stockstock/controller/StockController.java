@@ -13,17 +13,17 @@ public class StockController {
 
     @GetMapping("/api/stock/{stockCode}")
     public ResponseEntity<?> getStock(@PathVariable String stockCode) {
-        return ResponseEntity.ok().body(stockService.getStock(stockCode));
+        return stockService.getStock(stockCode);
     }
 
     @GetMapping("/api/stock/news/{stockCode}")
     public ResponseEntity<?> getStockNews(@PathVariable String stockCode) {
-        return ResponseEntity.ok().body(stockService.getStockNews(stockCode));
+        return stockService.getStockNews(stockCode);
     }
 
     @GetMapping("/api/stock/table/{stockCode}")
     public ResponseEntity<?> getStockTable(@PathVariable String stockCode) {
-        return ResponseEntity.ok().body(stockService.getStockTable(stockCode));
+        return stockService.getStockTable(stockCode);
     }
 
     @GetMapping("/api/stock/rank/{criteria}")
