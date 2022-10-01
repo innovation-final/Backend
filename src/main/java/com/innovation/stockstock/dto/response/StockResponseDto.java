@@ -1,17 +1,18 @@
 package com.innovation.stockstock.dto.response;
 
+import com.innovation.stockstock.dto.StockDetailDto;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.List;
 
 @Builder
 @Getter
 public class StockResponseDto {
-    private String date;
-    private int open;
-    private int high;
-    private int low;
-    private int close;
-    private Long volume;
-    private Long tradingValue;
-    private float change;
+    private String code;
+    private String name;
+    private String market;
+    private Long marCap;
+    private List<StockDetailDto> stockDetail;
+    private StockDetailDto current;
 }

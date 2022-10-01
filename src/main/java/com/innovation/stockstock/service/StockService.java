@@ -1,10 +1,15 @@
 package com.innovation.stockstock.service;
 
+import com.innovation.stockstock.document.FinTable;
+import com.innovation.stockstock.document.News;
 import com.innovation.stockstock.document.Stock;
+import com.innovation.stockstock.dto.StockDetailDto;
 import com.innovation.stockstock.dto.response.ResponseDto;
 import com.innovation.stockstock.dto.response.StockRankResponseDto;
 import com.innovation.stockstock.document.StockRank;
 import com.innovation.stockstock.dto.response.StockResponseDto;
+import com.innovation.stockstock.repository.FinTableRepository;
+import com.innovation.stockstock.repository.NewsRepository;
 import com.innovation.stockstock.repository.StockRankRepository;
 import com.innovation.stockstock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,29 +26,33 @@ public class StockService {
 
     private final StockRepository stockRepository;
     private final StockRankRepository stockRankRepository;
+    private final NewsRepository newsRepository;
+    private final FinTableRepository finTableRepository;
 
     public ResponseDto<?> getStock(String stockCode) {
-        ArrayList<Object> result = new ArrayList<>();
         Stock stock = stockRepository.findByCode(stockCode);
-        result.add(stock.getCode());
-        result.add(stock.getName());
-        result.add(stock.getMarket());
-        result.add(stock.getMarcap());
+        ArrayList<StockDetailDto> result = new ArrayList<>();
         List<List<String>> datas = stock.getData();
         for (List<String> data : datas) {
-            StockResponseDto res = StockResponseDto.builder()
+            Float flucRate;
+            try {
+                flucRate = Float.parseFloat(data.get(6));
+            } catch (NumberFormatException e) {
+                flucRate = null;
+            }
+            StockDetailDto res = StockDetailDto.builder()
                     .date(data.get(0))
                     .open(Integer.parseInt(data.get(1)))
                     .high(Integer.parseInt(data.get(2)))
                     .low(Integer.parseInt(data.get(3)))
                     .close(Integer.parseInt(data.get(4)))
                     .volume(Long.valueOf(data.get(5)))
-                    .change(Float.parseFloat(data.get(6)))
+                    .change(flucRate)
                     .build();
             result.add(res);
         }
         Map<String, String> current = stock.getCurrent();
-        result.add(StockResponseDto.builder()
+        StockDetailDto now = StockDetailDto.builder()
                 .date(String.valueOf(LocalDate.now()))
                 .open(Integer.parseInt(current.get("first_price")))
                 .high(Integer.parseInt(current.get("high_price")))
@@ -52,9 +61,27 @@ public class StockService {
                 .volume(Long.valueOf(current.get("volume")))
                 .tradingValue(Long.valueOf(current.get("trading_value")))
                 .change(Float.parseFloat(current.get("fluctuation_rate")) / 100)
-                .build());
+                .build();
 
-        return ResponseDto.success(result);
+        return ResponseDto.success(StockResponseDto.builder()
+                .code(stock.getCode())
+                .name(stock.getName())
+                .market(stock.getMarket())
+                .marCap(stock.getMarcap())
+                .stockDetail(result)
+                .current(now)
+                .build()
+        );
+    }
+
+    public ResponseDto<?> getStockNews(String stockCode) {
+        News news = newsRepository.findByCode(stockCode);
+        return ResponseDto.success(news.getData());
+    }
+
+    public ResponseDto<?> getStockTable(String stockCode) {
+        FinTable table = finTableRepository.findByCode(stockCode);
+        return ResponseDto.success(table.getData());
     }
 
     public ResponseDto<?> getRank(String criteria) {

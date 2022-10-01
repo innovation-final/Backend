@@ -16,6 +16,16 @@ public class StockController {
         return ResponseEntity.ok().body(stockService.getStock(stockCode));
     }
 
+    @GetMapping("/api/stock/news/{stockCode}")
+    public ResponseEntity<?> getStockNews(@PathVariable String stockCode) {
+        return ResponseEntity.ok().body(stockService.getStockNews(stockCode));
+    }
+
+    @GetMapping("/api/stock/table/{stockCode}")
+    public ResponseEntity<?> getStockTable(@PathVariable String stockCode) {
+        return ResponseEntity.ok().body(stockService.getStockTable(stockCode));
+    }
+
     @GetMapping("/api/stock/rank/{criteria}")
     public ResponseEntity<?> getRank(@PathVariable String criteria) {
         return ResponseEntity.ok().body(stockService.getRank(criteria));
