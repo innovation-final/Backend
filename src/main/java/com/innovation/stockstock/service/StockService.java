@@ -1,22 +1,15 @@
 package com.innovation.stockstock.service;
 
 import com.innovation.stockstock.ErrorCode;
-import com.innovation.stockstock.document.FinTable;
-import com.innovation.stockstock.document.News;
-import com.innovation.stockstock.document.Stock;
+import com.innovation.stockstock.document.*;
 import com.innovation.stockstock.dto.StockDetailDto;
 import com.innovation.stockstock.dto.response.ResponseDto;
 import com.innovation.stockstock.dto.response.StockRankResponseDto;
-import com.innovation.stockstock.document.StockRank;
 import com.innovation.stockstock.dto.response.StockResponseDto;
-import com.innovation.stockstock.repository.FinTableRepository;
-import com.innovation.stockstock.repository.NewsRepository;
-import com.innovation.stockstock.repository.StockRankRepository;
-import com.innovation.stockstock.repository.StockRepository;
+import com.innovation.stockstock.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +23,7 @@ public class StockService {
     private final StockRankRepository stockRankRepository;
     private final NewsRepository newsRepository;
     private final FinTableRepository finTableRepository;
+    private final StockIndexRepository stockIndexRepository;
 
     public ResponseEntity<?> getStock(String stockCode) {
         Stock stock = stockRepository.findByCode(stockCode);
@@ -116,5 +110,14 @@ public class StockService {
             responseDtoList.add(rankResponseDto);
         }
         return ResponseDto.success(responseDtoList);
+    }
+
+    public ResponseEntity<?> getIndex(String name) {
+        Index indexInfo = stockIndexRepository.findByName(name);
+        if (indexInfo == null) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+        }
+        List<List<String>> indexlist = indexInfo.getIndex();
+        return ResponseEntity.ok().body(ResponseDto.success(indexlist));
     }
 }
