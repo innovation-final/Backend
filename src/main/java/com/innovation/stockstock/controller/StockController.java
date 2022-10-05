@@ -38,7 +38,6 @@ public class StockController {
         return ResponseEntity.ok().body(stockService.getIndex(name));
     }
 
-
     @GetMapping("/api/auth/stock/like")
     public ResponseEntity<?> getLikeStock() {
         return ResponseEntity.ok().body(stockService.getLikeStock());
@@ -53,4 +52,10 @@ public class StockController {
     public ResponseEntity<?> cancelLikeStock(@PathVariable String stockCode) {
         return ResponseEntity.ok().body(stockService.cancelLikeStock(stockCode));
     }
+
+    @GetMapping("/api/stock/list")
+    public ResponseEntity<?> getList() {
+        return ResponseEntity.ok().body(stockService.getList());
+    }
+
 }

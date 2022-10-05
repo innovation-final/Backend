@@ -55,4 +55,9 @@ public class PostController {
     public ResponseEntity<?> getAllPostsByPages(@PageableDefault(page = 0,size=10,sort="createdAt",direction= Sort.Direction.DESC) Pageable pageable){
             return postService.getAllPostsByPages(pageable);
     }
+
+    @GetMapping("/api/post/stock/{code}")
+    public ResponseEntity<?> getStockPosts(@PathVariable String code){
+        return ResponseEntity.ok(postService.getStockPosts(code));
+    }
 }

@@ -31,6 +31,7 @@ public class StockService {
     private final FinTableRepository finTableRepository;
     private final StockIndexRepository stockIndexRepository;
     private final LikeStockRepository likeStockRepository;
+    private final StockListRepository stockListRepository;
 
     public ResponseEntity<?> getStock(String stockCode, HttpServletRequest request) {
         Stock stock = stockRepository.findByCode(stockCode);
@@ -240,5 +241,10 @@ public class StockService {
             responseDtoList.add(rankResponseDto);
         }
         return responseDtoList;
+    }
+
+    public ResponseDto<?> getList() {
+        List<StockList> stockLists = stockListRepository.findAll();
+        return ResponseDto.success(stockLists);
     }
 }
