@@ -16,4 +16,5 @@ public class StockRankResponseDto {
     private Long volume;
     private Long tradingValue;
     private float fluctuationRate;
+    private boolean isDoneInterest;
 }

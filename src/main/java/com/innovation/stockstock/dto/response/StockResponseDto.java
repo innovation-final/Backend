@@ -15,4 +15,5 @@ public class StockResponseDto {
     private Long marCap;
     private List<StockDetailDto> stockDetail;
     private StockDetailDto current;
+    private boolean isDoneInterest;
 }

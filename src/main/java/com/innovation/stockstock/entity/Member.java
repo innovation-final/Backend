@@ -23,8 +23,11 @@ public class Member {
     private String email;
     private String nickname;
     private String profileImg;
-
     private float totalReturnRate;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(joinColumns = @JoinColumn(name = "stock_id"))
+    private List<String> interests = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
@@ -61,5 +64,12 @@ public class Member {
     }
     public void updateProfileImg(String profileImg) {
         this.profileImg = profileImg;
+    }
+    public void updateStockInterest(String stockCode, Boolean isAdded) {
+        if (isAdded) {
+            interests.add(stockCode);
+        } else {
+            interests.remove(stockCode);
+        }
     }
 }
