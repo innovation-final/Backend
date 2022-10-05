@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,7 +95,6 @@ public class StockService {
                 break;
             }
         }
-
 
         return ResponseEntity.ok().body(ResponseDto.success(StockResponseDto.builder()
                         .code(stock.getCode())
@@ -206,6 +206,7 @@ public class StockService {
         return ResponseDto.success("Like Success");
     }
 
+    @Transactional
     public ResponseDto<?> cancelLikeStock(String stockCode) {
         Member member = getMember();
         likeStockRepository.deleteByMemberIdAndStockId(member.getId(), stockCode);
