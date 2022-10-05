@@ -193,6 +193,7 @@ public class StockService {
                     .marCap(stock.getMarcap())
                     .stockDetail(temp)
                     .current(now)
+                    .isDoneInterest(true)
                     .build());
         }
         return ResponseDto.success(result);
