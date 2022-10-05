@@ -6,6 +6,7 @@ import com.innovation.stockstock.dto.StockDetailDto;
 import com.innovation.stockstock.dto.response.ResponseDto;
 import com.innovation.stockstock.dto.response.StockRankResponseDto;
 import com.innovation.stockstock.dto.response.StockResponseDto;
+import com.innovation.stockstock.entity.LikeStock;
 import com.innovation.stockstock.entity.Member;
 import com.innovation.stockstock.repository.*;
 import com.innovation.stockstock.security.UserDetailsImpl;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -30,8 +30,9 @@ public class StockService {
     private final NewsRepository newsRepository;
     private final FinTableRepository finTableRepository;
     private final StockIndexRepository stockIndexRepository;
+    private final LikeStockRepository likeStockRepository;
 
-    public ResponseEntity<?> getStock(String stockCode) {
+    public ResponseEntity<?> getStock(String stockCode, HttpServletRequest request) {
         Stock stock = stockRepository.findByCode(stockCode);
         if (stock == null) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
@@ -68,6 +69,32 @@ public class StockService {
                 .change(Float.parseFloat(current.get("fluctuation_rate")) / 100)
                 .build();
 
+        String accessToken = request.getHeader("Authorization");
+        if (accessToken == null) {
+            return ResponseEntity.ok().body(ResponseDto.success(StockResponseDto.builder()
+                            .code(stock.getCode())
+                            .name(stock.getName())
+                            .market(stock.getMarket())
+                            .marCap(stock.getMarcap())
+                            .stockDetail(result)
+                            .current(now)
+                            .isDoneInterest(false)
+                            .build()
+                    )
+            );
+        }
+
+        Member member = getMember();
+        List<LikeStock> likeStocks = likeStockRepository.findByMemberId(member.getId());
+        boolean isInterested = false;
+        for (LikeStock likeStock : likeStocks) {
+            if (likeStock.getStockId().equals(stockCode)) {
+                isInterested = true;
+                break;
+            }
+        }
+
+
         return ResponseEntity.ok().body(ResponseDto.success(StockResponseDto.builder()
                         .code(stock.getCode())
                         .name(stock.getName())
@@ -75,6 +102,7 @@ public class StockService {
                         .marCap(stock.getMarcap())
                         .stockDetail(result)
                         .current(now)
+                        .isDoneInterest(isInterested)
                         .build()
                 )
         );
@@ -106,7 +134,8 @@ public class StockService {
         }
 
         Member member = getMember();
-        List<StockRankResponseDto> result = makeStockRankResponse(datas, member.getInterests());
+        List<LikeStock> likeStocks = likeStockRepository.findByMemberId(member.getId());
+        List<StockRankResponseDto> result = makeStockRankResponse(datas, likeStocks);
         return ResponseDto.success(result);
     }
 
@@ -121,11 +150,11 @@ public class StockService {
 
     public ResponseDto<?> getLikeStock() {
         Member member = getMember();
-        List<String> interests = member.getInterests();
+        List<LikeStock> interests = likeStockRepository.findByMemberId(member.getId());
         ArrayList<StockResponseDto> result = new ArrayList<>();
-        for (String interest : interests) {
+        for (LikeStock interest : interests) {
             ArrayList<StockDetailDto> temp = new ArrayList<>();
-            Stock stock = stockRepository.findByCode(interest);
+            Stock stock = stockRepository.findByCode(interest.getStockId());
             List<List<String>> datas = stock.getData();
             for (List<String> data : datas) {
                 Float flucRate;
@@ -169,17 +198,15 @@ public class StockService {
         return ResponseDto.success(result);
     }
 
-    @Transactional
     public ResponseDto<?> likeStock(String stockCode) {
         Member member = getMember();
-        member.updateStockInterest(stockCode, true);
+        likeStockRepository.save(new LikeStock(member, stockCode));
         return ResponseDto.success("Like Success");
     }
 
-    @Transactional
     public ResponseDto<?> cancelLikeStock(String stockCode) {
         Member member = getMember();
-        member.updateStockInterest(stockCode, false);
+        likeStockRepository.deleteByMemberIdAndStockId(member.getId(), stockCode);
         return ResponseDto.success("Like Cancel Success");
     }
 
@@ -188,7 +215,11 @@ public class StockService {
         return userDetails.getMember();
     }
 
-    public List<StockRankResponseDto> makeStockRankResponse(List<Map<String, String>> datas, List<String> codes) {
+    public List<StockRankResponseDto> makeStockRankResponse(List<Map<String, String>> datas, List<LikeStock> likeStocks) {
+        List<String> codes = new ArrayList<>();
+        for (LikeStock stock : likeStocks) {
+            codes.add(stock.getStockId());
+        }
         List<StockRankResponseDto> responseDtoList = new ArrayList<>();
         for (Map<String, String> data : datas) {
             boolean isLike = codes.contains(data.get("stock_code"));

@@ -25,10 +25,6 @@ public class Member {
     private String profileImg;
     private float totalReturnRate;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(joinColumns = @JoinColumn(name = "stock_id"))
-    private List<String> interests = new ArrayList<>();
-
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Achievements> achievements= new ArrayList<>();
@@ -49,6 +45,10 @@ public class Member {
     @JsonIgnore
     private List<DislikePost> dislikePosts = new ArrayList<>();
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<LikeStock> likeStocks = new ArrayList<>();
+
 
     public Member(String email, String nickname) {
         this.email = email;
@@ -64,12 +64,5 @@ public class Member {
     }
     public void updateProfileImg(String profileImg) {
         this.profileImg = profileImg;
-    }
-    public void updateStockInterest(String stockCode, Boolean isAdded) {
-        if (isAdded) {
-            interests.add(stockCode);
-        } else {
-            interests.remove(stockCode);
-        }
     }
 }

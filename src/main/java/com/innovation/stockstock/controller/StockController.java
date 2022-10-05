@@ -14,8 +14,8 @@ public class StockController {
     private final StockService stockService;
 
     @GetMapping("/api/stock/{stockCode}")
-    public ResponseEntity<?> getStock(@PathVariable String stockCode) {
-        return stockService.getStock(stockCode);
+    public ResponseEntity<?> getStock(@PathVariable String stockCode, HttpServletRequest request) {
+        return stockService.getStock(stockCode, request);
     }
 
     @GetMapping("/api/stock/news/{stockCode}")
