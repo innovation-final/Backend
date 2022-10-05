@@ -9,15 +9,14 @@ import lombok.NoArgsConstructor;
 @Data
 public class ChatMessage {
 
-    private String type;
-    private String sender;
-
-//    private String channelId;
-
+    public enum MessageType { //메세지 타입 /참여, 채팅
+        ENTER, TALK, ALARM
+    }
+    private MessageType type;
+    private String sendTime;
+    private String nickName;
+    private Long userId;
+    private String imageUrl;
     private String message;
-
-    public void setSender(String sender) {this.sender = sender;}
-    public void newConnect(){this.type = "new";}
-    public void closeConnect(){this.type = "close";}
 
 }

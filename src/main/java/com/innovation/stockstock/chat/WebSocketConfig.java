@@ -12,7 +12,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/sub"); // 구독 주소 : /sub/channel/
+        registry.enableSimpleBroker("/sub"); // 구독 주소 : /sub/chat
         registry.setApplicationDestinationPrefixes("/pub"); // 발행 주소  : /pub/chat
     }
 
@@ -20,6 +20,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/stomp")
                 .setAllowedOriginPatterns("*");
-        //sockjs쓰면 안됨..
+        //sockjs쓰면 안됨
     }
 }
