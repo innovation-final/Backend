@@ -243,6 +243,14 @@ public class StockService {
         return responseDtoList;
     }
 
+    public ResponseEntity<?> getLikeStockNews(String stockCode) {
+        News news = newsRepository.findByCode(stockCode);
+        if (news == null) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+        }
+        return ResponseEntity.ok().body(ResponseDto.success(news.getData()));
+    }
+
     public ResponseDto<?> getList() {
         List<StockList> stockLists = stockListRepository.findAll();
         return ResponseDto.success(stockLists);
