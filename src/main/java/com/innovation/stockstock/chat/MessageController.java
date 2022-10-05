@@ -15,7 +15,6 @@ public class MessageController {
     @MessageMapping("/chat")
     public void message(ChatMessage chatMessage) throws Exception{
         if (ChatMessage.MessageType.ENTER.equals(chatMessage.getType())) {
-            chatMessage.setMessage(chatMessage.getNickName() + "님이 입장하셨습니다.");
             simpMessageSendingOperations.convertAndSend("/sub/chat", chatMessage);
         } else if(ChatMessage.MessageType.TALK.equals(chatMessage.getType())) {
             simpMessageSendingOperations.convertAndSend("/sub/chat", chatMessage);
