@@ -53,6 +53,11 @@ public class StockController {
         return ResponseEntity.ok().body(stockService.cancelLikeStock(stockCode));
     }
 
+    @GetMapping("/api/auth/stock/like/news/{stockCode}")
+    public ResponseEntity<?> getLikeStockNews(@PathVariable String stockCode) {
+        return stockService.getLikeStockNews(stockCode);
+    }
+
     @GetMapping("/api/stock/list")
     public ResponseEntity<?> getList() {
         return ResponseEntity.ok().body(stockService.getList());
