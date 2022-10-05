@@ -24,6 +24,7 @@ public class StockService {
     private final NewsRepository newsRepository;
     private final FinTableRepository finTableRepository;
     private final StockIndexRepository stockIndexRepository;
+    private final StockListRepository stockListRepository;
 
     public ResponseEntity<?> getStock(String stockCode) {
         Stock stock = stockRepository.findByCode(stockCode);
@@ -119,5 +120,10 @@ public class StockService {
         }
         List<List<String>> indexlist = indexInfo.getIndex();
         return ResponseEntity.ok().body(ResponseDto.success(indexlist));
+    }
+
+    public ResponseDto<?> getList() {
+        List<StockList> stockLists = stockListRepository.findAll();
+        return ResponseDto.success(stockLists);
     }
 }

@@ -1,6 +1,7 @@
 package com.innovation.stockstock.service;
 
 import com.innovation.stockstock.ErrorCode;
+import com.innovation.stockstock.document.StockList;
 import com.innovation.stockstock.dto.request.PostRequestDto;
 import com.innovation.stockstock.dto.response.CommentResponseDto;
 import com.innovation.stockstock.dto.response.PostResponseDto;
@@ -9,6 +10,7 @@ import com.innovation.stockstock.entity.*;
 import com.innovation.stockstock.repository.DislikeRepository;
 import com.innovation.stockstock.repository.LikeRepository;
 import com.innovation.stockstock.repository.PostRepository;
+import com.innovation.stockstock.repository.StockListRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import com.innovation.stockstock.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +34,7 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final JwtProvider jwtProvider;
     private final PostRepository postRepository;
+    private final StockListRepository stockListRepository;
 
     @Transactional // 지연로딩 에러 해결
     public ResponseEntity<?> getPost(Long postId,HttpServletRequest request) {
@@ -174,5 +178,15 @@ public class PostService {
         response.put("총 게시글 개수",totalSum);
         response.put("페이지당 게시글",responseDtoList);
         return ResponseEntity.ok().body(ResponseDto.success(response));
+    }
+
+    public ResponseDto<?> getStockPosts(String code) {
+        Optional<StockList> stock = stockListRepository.findByCode(code);
+        if(stock.isEmpty()){
+            ResponseDto.fail(ErrorCode.NULL_ID);
+        }
+        List<Post> postList = postRepository.findByStockName(stock.get().getName());
+        List<PostResponseDto> postResponseDtoList = makePostResponse(postList);
+        return ResponseDto.success(postResponseDtoList);
     }
 }
