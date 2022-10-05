@@ -23,7 +23,6 @@ public class Member {
     private String email;
     private String nickname;
     private String profileImg;
-
     private float totalReturnRate;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -45,6 +44,10 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<DislikePost> dislikePosts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<LikeStock> likeStocks = new ArrayList<>();
 
 
     public Member(String email, String nickname) {
