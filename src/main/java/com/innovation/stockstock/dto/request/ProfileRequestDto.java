@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
 public class ProfileRequestDto {
     private String nickname;
