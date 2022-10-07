@@ -24,7 +24,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
             } else {
                 String accessToken = getAccessTokenFromRequest(request);
-                if (accessToken != null && jwtProvider.validateToken(accessToken)) {
+                if (jwtProvider.validateToken(accessToken)) {
                     Authentication auth = jwtProvider.getAuthentication(accessToken);
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 } else {
@@ -42,9 +42,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private String getAccessTokenFromRequest(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization");
-        if (accessToken.startsWith("BEARER ")) {
+        try {
             return accessToken.substring("BEARER ".length());
+        } catch (NullPointerException e) {
+            return null;
         }
-        return null;
     }
 }
