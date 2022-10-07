@@ -22,6 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,8 +40,7 @@ public class MyPageService {
     private final AmazonS3Client s3Client;
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
-
-    @Transactional
+    
     public ResponseDto<?> getMyProfile(HttpServletRequest request) {
         Member member = getMemberFromJwt(request);
         List<AchievementsResponseDto> achievementsList = new ArrayList<>();
@@ -113,8 +116,8 @@ public class MyPageService {
 
     public void fileDelete(String url){
         try{
-            log.info(url.substring(51));
-            s3Client.deleteObject(this.bucket,url.substring(51));
+            String decodeVal = URLDecoder.decode(url.substring(51), StandardCharsets.UTF_8);
+            s3Client.deleteObject(this.bucket,decodeVal);
         }catch (AmazonServiceException e){
             log.error(e.getErrorMessage());
         }
