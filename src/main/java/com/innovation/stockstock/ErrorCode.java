@@ -33,6 +33,7 @@ public enum ErrorCode {
 
     // 용량 초과
     FILE_SIZE_EXCEED("FILE_SIZE_EXCEED","File size exceeded. Limit is 128KB.");
+
     private final String code;
     private final String message;
 }

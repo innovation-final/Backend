@@ -1,6 +1,7 @@
 package com.innovation.stockstock.controller;
 
 import com.innovation.stockstock.ErrorCode;
+import com.innovation.stockstock.dto.request.ProfileRequestDto;
 import com.innovation.stockstock.dto.response.ResponseDto;
 import com.innovation.stockstock.service.MyPageService;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,6 @@ import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
@@ -27,10 +27,9 @@ public class MyPageController {
         return ResponseEntity.ok().body(myPageService.getMyProfile(request));
     }
 
-    @PutMapping("/api/auth/mypage")
-    public ResponseEntity<?> changeProfile(HttpServletRequest request, @RequestParam(value="nickname", required = false) String nickname,
-                                           @RequestPart(value = "img", required = false) MultipartFile multipartFile) throws IOException {
-        return ResponseEntity.ok().body(myPageService.changeProfile(request, nickname, multipartFile));
+    @PatchMapping("/api/auth/mypage")
+    public ResponseEntity<?> changeProfile(HttpServletRequest request, @ModelAttribute ProfileRequestDto requestDto) {
+        return myPageService.changeProfile(request, requestDto);
     }
 
     @DeleteMapping("/api/auth/mypage")

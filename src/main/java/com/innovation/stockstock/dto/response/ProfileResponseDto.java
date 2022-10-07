@@ -13,6 +13,7 @@ import java.util.List;
 public class ProfileResponseDto {
     private String nickname;
     private String profileImg;
+    private String profileMsg;
     private String email;
     private float totalReturnRate;
     private List<AchievementsResponseDto> achievements;
