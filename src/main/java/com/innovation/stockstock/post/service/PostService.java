@@ -3,8 +3,8 @@ package com.innovation.stockstock.post.service;
 import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.comment.domain.Comment;
 import com.innovation.stockstock.comment.dto.CommentResponseDto;
-import com.innovation.stockstock.like.repository.DislikeRepository;
-import com.innovation.stockstock.like.repository.LikeRepository;
+import com.innovation.stockstock.post.repository.DislikeRepository;
+import com.innovation.stockstock.post.repository.LikeRepository;
 import com.innovation.stockstock.post.domain.Post;
 import com.innovation.stockstock.post.dto.PostRequestDto;
 import com.innovation.stockstock.post.dto.PostResponseDto;
@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -183,11 +182,11 @@ public class PostService {
     }
 
     public ResponseDto<?> getStockPosts(String code) {
-        Optional<StockList> stock = stockListRepository.findByCode(code);
-        if(stock.isEmpty()){
-            ResponseDto.fail(ErrorCode.NULL_ID);
+        StockList stock = stockListRepository.findByCode(code);
+        if(stock == null){
+            return ResponseDto.fail(ErrorCode.NULL_ID);
         }
-        List<Post> postList = postRepository.findByStockName(stock.get().getName());
+        List<Post> postList = postRepository.findByStockName(stock.getName());
         List<PostResponseDto> postResponseDtoList = makePostResponse(postList);
         return ResponseDto.success(postResponseDtoList);
     }

@@ -1,7 +1,7 @@
-package com.innovation.stockstock.like.controller;
+package com.innovation.stockstock.post.controller;
 
 
-import com.innovation.stockstock.like.service.LikeService;
+import com.innovation.stockstock.post.service.LikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

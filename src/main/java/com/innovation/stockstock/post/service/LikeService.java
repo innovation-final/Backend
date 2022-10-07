@@ -1,11 +1,11 @@
-package com.innovation.stockstock.like.service;
+package com.innovation.stockstock.post.service;
 
 import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.common.dto.ResponseDto;
-import com.innovation.stockstock.like.domain.DislikePost;
-import com.innovation.stockstock.like.domain.LikePost;
-import com.innovation.stockstock.like.repository.DislikeRepository;
-import com.innovation.stockstock.like.repository.LikeRepository;
+import com.innovation.stockstock.post.domain.DislikePost;
+import com.innovation.stockstock.post.domain.LikePost;
+import com.innovation.stockstock.post.repository.DislikeRepository;
+import com.innovation.stockstock.post.repository.LikeRepository;
 import com.innovation.stockstock.post.domain.Post;
 import com.innovation.stockstock.post.repository.PostRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;

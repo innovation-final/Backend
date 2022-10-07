@@ -3,8 +3,6 @@ package com.innovation.stockstock.post.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.innovation.stockstock.common.dto.Timestamped;
 import com.innovation.stockstock.comment.domain.Comment;
-import com.innovation.stockstock.like.domain.DislikePost;
-import com.innovation.stockstock.like.domain.LikePost;
 import com.innovation.stockstock.post.dto.PostRequestDto;
 import com.innovation.stockstock.member.domain.Member;
 import lombok.Getter;

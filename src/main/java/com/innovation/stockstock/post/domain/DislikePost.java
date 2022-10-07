@@ -1,6 +1,5 @@
-package com.innovation.stockstock.like.domain;
+package com.innovation.stockstock.post.domain;
 
-import com.innovation.stockstock.post.domain.Post;
 import com.innovation.stockstock.member.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
