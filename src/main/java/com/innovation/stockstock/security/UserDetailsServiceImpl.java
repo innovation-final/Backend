@@ -1,7 +1,7 @@
 package com.innovation.stockstock.security;
 
-import com.innovation.stockstock.entity.Member;
-import com.innovation.stockstock.repository.MemberRepository;
+import com.innovation.stockstock.member.domain.Member;
+import com.innovation.stockstock.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

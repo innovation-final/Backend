@@ -1,6 +1,6 @@
 package com.innovation.stockstock.notification.service;
 
-import com.innovation.stockstock.entity.Member;
+import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.notification.repository.EmitterRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;

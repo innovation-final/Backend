@@ -1,14 +1,14 @@
 package com.innovation.stockstock.notification.service;
 
-import com.innovation.stockstock.ErrorCode;
-import com.innovation.stockstock.dto.response.ResponseDto;
-import com.innovation.stockstock.entity.Member;
+import com.innovation.stockstock.common.ErrorCode;
+import com.innovation.stockstock.common.dto.ResponseDto;
+import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.notification.domain.Notification;
 import com.innovation.stockstock.notification.dto.NotificationRequestDto;
 import com.innovation.stockstock.notification.dto.NotificationResponseDto;
 import com.innovation.stockstock.notification.repository.EmitterRepository;
 import com.innovation.stockstock.notification.repository.NotificationRepository;
-import com.innovation.stockstock.repository.MemberRepository;
+import com.innovation.stockstock.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

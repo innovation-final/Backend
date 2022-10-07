@@ -1,7 +1,7 @@
 package com.innovation.stockstock.notification.domain;
 
-import com.innovation.stockstock.entity.Member;
-import com.innovation.stockstock.entity.Timestamped;
+import com.innovation.stockstock.member.domain.Member;
+import com.innovation.stockstock.common.dto.Timestamped;
 import com.innovation.stockstock.notification.dto.NotificationRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

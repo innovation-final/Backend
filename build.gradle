@@ -59,6 +59,8 @@ dependencies {
     //Websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    //Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {

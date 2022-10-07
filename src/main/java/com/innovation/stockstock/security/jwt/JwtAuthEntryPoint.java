@@ -1,8 +1,8 @@
 package com.innovation.stockstock.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.innovation.stockstock.ErrorCode;
-import com.innovation.stockstock.dto.response.ResponseDto;
+import com.innovation.stockstock.common.ErrorCode;
+import com.innovation.stockstock.common.dto.ResponseDto;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;

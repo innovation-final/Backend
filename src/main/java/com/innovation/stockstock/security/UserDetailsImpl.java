@@ -1,6 +1,6 @@
 package com.innovation.stockstock.security;
 
-import com.innovation.stockstock.entity.Member;
+import com.innovation.stockstock.member.domain.Member;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

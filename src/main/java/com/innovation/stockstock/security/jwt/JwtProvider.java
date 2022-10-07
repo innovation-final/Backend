@@ -1,7 +1,6 @@
 package com.innovation.stockstock.security.jwt;
 
-import com.innovation.stockstock.dto.TokenDto;
-import com.innovation.stockstock.entity.Member;
+import com.innovation.stockstock.member.domain.Member;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
