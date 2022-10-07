@@ -149,6 +149,14 @@ public class StockService {
         return ResponseEntity.ok().body(ResponseDto.success(indexlist));
     }
 
+    public ResponseEntity<?> getIndexToday(String name) {
+        Index index = stockIndexRepository.findByName(name);
+        if (index == null) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+        }
+        return ResponseEntity.ok().body(ResponseDto.success(index.getCurrent()));
+    }
+
     public ResponseDto<?> getLikeStock() {
         Member member = getMember();
         List<LikeStock> interests = likeStockRepository.findByMemberId(member.getId());

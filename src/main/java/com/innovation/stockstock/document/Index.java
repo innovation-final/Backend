@@ -17,4 +17,5 @@ public class Index {
     private String id;
     private String name;
     private List<List<String>> index;
+    private int current;
 }
