@@ -92,6 +92,7 @@ public class WebSecurityConfig extends WebMvcConfigurationSupport {
                 .allowedHeaders("*")
                 .allowedOrigins("http://localhost:3000")
                 .allowedOrigins("http://innovationcamp1234.shop")
+                .allowedOrigins("https://innovationcamp1234.shop")
                 .exposedHeaders("*")
                 .allowCredentials(true);
     }
