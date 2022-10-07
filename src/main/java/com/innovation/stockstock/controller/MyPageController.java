@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 
 @Slf4j
 @RestController
