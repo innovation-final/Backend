@@ -1,6 +1,6 @@
 package com.innovation.stockstock.notification.controller;
 
-import com.innovation.stockstock.entity.Member;
+import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.notification.service.EmitterService;
 import com.innovation.stockstock.notification.service.NotificationService;
 import com.innovation.stockstock.security.UserDetailsImpl;
