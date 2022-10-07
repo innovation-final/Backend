@@ -23,6 +23,7 @@ public class Member {
     private String email;
     private String nickname;
     private String profileImg;
+    private String profileMsg;
     private float totalReturnRate;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -55,14 +56,14 @@ public class Member {
         this.nickname = nickname;
     }
 
-    public void update(String nickname,String profileImg) {
-        this.nickname = nickname;
-        this.profileImg = profileImg;
-    }
+
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
     public void updateProfileImg(String profileImg) {
         this.profileImg = profileImg;
+    }
+    public void updateProfileMsg(String profileMsg) {
+        this.profileMsg = profileMsg;
     }
 }
