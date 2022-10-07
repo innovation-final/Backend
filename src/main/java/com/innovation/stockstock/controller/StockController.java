@@ -35,7 +35,12 @@ public class StockController {
 
     @GetMapping("/api/stock/index/{name}")
     public ResponseEntity<?> getIndex(@PathVariable String name) {
-        return ResponseEntity.ok().body(stockService.getIndex(name));
+        return stockService.getIndex(name);
+    }
+
+    @GetMapping("/api/stock/index/main/{name}")
+    public ResponseEntity<?> getIndexToday(@PathVariable String name) {
+        return stockService.getIndexToday(name);
     }
 
     @GetMapping("/api/auth/stock/like")
