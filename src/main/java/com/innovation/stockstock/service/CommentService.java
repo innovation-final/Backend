@@ -6,10 +6,14 @@ import com.innovation.stockstock.dto.response.ResponseDto;
 import com.innovation.stockstock.entity.Comment;
 import com.innovation.stockstock.entity.Member;
 import com.innovation.stockstock.entity.Post;
+import com.innovation.stockstock.notification.domain.Event;
+import com.innovation.stockstock.notification.dto.NotificationRequestDto;
+import com.innovation.stockstock.notification.service.NotificationService;
 import com.innovation.stockstock.repository.CommentRepository;
 import com.innovation.stockstock.repository.PostRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,7 +26,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-
+    private final NotificationService notificationService;
     @Transactional
     public ResponseEntity<Object> postComment(Long postId, CommentRequestDto commentRequestDto) {
         Member member = getMember();
@@ -31,7 +35,8 @@ public class CommentService {
         commentRepository.save(comment);
 
         post.updateCommentNum(true);
-
+        NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.댓글, member.getNickname()+"님이 댓글을 달았습니다.");
+        notificationService.send(post.getMember().getId(), notificationRequestDto);
         return ResponseEntity.ok().body(ResponseDto.success("Write Comment Success"));
     }
 
