@@ -10,7 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-
 @RequiredArgsConstructor
 @RestController
 public class NotificationController {
@@ -39,8 +38,8 @@ public class NotificationController {
         return ResponseEntity.ok().body(notificationService.deleteNotification(member.getId()));
     }
 
-    @GetMapping(value = "/api/subscribe", produces = "text/event-stream")
-    public SseEmitter subscribe(@RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
-        return emitterService.createEmitter(lastEventId);
+    @GetMapping(value = "/api/subscribe/{id}", produces = "text/event-stream")
+    public SseEmitter subscribe(@PathVariable Long id, @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
+        return emitterService.createEmitter(id, lastEventId);
     }
 }
