@@ -31,7 +31,7 @@ public class EmitterService {
         sendToClient(emitter, id, "EventStream Created. [nickName="+member.get().getNickname()+"]");
 
         if (!lastEventId.isEmpty()) {
-            Map<String, Object> events = emitterRepository.findAllEventCacheStartWithByMemberId(String.valueOf(member.getId()));
+            Map<String, Object> events = emitterRepository.findAllEventCacheStartWithByMemberId(String.valueOf(member.get().getId()));
             events.entrySet().stream()
                     .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
                     .forEach(entry -> sendToClient(emitter, entry.getKey(), entry.getValue()));
