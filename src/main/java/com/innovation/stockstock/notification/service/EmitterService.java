@@ -20,13 +20,11 @@ import java.util.Optional;
 public class EmitterService {
     private final EmitterRepository emitterRepository;
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60 * 24;
-
-    private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
 
-    public SseEmitter createEmitter(HttpServletRequest request, String lastEventId) {
-        Member member = getMemberFromJwt(request);
-        String id = member.getId()+"_"+System.currentTimeMillis();
+    public SseEmitter createEmitter(Long userid, String lastEventId) {
+        Optional<Member> member = memberRepository.findById(userid);
+        String id = member.get().getId()+"_"+System.currentTimeMillis();
 
         SseEmitter emitter = emitterRepository.save(id, new SseEmitter(DEFAULT_TIMEOUT));
 
@@ -34,10 +32,10 @@ public class EmitterService {
         emitter.onTimeout(() -> emitterRepository.deleteById(id));
         emitter.onError(e -> {emitterRepository.deleteById(id);});
 
-        sendToClient(emitter, id, "EventStream Created. [nickName="+member.getNickname()+"]");
+        sendToClient(emitter, id, "EventStream Created. [nickName="+member.get().getNickname()+"]");
 
         if (!lastEventId.isEmpty()) {
-            Map<String, Object> events = emitterRepository.findAllEventCacheStartWithByMemberId(String.valueOf(member.getId()));
+            Map<String, Object> events = emitterRepository.findAllEventCacheStartWithByMemberId(String.valueOf(member.get().getId()));
             events.entrySet().stream()
                     .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
                     .forEach(entry -> sendToClient(emitter, entry.getKey(), entry.getValue()));
@@ -56,11 +54,4 @@ public class EmitterService {
             throw new RuntimeException("연결 오류!");
         }
     }
-    private Member getMemberFromJwt(HttpServletRequest request) {
-        Authentication authentication = jwtProvider.getAuthentication(request.getHeader("Authorization").substring(7));
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        return userDetails.getMember();
-    }
-
-
 }

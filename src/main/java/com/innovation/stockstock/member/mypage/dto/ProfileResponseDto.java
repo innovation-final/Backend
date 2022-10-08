@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProfileResponseDto {
+    private Long id;
     private String nickname;
     private String profileImg;
     private String profileMsg;

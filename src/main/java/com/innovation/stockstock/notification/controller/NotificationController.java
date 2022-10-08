@@ -40,8 +40,8 @@ public class NotificationController {
         return ResponseEntity.ok().body(notificationService.deleteNotification(member.getId()));
     }
 
-    @GetMapping(value = "/api/subscribe", produces = "text/event-stream")
-    public SseEmitter subscribe(HttpServletRequest request, @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
-        return emitterService.createEmitter(request, lastEventId);
+    @GetMapping(value = "/api/auth/subscribe/{id}", produces = "text/event-stream")
+    public SseEmitter subscribe(@PathVariable Long id, @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
+        return emitterService.createEmitter(id, lastEventId);
     }
 }

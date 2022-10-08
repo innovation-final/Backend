@@ -54,6 +54,7 @@ public class MyPageService {
         }
         return ResponseDto.success(
                 ProfileResponseDto.builder()
+                        .id(member.getId())
                         .email(member.getEmail())
                         .nickname(member.getNickname())
                         .profileImg(member.getProfileImg())
