@@ -27,7 +27,7 @@ public class Member {
     private Long id;
     private String email;
     private String nickname;
-    private String profileImg;
+    private String profileImg = "https://stockstock.s3.ap-northeast-2.amazonaws.com/0b367fe8-bd78-4901-b54f-5e0d14a4a0b7-%EA%B0%9C%EB%AF%B8.jpg";
     private String profileMsg;
     private float totalReturnRate;
 
