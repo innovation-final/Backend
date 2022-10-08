@@ -5,12 +5,12 @@ import com.innovation.stockstock.post.domain.Post;
 import com.innovation.stockstock.comment.domain.Comment;
 import com.innovation.stockstock.post.domain.DislikePost;
 import com.innovation.stockstock.post.domain.LikePost;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.beans.factory.annotation.Value;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +20,9 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class Member {
+    @Transient
+    @Value("${basic.image}")
+    private String basicImg;
 
     @Id
     @GeneratedValue
@@ -27,7 +30,7 @@ public class Member {
     private Long id;
     private String email;
     private String nickname;
-    private String profileImg = "https://stockstock.s3.ap-northeast-2.amazonaws.com/0b367fe8-bd78-4901-b54f-5e0d14a4a0b7-%EA%B0%9C%EB%AF%B8.jpg";
+    private String profileImg = basicImg;
     private String profileMsg;
     private float totalReturnRate;
 
@@ -59,8 +62,6 @@ public class Member {
         this.email = email;
         this.nickname = nickname;
     }
-
-
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }

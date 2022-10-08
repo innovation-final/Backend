@@ -35,6 +35,8 @@ public class MyPageService {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+    @Value("${basic.image}")
+    private String basicImg;
     private final AmazonS3Client s3Client;
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
@@ -103,7 +105,7 @@ public class MyPageService {
 
     private String uploadS3(MultipartFile profileImg, Member member) throws IOException {
         String imgUrl = member.getProfileImg();
-        if(imgUrl!=null){fileDelete(imgUrl);}
+        if(imgUrl!=null && !imgUrl.equals(basicImg)){fileDelete(imgUrl);}
         String s3FileName = UUID.randomUUID() + "-" + profileImg.getOriginalFilename();
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setContentLength(profileImg.getSize());
