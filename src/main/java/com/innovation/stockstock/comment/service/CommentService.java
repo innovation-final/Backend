@@ -54,6 +54,7 @@ public class CommentService {
 
     }
 
+    @Transactional
     public ResponseEntity<Object> deleteComment(Long commentId) {
         Member member = getMember();
         Comment comment = isPresentComment(commentId);
