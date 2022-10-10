@@ -3,14 +3,9 @@ package com.innovation.stockstock.notification.service;
 import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.member.repository.MemberRepository;
 import com.innovation.stockstock.notification.repository.EmitterRepository;
-import com.innovation.stockstock.security.UserDetailsImpl;
-import com.innovation.stockstock.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
@@ -22,35 +17,36 @@ public class EmitterService {
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60 * 24;
     private final MemberRepository memberRepository;
 
-    public SseEmitter createEmitter(Long userid, String lastEventId) {
-        Optional<Member> member = memberRepository.findById(userid);
-        String id = member.get().getId()+"_"+System.currentTimeMillis();
+    public SseEmitter createEmitter(Long memberId, String lastEventId) {
+        Optional<Member> member = memberRepository.findById(memberId);
+        String emitterId = member.get().getId()+"_"+System.currentTimeMillis();
 
-        SseEmitter emitter = emitterRepository.save(id, new SseEmitter(DEFAULT_TIMEOUT));
+        SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
-        emitter.onCompletion(() -> emitterRepository.deleteById(id));
-        emitter.onTimeout(() -> emitterRepository.deleteById(id));
-        emitter.onError(e -> {emitterRepository.deleteById(id);});
+        emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
+        emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
+        emitter.onError(e -> {emitterRepository.deleteById(emitterId);});
 
-        sendToClient(emitter, id, "EventStream Created. [nickName="+member.get().getNickname()+"]");
+        String eventId = memberId + "_" + System.currentTimeMillis();
+        sendToClient(emitter, eventId, emitterId, "EventStream Created. [nickName="+member.get().getNickname()+"]");
 
         if (!lastEventId.isEmpty()) {
-            Map<String, Object> events = emitterRepository.findAllEventCacheStartWithByMemberId(String.valueOf(member.get().getId()));
+            Map<String, Object> events = emitterRepository.findAllEventCacheStartWithByMemberId(String.valueOf(memberId));
             events.entrySet().stream()
                     .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
-                    .forEach(entry -> sendToClient(emitter, entry.getKey(), entry.getValue()));
+                    .forEach(entry -> sendToClient(emitter, entry.getKey(), emitterId, entry.getValue()));
         }
         return emitter;
     }
 
-    public void sendToClient(SseEmitter emitter, String id, Object data) {
+    public void sendToClient(SseEmitter emitter, String eventId, String emitterId, Object data) {
         try {
             emitter.send(SseEmitter.event()
-                    .id(id)
+                    .id(eventId)
                     .name("sse")
                     .data(data));
         } catch (IOException exception) {
-            emitterRepository.deleteById(id);
+            emitterRepository.deleteById(emitterId);
             throw new RuntimeException("연결 오류!");
         }
     }

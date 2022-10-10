@@ -12,8 +12,8 @@ public class EmitterRepository {
     private Map<String, SseEmitter> emitterMap = new ConcurrentHashMap<>();
     private final Map<String, Object> eventCache = new ConcurrentHashMap<>();
 
-    public SseEmitter save(String id, SseEmitter emitter) {
-        emitterMap.put(id, emitter);
+    public SseEmitter save(String emitterId, SseEmitter emitter) {
+        emitterMap.put(emitterId, emitter);
         return emitter;
     }
     public void saveEventCache(String eventCacheId, Object event) {
@@ -29,9 +29,9 @@ public class EmitterRepository {
                 .filter(entry -> entry.getKey().startsWith(memberId))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
-    public void deleteById(String id) {
+    public void deleteById(String emitterId) {
         if (emitterMap != null) {
-            emitterMap.remove(id);
+            emitterMap.remove(emitterId);
         }
     }
     public void deleteAllEmitterStartWithId(String memberId) {

@@ -28,22 +28,25 @@ public class NotificationService {
     private final MemberRepository memberRepository;
     private final EmitterService emitterService;
 
-    public ResponseDto<?> send(Long id, NotificationRequestDto requestDto) {
-        Optional<Member> member = memberRepository.findById(id);
+    public ResponseDto<?> send(Long memberId, NotificationRequestDto requestDto) {
+        Optional<Member> member = memberRepository.findById(memberId);
         if(member.isEmpty()){
             return ResponseDto.fail(ErrorCode.NULL_ID);
         }
         if (requestDto == null) {
             return ResponseDto.fail(ErrorCode.NULL_ID);
         }
-        Notification notification = new Notification(requestDto, member.get());
 
-        Map<String, SseEmitter> sseEmitters = emitterRepository.findAllEmitterStartWithByMemberId(String.valueOf(id));
+        Notification notification = new Notification(requestDto, member.get());
+        notificationRepository.save(notification);
+        String eventId = memberId + "_" + System.currentTimeMillis();
+
+        Map<String, SseEmitter> sseEmitters = emitterRepository.findAllEmitterStartWithByMemberId(String.valueOf(memberId));
 
         sseEmitters.forEach(
                 (key, emitter) -> {
                     emitterRepository.saveEventCache(key, notification);
-                    emitterService.sendToClient(emitter, key, new NotificationResponseDto(notification));
+                    emitterService.sendToClient(emitter, eventId, key, new NotificationResponseDto(notification));
                 }
         );
         return ResponseDto.success("Send Notification");

@@ -27,8 +27,10 @@ public class Notification extends Timestamped {
     private boolean isRead;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    // 알람을 누르면 이동할 링크
 
     public Notification(NotificationRequestDto requestDto, Member member) {
         this.type = requestDto.getType();
