@@ -12,13 +12,13 @@ public class AccountController {
     private final AccountService accountService;
 
     // 계좌 생성
-    @PatchMapping("/api/auth/account/make")
+    @PatchMapping("/api/auth/account")
     public ResponseEntity<?> makeAccount(@RequestBody AccountRequestDto accountRequestDto){
         return ResponseEntity.ok(accountService.makeAccount(accountRequestDto));
     }
 
     // 계좌 정보 조회
-    @GetMapping("/api/auth/account/balance")
+    @GetMapping("/api/auth/account")
     public ResponseEntity<?> getBalance(){
         return ResponseEntity.ok(accountService.balance());
     }

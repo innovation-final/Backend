@@ -34,7 +34,7 @@ public class AccountService {
                 .accountNumber(member.getId()+System.currentTimeMillis())
                 .deposit(Long.valueOf(accountRequestDto.getDeposit()))
                 .targetReturnRate(accountRequestDto.getTargetReturnRate())
-                .totalReturnRate(0L)
+                .totalReturnRate(0F)
                 .totalProfit(0L)
                 .expireAt(expiredAt)
                 .member(member)
@@ -48,7 +48,9 @@ public class AccountService {
         Member member = getMember();
         List<StockHoldingResponseDto> responseDtoList = new ArrayList<>();
         Account account = accountRepository.findByMember(member);
-
+        if(account == null){
+            return ResponseDto.fail(ErrorCode.NULL_ID);
+        }
         for (StockHolding stockHolding : account.getStockHoldingsList()) {
             StockHoldingResponseDto responseDto = StockHoldingResponseDto.builder()
                     .id(stockHolding.getId())
