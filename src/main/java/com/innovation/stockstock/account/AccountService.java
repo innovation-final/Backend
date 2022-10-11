@@ -11,6 +11,7 @@ import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
@@ -23,10 +24,10 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
 
-    public ResponseDto<?> makeAccount(AccountRequestDto accountRequestDto) {
+    public ResponseEntity<?> makeAccount(AccountRequestDto accountRequestDto) {
         Member member = getMember();
         if (accountRepository.findByMember(member)!=null){
-            return ResponseDto.fail(ErrorCode.NOT_DUPLICATES);
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NOT_DUPLICATES));
         };
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiredAt = now.plusDays(accountRequestDto.getExpireAt());
@@ -40,16 +41,16 @@ public class AccountService {
                 .member(member)
                 .build();
         accountRepository.save(account);
-        return ResponseDto.success("Account opening");
+        return ResponseEntity.ok().body(ResponseDto.success("Account opening"));
     }
 
     @Transactional // 지연로딩 해결
-    public ResponseDto<?> balance() {
+    public ResponseEntity<?> balance() {
         Member member = getMember();
         List<StockHoldingResponseDto> responseDtoList = new ArrayList<>();
         Account account = accountRepository.findByMember(member);
         if(account == null){
-            return ResponseDto.fail(ErrorCode.NULL_ID);
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
         for (StockHolding stockHolding : account.getStockHoldingsList()) {
             StockHoldingResponseDto responseDto = StockHoldingResponseDto.builder()
@@ -73,7 +74,7 @@ public class AccountService {
                 .createdAt(String.valueOf(account.getCreatedAt()))
                 .member(account.getMember()).build();
 
-    return ResponseDto.success(accountResponseDto);
+    return ResponseEntity.ok().body(ResponseDto.success(accountResponseDto));
     }
 
     public Member getMember(){
