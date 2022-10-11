@@ -12,7 +12,7 @@ public class AccountController {
     private final AccountService accountService;
 
     // 계좌 생성
-    @PatchMapping("/api/auth/account")
+    @PostMapping("/api/auth/account")
     public ResponseEntity<?> makeAccount(@RequestBody AccountRequestDto accountRequestDto){
         return accountService.makeAccount(accountRequestDto);
     }

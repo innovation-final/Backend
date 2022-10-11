@@ -29,6 +29,7 @@ public class AccountService {
         if (accountRepository.findByMember(member)!=null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NOT_DUPLICATES));
         };
+
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiredAt = now.plusDays(accountRequestDto.getExpireAt());
         Account account = Account.builder()
