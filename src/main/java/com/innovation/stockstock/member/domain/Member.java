@@ -10,7 +10,6 @@ import com.innovation.stockstock.post.domain.LikePost;
 import lombok.*;
 import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.beans.factory.annotation.Value;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,9 +19,6 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class Member {
-//    @Transient
-//    @Value("${basic.image}")
-//    private String basicImg;
 
     @Id
     @GeneratedValue
