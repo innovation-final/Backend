@@ -14,11 +14,11 @@ public class MessageService {
     private final RedisPub redisPub;
 
     // redis에 메시지 발행
-    public void sendChat(ChatMessage chatMessage, UserDetailsImpl userDetails) {
-        Member member = userDetails.getMember();
-        chatMessage.setImageUrl(member.getProfileImg());
-        chatMessage.setNickName(member.getNickname());
-        chatMessage.setUserId(member.getId());
+    public void sendChat(ChatMessage chatMessage) { //, UserDetailsImpl userDetails
+//        Member member = userDetails.getMember();
+//        chatMessage.setImageUrl(member.getProfileImg());
+//        chatMessage.setNickName(member.getNickname());
+//        chatMessage.setUserId(member.getId());
         redisPub.publish(channelTopic, chatMessage);
     }
 
