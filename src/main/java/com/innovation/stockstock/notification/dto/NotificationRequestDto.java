@@ -2,7 +2,6 @@ package com.innovation.stockstock.notification.dto;
 
 import com.innovation.stockstock.notification.domain.Event;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.io.Serializable;
