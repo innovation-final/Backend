@@ -11,6 +11,7 @@ import com.innovation.stockstock.notification.repository.NotificationRepository;
 import com.innovation.stockstock.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import javax.transaction.Transactional;
@@ -28,63 +29,61 @@ public class NotificationService {
     private final MemberRepository memberRepository;
     private final EmitterService emitterService;
 
-    public ResponseDto<?> send(Long memberId, NotificationRequestDto requestDto) {
+    public ResponseEntity<?> send(Long memberId, NotificationRequestDto requestDto) {
         Optional<Member> member = memberRepository.findById(memberId);
         if(member.isEmpty()){
-            return ResponseDto.fail(ErrorCode.NULL_ID);
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
         if (requestDto == null) {
-            return ResponseDto.fail(ErrorCode.NULL_ID);
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
-
+        String eventId = memberId+"_"+System.currentTimeMillis();
         Notification notification = new Notification(requestDto, member.get());
-        notificationRepository.save(notification);
-        String eventId = memberId + "_" + System.currentTimeMillis();
-
+        // 접속자가 여러 브라우저를 통해 연결한 emitter 전부 불러오기
         Map<String, SseEmitter> sseEmitters = emitterRepository.findAllEmitterStartWithByMemberId(String.valueOf(memberId));
-
+        // 접속자의 emitter 정보에 해당되는 event를 send하기
         sseEmitters.forEach(
                 (key, emitter) -> {
-                    emitterRepository.saveEventCache(key, notification);
                     emitterService.sendToClient(emitter, eventId, key, new NotificationResponseDto(notification));
                 }
         );
-        return ResponseDto.success("Send Notification");
+        notificationRepository.save(notification);
+        return ResponseEntity.ok().body(ResponseDto.success("Send Notification"));
     }
 
-    public ResponseDto<?> getNotification(Long id) {
+    public ResponseEntity<?> getNotification(Long id) {
         Optional<Member> member = memberRepository.findById(id);
         if(member.isEmpty()){
-            return ResponseDto.fail(ErrorCode.NULL_ID);
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
         List<NotificationResponseDto> responseDtoList = new ArrayList<>();
         List<Notification> notificationList = notificationRepository.findByMemberOrderByCreatedAtDesc(member.get());
         for (Notification n : notificationList) {
             responseDtoList.add(new NotificationResponseDto(n));
         }
-        return ResponseDto.success(responseDtoList);
+        return ResponseEntity.ok().body(ResponseDto.success(responseDtoList));
     }
 
     @Transactional
-    public ResponseDto<?> readOk(Long id){
+    public ResponseEntity<?> readOk(Long id){
         Optional<Member> member = memberRepository.findById(id);
         if(member.isEmpty()){
-            return ResponseDto.fail(ErrorCode.NULL_ID);
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
         List<Notification> notificationList = notificationRepository.findByMemberOrderByCreatedAtDesc(member.get());
         for (Notification n : notificationList) {
             n.changeState();
         }
-        return ResponseDto.success("읽음 처리 완료");
+        return ResponseEntity.ok().body(ResponseDto.success("읽음 처리 완료"));
     }
 
     @Transactional
-    public ResponseDto<?> deleteNotification(Long id){
+    public ResponseEntity<?> deleteNotification(Long id){
         Optional<Member> member = memberRepository.findById(id);
         if(member.isEmpty()){
-            return ResponseDto.fail(ErrorCode.NULL_ID);
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
         notificationRepository.deleteByMember(member.get());
-        return ResponseDto.success("알림 삭제 완료");
+        return ResponseEntity.ok().body(ResponseDto.success("알림 삭제 완료"));
     }
 }

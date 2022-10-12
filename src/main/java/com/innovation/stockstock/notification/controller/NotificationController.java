@@ -21,25 +21,25 @@ public class NotificationController {
     public ResponseEntity<?> getNotification() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Member member = userDetails.getMember();
-        return ResponseEntity.ok().body(notificationService.getNotification(member.getId()));
+        return notificationService.getNotification(member.getId());
     }
 
     @GetMapping("/api/auth/notifications/read")
     public ResponseEntity<?> readOk() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Member member = userDetails.getMember();
-        return ResponseEntity.ok().body(notificationService.readOk(member.getId()));
+        return notificationService.readOk(member.getId());
     }
 
     @DeleteMapping("/api/auth/notifications")
     public ResponseEntity<?> deleteNotification() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Member member = userDetails.getMember();
-        return ResponseEntity.ok().body(notificationService.deleteNotification(member.getId()));
+        return notificationService.deleteNotification(member.getId());
     }
 
     @GetMapping(value = "/api/subscribe/{id}", produces = "text/event-stream")
     public SseEmitter subscribe(@PathVariable Long id, @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
-        return emitterService.createEmitter(id, lastEventId);
+        return emitterService.createEmitter(id);
     }
 }

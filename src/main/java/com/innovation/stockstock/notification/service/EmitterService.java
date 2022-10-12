@@ -5,15 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class EmitterService {
     private final EmitterRepository emitterRepository;
-    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60 * 24;
+    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 10;
 
-    public SseEmitter createEmitter(Long memberId, String lastEventId) {
+    public SseEmitter createEmitter(Long memberId) {
 
         String emitterId = memberId+"_"+System.currentTimeMillis();
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
@@ -25,12 +24,6 @@ public class EmitterService {
         String eventId = memberId+"_"+System.currentTimeMillis();
         sendToClient(emitter, eventId, emitterId, "EventStream Created.");
 
-        if (!lastEventId.isEmpty()) {
-            Map<String, Object> events = emitterRepository.findAllEventCacheStartWithByMemberId(String.valueOf(memberId));
-            events.entrySet().stream()
-                    .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
-                    .forEach(entry -> sendToClient(emitter, entry.getKey(), emitterId, entry.getValue()));
-        }
         return emitter;
     }
 
