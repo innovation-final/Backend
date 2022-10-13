@@ -48,8 +48,8 @@ public class OrderService {
                 stockHoldingRepository.save(
                         StockHolding.builder()
                                 .stockCode(stockCode)
-                                .returnRate(0f)
-                                .profit(0L)
+                                .amount(amount)
+                                .account(account)
                                 .build()
                 );
             } else {
@@ -81,7 +81,7 @@ public class OrderService {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.ORDER_FAIL));
         }
 
-        if (category.equals("시장가") && amount < stock.getAmount()) {
+        if (category.equals("시장가") && amount <= stock.getAmount()) {
             sellOrderRepository.save(new SellOrder(category, amount, price));
             stock.updateAmount(false, amount);
             account.updateBalance(false, price);

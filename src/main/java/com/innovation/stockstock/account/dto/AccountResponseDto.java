@@ -11,7 +11,7 @@ public class AccountResponseDto {
 
     private Long id;
     private int accountNumber;
-    private int deposit;
+    private int seedMoney;
     private Long balance;
     private float targetReturnRate;
     private float totalReturnRate;

@@ -34,8 +34,8 @@ public class AccountService {
         LocalDateTime expiredAt = now.plusDays(accountRequestDto.getExpireAt());
         Account account = Account.builder()
                 .accountNumber((int) (member.getId()+System.currentTimeMillis()))
-                .deposit(accountRequestDto.getDeposit())
-                .balance((long) accountRequestDto.getDeposit())
+                .seedMoney(accountRequestDto.getSeedMoney())
+                .balance((long) accountRequestDto.getSeedMoney())
                 .targetReturnRate(accountRequestDto.getTargetReturnRate())
                 .totalReturnRate(0f)
                 .totalProfit(0L)
@@ -59,15 +59,13 @@ public class AccountService {
                     .id(stockHolding.getId())
                     .stockCode(stockHolding.getStockCode())
                     .targetReturnRate(stockHolding.getTargetReturnRate())
-                    .returnRate(stockHolding.getReturnRate())
-                    .profit(stockHolding.getProfit())
                     .build();
             responseDtoList.add(responseDto);
         }
         AccountResponseDto accountResponseDto = AccountResponseDto.builder()
                 .id(account.getId())
                 .accountNumber(account.getAccountNumber())
-                .deposit(account.getDeposit())
+                .seedMoney(account.getSeedMoney())
                 .balance(account.getBalance())
                 .targetReturnRate(account.getTargetReturnRate())
                 .totalReturnRate(account.getTotalReturnRate())

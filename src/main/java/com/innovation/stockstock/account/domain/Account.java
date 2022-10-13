@@ -28,7 +28,7 @@ public class Account extends Timestamped {
 
     private int accountNumber;
 
-    private int deposit;
+    private int seedMoney;
 
     private Long balance;
 
