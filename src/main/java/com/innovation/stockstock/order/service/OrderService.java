@@ -40,8 +40,9 @@ public class OrderService {
         String category = requestDto.getOrderCategory();
         int amount = requestDto.getAmount();
         int price = requestDto.getPrice();
+        int totalPrice = amount * price;
 
-        if (category.equals("시장가") && price <= account.getBalance()) {
+        if (category.equals("시장가") && totalPrice <= account.getBalance()) {
             buyOrderRepository.save(new BuyOrder(category, amount, price));
             StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
             if (stock == null) {
@@ -55,7 +56,7 @@ public class OrderService {
             } else {
                 stock.updateAmount(true, amount);
             }
-            account.updateBalance(true, price);
+            account.updateBalance(true, totalPrice);
         } else if (category.equals("지정가")) {
 
         } else {
@@ -75,6 +76,7 @@ public class OrderService {
         String category = requestDto.getOrderCategory();
         int amount = requestDto.getAmount();
         int price = requestDto.getPrice();
+        int totalPrice = amount * price;
 
         StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
         if (stock == null) {
@@ -84,7 +86,7 @@ public class OrderService {
         if (category.equals("시장가") && amount <= stock.getAmount()) {
             sellOrderRepository.save(new SellOrder(category, amount, price));
             stock.updateAmount(false, amount);
-            account.updateBalance(false, price);
+            account.updateBalance(false, totalPrice);
         } else if (category.equals("지정가")) {
 
         } else {
