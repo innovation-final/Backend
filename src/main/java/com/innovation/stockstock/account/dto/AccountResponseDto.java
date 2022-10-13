@@ -10,7 +10,7 @@ import java.util.List;
 public class AccountResponseDto {
 
     private Long id;
-    private int accountNumber;
+    private Long accountNumber;
     private int seedMoney;
     private Long balance;
     private float targetReturnRate;

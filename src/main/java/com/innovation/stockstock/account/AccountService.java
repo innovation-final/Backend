@@ -33,7 +33,7 @@ public class AccountService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiredAt = now.plusDays(accountRequestDto.getExpireAt());
         Account account = Account.builder()
-                .accountNumber((int) (member.getId()+System.currentTimeMillis()))
+                .accountNumber(member.getId()+System.currentTimeMillis())
                 .seedMoney(accountRequestDto.getSeedMoney())
                 .balance((long) accountRequestDto.getSeedMoney())
                 .targetReturnRate(accountRequestDto.getTargetReturnRate())
