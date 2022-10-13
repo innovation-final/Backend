@@ -21,8 +21,17 @@ public class StockHolding {
     private float targetReturnRate;
     private float returnRate;
     private Long profit;
+    private int amount;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
+
+    public void updateAmount(boolean isBuying, int amount) {
+        if (isBuying) {
+            this.amount += amount;
+        } else {
+            this.amount -= amount;
+        }
+    }
 }

@@ -19,8 +19,8 @@ public class AccountController {
 
     // 계좌 정보 조회
     @GetMapping("/api/auth/account")
-    public ResponseEntity<?> getBalance(){
-        return accountService.balance();
+    public ResponseEntity<?> getAccount(){
+        return accountService.getAccount();
     }
 
 }
