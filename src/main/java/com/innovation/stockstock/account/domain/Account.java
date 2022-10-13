@@ -3,6 +3,8 @@ package com.innovation.stockstock.account.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.innovation.stockstock.common.dto.Timestamped;
 import com.innovation.stockstock.member.domain.Member;
+import com.innovation.stockstock.order.domain.BuyOrder;
+import com.innovation.stockstock.order.domain.SellOrder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,9 +26,11 @@ public class Account extends Timestamped {
     @Column(name = "account_id")
     private Long id;
 
-    private Long accountNumber;
+    private int accountNumber;
 
-    private Long deposit;
+    private int seedMoney;
+
+    private Long balance;
 
     private float targetReturnRate;
 
@@ -44,4 +48,17 @@ public class Account extends Timestamped {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StockHolding> stockHoldingsList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BuyOrder> buyOrders = new ArrayList<>();
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SellOrder> sellOrders = new ArrayList<>();
+
+    public void updateBalance(boolean isBuying, int price) {
+        if (isBuying) {
+            this.balance -= price;
+        } else {
+            this.balance += price;
+        }
+    }
 }

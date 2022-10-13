@@ -28,15 +28,16 @@ public class AccountService {
         Member member = getMember();
         if (accountRepository.findByMember(member)!=null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NOT_DUPLICATES));
-        };
+        }
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiredAt = now.plusDays(accountRequestDto.getExpireAt());
         Account account = Account.builder()
-                .accountNumber(member.getId()+System.currentTimeMillis())
-                .deposit(Long.valueOf(accountRequestDto.getDeposit()))
+                .accountNumber((int) (member.getId()+System.currentTimeMillis()))
+                .seedMoney(accountRequestDto.getSeedMoney())
+                .balance((long) accountRequestDto.getSeedMoney())
                 .targetReturnRate(accountRequestDto.getTargetReturnRate())
-                .totalReturnRate(0F)
+                .totalReturnRate(0f)
                 .totalProfit(0L)
                 .expireAt(expiredAt)
                 .member(member)
@@ -46,7 +47,7 @@ public class AccountService {
     }
 
     @Transactional // 지연로딩 해결
-    public ResponseEntity<?> balance() {
+    public ResponseEntity<?> getAccount() {
         Member member = getMember();
         List<StockHoldingResponseDto> responseDtoList = new ArrayList<>();
         Account account = accountRepository.findByMember(member);
@@ -58,15 +59,14 @@ public class AccountService {
                     .id(stockHolding.getId())
                     .stockCode(stockHolding.getStockCode())
                     .targetReturnRate(stockHolding.getTargetReturnRate())
-                    .returnRate(stockHolding.getReturnRate())
-                    .profit(stockHolding.getProfit())
                     .build();
             responseDtoList.add(responseDto);
         }
         AccountResponseDto accountResponseDto = AccountResponseDto.builder()
                 .id(account.getId())
                 .accountNumber(account.getAccountNumber())
-                .deposit(account.getDeposit())
+                .seedMoney(account.getSeedMoney())
+                .balance(account.getBalance())
                 .targetReturnRate(account.getTargetReturnRate())
                 .totalReturnRate(account.getTotalReturnRate())
                 .totalProfit(account.getTotalProfit())

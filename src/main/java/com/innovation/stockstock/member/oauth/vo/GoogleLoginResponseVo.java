@@ -1,4 +1,4 @@
-package com.innovation.stockstock.member.oauth.dto;
+package com.innovation.stockstock.member.oauth.vo;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

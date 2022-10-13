@@ -35,7 +35,10 @@ public enum ErrorCode {
     FILE_SIZE_EXCEED("FILE_SIZE_EXCEED","File size exceeded. Limit is 128KB."),
 
     // 중복 계좌 개설 불가
-    NOT_DUPLICATES("ONE_ACCOUNT_PER_PERSON","Duplicate account opening is not allowed.");
+    NOT_DUPLICATES("ONE_ACCOUNT_PER_PERSON","Duplicate account opening is not allowed."),
+
+    // 주문 불가
+    ORDER_FAIL("ORDER_FAIL", "Unable to Proceed Ordering");
 
     private final String code;
     private final String message;

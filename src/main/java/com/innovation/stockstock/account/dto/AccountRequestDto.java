@@ -7,8 +7,8 @@ import lombok.Setter;
 @Setter
 public class AccountRequestDto {
 
-    private String deposit;
+    private int seedMoney;
     private float targetReturnRate;
-    private Long expireAt;
+    private int expireAt;
 
 }
