@@ -19,8 +19,6 @@ public class StockHolding {
     private Long id;
     private String stockCode;
     private float targetReturnRate;
-    private float returnRate;
-    private Long profit;
     private int amount;
 
     @ManyToOne

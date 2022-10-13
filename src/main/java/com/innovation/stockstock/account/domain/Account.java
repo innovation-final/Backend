@@ -26,9 +26,9 @@ public class Account extends Timestamped {
     @Column(name = "account_id")
     private Long id;
 
-    private int accountNumber;
+    private Long accountNumber;
 
-    private int deposit;
+    private int seedMoney;
 
     private Long balance;
 
