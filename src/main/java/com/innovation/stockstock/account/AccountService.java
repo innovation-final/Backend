@@ -82,4 +82,6 @@ public class AccountService {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userDetails.getMember();
     }
+
+    // 만기일 되면 자동 재발급되도록
 }
