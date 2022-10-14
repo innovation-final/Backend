@@ -19,8 +19,8 @@ public class LimitPriceOrder {
     private Long id;
     private String stockCode;
     private String category;
-    private int buyAmount;
-    private int buyPrice;
+    private int amount;
+    private int price;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
