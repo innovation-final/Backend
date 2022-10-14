@@ -83,8 +83,8 @@ public class OrderService {
                     LimitPriceOrder.builder()
                             .stockCode(stockCode)
                             .category("buy")
-                            .buyPrice(price)
-                            .buyAmount(amount)
+                            .price(price)
+                            .amount(amount)
                             .account(account)
                             .build()
             );
@@ -138,8 +138,8 @@ public class OrderService {
                     LimitPriceOrder.builder()
                             .stockCode(stockCode)
                             .category("sell")
-                            .buyPrice(price)
-                            .buyAmount(amount)
+                            .price(price)
+                            .amount(amount)
                             .account(account)
                             .build()
             );
