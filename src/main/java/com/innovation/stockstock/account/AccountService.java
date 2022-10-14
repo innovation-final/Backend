@@ -6,9 +6,11 @@ import com.innovation.stockstock.account.dto.AccountRequestDto;
 import com.innovation.stockstock.account.dto.AccountResponseDto;
 import com.innovation.stockstock.account.dto.StockHoldingResponseDto;
 import com.innovation.stockstock.account.repository.AccountRepository;
+import com.innovation.stockstock.chatRedis.redis.RedisRepository;
 import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.member.domain.Member;
+import com.innovation.stockstock.order.repository.BuyOrderRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,8 @@ import java.util.*;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final RedisRepository redisRepository;
+    private final BuyOrderRepository buyOrderRepository;
 
     public ResponseEntity<?> makeAccount(AccountRequestDto accountRequestDto) {
         Member member = getMember();
@@ -54,14 +58,42 @@ public class AccountService {
         if(account == null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
+        Long accountTotalProfit = 0L;
+
+        // 종목별 수익률
         for (StockHolding stockHolding : account.getStockHoldingsList()) {
+            Long curPrice = (Long) redisRepository.getTradePrice(stockHolding.getStockCode());
+
+            // 종목별 손익 : (현재가 - 평균 매수가) * 총 보유 수량
+            // 평균 매수가 : 매수수량 * 매수가격 / 총 보유 수량
+            Long totalBuyPrice = buyOrderRepository.sumBuyPrice(stockHolding);
+            Long avgBuy = totalBuyPrice/stockHolding.getAmount();
+            Long profit = (curPrice - avgBuy) * stockHolding.getAmount();
+            stockHolding.setProfit(profit);
+
+            accountTotalProfit +=profit;
+
+            // 종목별 손익률 = (현재가격 - 평균 매수가) / 평균매수가 - 1
+            float returnRate = (curPrice-avgBuy)/avgBuy-1;
+            stockHolding.setReturnRate(returnRate);
+
             StockHoldingResponseDto responseDto = StockHoldingResponseDto.builder()
                     .id(stockHolding.getId())
                     .stockCode(stockHolding.getStockCode())
                     .targetReturnRate(stockHolding.getTargetReturnRate())
+                    .profit(stockHolding.getProfit())
+                    .returnRate(stockHolding.getReturnRate())
                     .build();
+
             responseDtoList.add(responseDto);
         }
+
+        // 계좌 손익 : 종목별 손익 합산
+        account.setTotalProfit(accountTotalProfit);
+        // 계좌 손익률 : 총 손익 / deposit - 1
+        float accountTotalReturnRate = (accountTotalProfit-account.getSeedMoney())/account.getSeedMoney()-1;
+        account.setTotalReturnRate(accountTotalReturnRate);
+
         AccountResponseDto accountResponseDto = AccountResponseDto.builder()
                 .id(account.getId())
                 .accountNumber(account.getAccountNumber())
@@ -82,6 +114,4 @@ public class AccountService {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userDetails.getMember();
     }
-
-    // 만기일 되면 자동 재발급되도록
 }

@@ -19,6 +19,8 @@ public class StockHolding {
     private Long id;
     private String stockCode;
     private float targetReturnRate;
+    private Long profit;
+    private float returnRate;
     private int amount;
 
     @ManyToOne
@@ -31,5 +33,12 @@ public class StockHolding {
         } else {
             this.amount -= amount;
         }
+    }
+    public void setReturnRate(float returnRate){
+        this.returnRate=returnRate;
+    }
+
+    public void setProfit(Long profit){
+        this.profit=profit;
     }
 }

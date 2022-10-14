@@ -9,4 +9,7 @@ public class StockHoldingResponseDto {
     private Long id;
     private String stockCode;
     private float targetReturnRate;
+    private Long profit;
+    private float returnRate;
+    private int amount;
 }
