@@ -3,6 +3,8 @@ package com.innovation.stockstock.order.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.innovation.stockstock.account.domain.Account;
 import com.innovation.stockstock.account.domain.StockHolding;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -13,6 +15,8 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SellOrder {
 
     @Id
@@ -33,10 +37,4 @@ public class SellOrder {
     @ManyToOne
     @JoinColumn(name = "stockholding_id")
     private StockHolding stockHolding;
-
-    public SellOrder(String orderCategory, int sellAmount, int sellPrice) {
-        this.orderCategory = orderCategory;
-        this.sellAmount = sellAmount;
-        this.sellPrice = sellPrice;
-    }
 }

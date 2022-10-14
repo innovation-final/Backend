@@ -8,9 +8,11 @@ import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.order.domain.BuyOrder;
+import com.innovation.stockstock.order.domain.LimitPriceOrder;
 import com.innovation.stockstock.order.domain.SellOrder;
 import com.innovation.stockstock.order.dto.OrderRequestDto;
 import com.innovation.stockstock.order.repository.BuyOrderRepository;
+import com.innovation.stockstock.order.repository.LimitPriceOrderRepository;
 import com.innovation.stockstock.order.repository.SellOrderRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class OrderService {
     private final SellOrderRepository sellOrderRepository;
     private final AccountRepository accountRepository;
     private final StockHoldingRepository stockHoldingRepository;
+    private final LimitPriceOrderRepository limitPriceOrderRepository;
 
 
     @Transactional
@@ -43,8 +46,16 @@ public class OrderService {
         int totalPrice = amount * price;
 
         if (category.equals("시장가") && totalPrice <= account.getBalance()) {
-            buyOrderRepository.save(new BuyOrder(category, amount, price));
             StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
+            buyOrderRepository.save(
+                    BuyOrder.builder()
+                            .orderCategory(category)
+                            .buyPrice(price)
+                            .buyAmount(amount)
+                            .account(account)
+                            .stockHolding(stock)
+                            .build()
+            );
             if (stock == null) {
                 stockHoldingRepository.save(
                         StockHolding.builder()
@@ -58,7 +69,25 @@ public class OrderService {
             }
             account.updateBalance(true, totalPrice);
         } else if (category.equals("지정가")) {
-
+            StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
+            buyOrderRepository.save(
+                    BuyOrder.builder()
+                            .orderCategory(category)
+                            .buyPrice(price)
+                            .buyAmount(amount)
+                            .account(account)
+                            .stockHolding(stock)
+                            .build()
+            );
+            limitPriceOrderRepository.save(
+                    LimitPriceOrder.builder()
+                            .stockCode(stockCode)
+                            .category("buy")
+                            .buyPrice(price)
+                            .buyAmount(amount)
+                            .account(account)
+                            .build()
+            );
         } else {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.ORDER_FAIL));
         }
@@ -84,11 +113,36 @@ public class OrderService {
         }
 
         if (category.equals("시장가") && amount <= stock.getAmount()) {
-            sellOrderRepository.save(new SellOrder(category, amount, price));
+            sellOrderRepository.save(
+                    SellOrder.builder()
+                            .orderCategory(category)
+                            .sellPrice(price)
+                            .sellAmount(amount)
+                            .account(account)
+                            .stockHolding(stock)
+                            .build()
+            );
             stock.updateAmount(false, amount);
             account.updateBalance(false, totalPrice);
         } else if (category.equals("지정가")) {
-
+            sellOrderRepository.save(
+                    SellOrder.builder()
+                            .orderCategory(category)
+                            .sellPrice(price)
+                            .sellAmount(amount)
+                            .account(account)
+                            .stockHolding(stock)
+                            .build()
+            );
+            limitPriceOrderRepository.save(
+                    LimitPriceOrder.builder()
+                            .stockCode(stockCode)
+                            .category("sell")
+                            .buyPrice(price)
+                            .buyAmount(amount)
+                            .account(account)
+                            .build()
+            );
         } else {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.ORDER_FAIL));
         }

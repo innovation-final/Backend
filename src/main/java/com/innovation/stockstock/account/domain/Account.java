@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.innovation.stockstock.common.dto.Timestamped;
 import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.order.domain.BuyOrder;
+import com.innovation.stockstock.order.domain.LimitPriceOrder;
 import com.innovation.stockstock.order.domain.SellOrder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,6 +54,9 @@ public class Account extends Timestamped {
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SellOrder> sellOrders = new ArrayList<>();
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LimitPriceOrder> limitPriceOrders = new ArrayList<>();
 
     public void updateBalance(boolean isBuying, int price) {
         if (isBuying) {
