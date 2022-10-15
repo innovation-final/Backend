@@ -48,7 +48,7 @@ public class StockScheduler {
 
             if (category.equals("buy") && orderPrice >= currentPrice && totalPrice <= account.getBalance()) { // 지정가 매수주문 체결
                 if (stock == null) {
-                    stockHoldingRepository.save(
+                    stock = stockHoldingRepository.save(
                             StockHolding.builder()
                                     .stockCode(stockCode)
                                     .amount(orderAmount)
