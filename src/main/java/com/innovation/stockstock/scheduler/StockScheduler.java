@@ -44,6 +44,9 @@ public class StockScheduler {
             int orderAmount = limitPriceOrder.getAmount();
 
             int currentPrice = Integer.parseInt(redisRepository.getTradePrice(stockCode));
+            if (currentPrice == 0) {
+                return;
+            }
             int totalPrice = orderAmount * currentPrice;
             StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
 
