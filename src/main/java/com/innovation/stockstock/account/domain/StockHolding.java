@@ -20,6 +20,8 @@ public class StockHolding {
     private String stockCode;
     private float targetReturnRate;
     private int amount;
+    private float returnRate;
+    private Long profit;
 
     @ManyToOne
     @JoinColumn(name = "account_id")

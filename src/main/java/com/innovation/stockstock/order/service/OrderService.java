@@ -47,29 +47,19 @@ public class OrderService {
 
         if (category.equals("시장가") && totalPrice <= account.getBalance()) {
             StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
-            buyOrderRepository.save(
-                    BuyOrder.builder()
-                            .orderCategory(category)
-                            .buyPrice(price)
-                            .buyAmount(amount)
-                            .account(account)
-                            .stockHolding(stock)
-                            .build()
-            );
             if (stock == null) {
-                stockHoldingRepository.save(
+                stock = stockHoldingRepository.save(
                         StockHolding.builder()
                                 .stockCode(stockCode)
                                 .amount(amount)
                                 .account(account)
+                                .returnRate(0f)
+                                .profit(0L)
                                 .build()
                 );
             } else {
                 stock.updateAmount(true, amount);
             }
-            account.updateBalance(true, totalPrice);
-        } else if (category.equals("지정가")) {
-            StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
             buyOrderRepository.save(
                     BuyOrder.builder()
                             .orderCategory(category)
@@ -79,6 +69,8 @@ public class OrderService {
                             .stockHolding(stock)
                             .build()
             );
+            account.updateBalance(true, totalPrice);
+        } else if (category.equals("지정가")) {
             limitPriceOrderRepository.save(
                     LimitPriceOrder.builder()
                             .stockCode(stockCode)
@@ -125,15 +117,6 @@ public class OrderService {
             stock.updateAmount(false, amount);
             account.updateBalance(false, totalPrice);
         } else if (category.equals("지정가")) {
-            sellOrderRepository.save(
-                    SellOrder.builder()
-                            .orderCategory(category)
-                            .sellPrice(price)
-                            .sellAmount(amount)
-                            .account(account)
-                            .stockHolding(stock)
-                            .build()
-            );
             limitPriceOrderRepository.save(
                     LimitPriceOrder.builder()
                             .stockCode(stockCode)
