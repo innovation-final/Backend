@@ -4,8 +4,8 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.innovation.stockstock.common.dto.ResponseDto;
-import com.innovation.stockstock.member.dto.AchievementsResponseDto;
-import com.innovation.stockstock.member.domain.Achievements;
+import com.innovation.stockstock.achievement.dto.AchievementResponseDto;
+import com.innovation.stockstock.achievement.domain.Achievement;
 import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.member.mypage.dto.ProfileRequestDto;
 import com.innovation.stockstock.member.mypage.dto.ProfileResponseDto;
@@ -43,12 +43,11 @@ public class MyPageService {
 
     public ResponseDto<?> getMyProfile(HttpServletRequest request) {
         Member member = getMemberFromJwt(request);
-        List<AchievementsResponseDto> achievementsList = new ArrayList<>();
-        for (Achievements ach : member.getAchievements()) {
-            AchievementsResponseDto responseDto = AchievementsResponseDto.builder()
-                    .AchievementCode(ach.getAchievementCode())
-                    .member(member)
+        List<AchievementResponseDto> achievementsList = new ArrayList<>();
+        for (Achievement ach : member.getAchievements()) {
+            AchievementResponseDto responseDto = AchievementResponseDto.builder()
                     .id(ach.getId())
+                    .name(ach.getName())
                     .build();
             achievementsList.add(responseDto);
         }

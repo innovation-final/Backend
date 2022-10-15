@@ -1,6 +1,7 @@
 package com.innovation.stockstock.member.domain;
 
 import com.innovation.stockstock.account.domain.Account;
+import com.innovation.stockstock.achievement.domain.Achievement;
 import com.innovation.stockstock.notification.domain.Notification;
 import com.innovation.stockstock.stock.like.LikeStock;
 import com.innovation.stockstock.post.domain.Post;
@@ -8,8 +9,11 @@ import com.innovation.stockstock.comment.domain.Comment;
 import com.innovation.stockstock.post.domain.DislikePost;
 import com.innovation.stockstock.post.domain.LikePost;
 import lombok.*;
+
 import javax.persistence.*;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +34,11 @@ public class Member {
     private String profileMsg;
     private float totalReturnRate;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<Achievements> achievements= new ArrayList<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "member_achievement",
+            joinColumns = @JoinColumn(name = "member_id"),
+            inverseJoinColumns = @JoinColumn(name = "achievement_id"))
+    private List<Achievement> achievements = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
@@ -65,12 +72,15 @@ public class Member {
         this.email = email;
         this.nickname = nickname;
     }
+
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
+
     public void updateProfileImg(String profileImg) {
         this.profileImg = profileImg;
     }
+
     public void updateProfileMsg(String profileMsg) {
         this.profileMsg = profileMsg;
     }
