@@ -30,7 +30,8 @@ public class StockScheduler {
     private final SellOrderRepository sellOrderRepository;
 
     @Transactional
-    @Scheduled(cron = "* */2 * * * MON-FRI", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
+    //@Scheduled(cron = "0 1/2 9-15 * * MON-FRI", zone = "Asia/Seoul")
     public void contractLimitPriceOrder() throws InterruptedException {
         //TimeUnit.SECONDS.sleep(21);
         System.out.println(LocalDateTime.now());
@@ -42,7 +43,7 @@ public class StockScheduler {
             int orderPrice = limitPriceOrder.getPrice();
             int orderAmount = limitPriceOrder.getAmount();
 
-            int currentPrice = (int) redisRepository.getTradePrice(stockCode);
+            int currentPrice = Integer.parseInt(redisRepository.getTradePrice(stockCode));
             int totalPrice = orderAmount * currentPrice;
             StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
 
@@ -64,7 +65,7 @@ public class StockScheduler {
                 limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
                 buyOrderRepository.save(
                         BuyOrder.builder()
-                                .orderCategory(category)
+                                .orderCategory("지정가")
                                 .buyPrice(currentPrice)
                                 .buyAmount(orderAmount)
                                 .account(account)
@@ -77,7 +78,7 @@ public class StockScheduler {
                 limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
                 sellOrderRepository.save(
                         SellOrder.builder()
-                                .orderCategory(category)
+                                .orderCategory("지정가")
                                 .sellPrice(currentPrice)
                                 .sellAmount(orderAmount)
                                 .account(account)
