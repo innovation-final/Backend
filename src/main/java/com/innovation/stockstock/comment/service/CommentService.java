@@ -34,8 +34,10 @@ public class CommentService {
         commentRepository.save(comment);
 
         post.updateCommentNum(true);
-        NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.댓글, member.getNickname()+"님이 댓글을 달았습니다.");
-        notificationService.send(post.getMember().getId(), notificationRequestDto);
+        if(!member.getId().equals(post.getMember().getId())){
+            NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.댓글, member.getNickname()+"님이 댓글을 달았습니다.");
+            notificationService.send(post.getMember().getId(), notificationRequestDto);
+        }
         return ResponseEntity.ok().body(ResponseDto.success("Write Comment Success"));
     }
 

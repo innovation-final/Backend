@@ -60,12 +60,9 @@ public class AccountService {
         }
         Long accountTotalProfit = 0L;
 
-        // 종목별 수익률
         for (StockHolding stockHolding : account.getStockHoldingsList()) {
             Long curPrice = (Long) redisRepository.getTradePrice(stockHolding.getStockCode());
 
-            // 종목별 손익 : (현재가 - 평균 매수가) * 총 보유 수량
-            // 평균 매수가 : 매수수량 * 매수가격 / 총 보유 수량
             Long totalBuyPrice = buyOrderRepository.sumBuyPrice(stockHolding);
             Long avgBuy = totalBuyPrice/stockHolding.getAmount();
             Long profit = (curPrice - avgBuy) * stockHolding.getAmount();
@@ -73,7 +70,6 @@ public class AccountService {
 
             accountTotalProfit +=profit;
 
-            // 종목별 손익률 = (현재가격 - 평균 매수가) / 평균매수가 - 1
             float returnRate = (curPrice-avgBuy)/avgBuy-1;
             stockHolding.setReturnRate(returnRate);
 
@@ -92,8 +88,11 @@ public class AccountService {
         account.setTotalProfit(accountTotalProfit);
         // 계좌 손익률 : 총 손익 / deposit - 1
         float accountTotalReturnRate = (accountTotalProfit-account.getSeedMoney())/account.getSeedMoney()-1;
-        account.setTotalReturnRate(accountTotalReturnRate);
-
+        if(accountTotalReturnRate==-2){
+            account.setTotalReturnRate(0);
+        }else{
+            account.setTotalReturnRate(accountTotalReturnRate);
+        }
         AccountResponseDto accountResponseDto = AccountResponseDto.builder()
                 .id(account.getId())
                 .accountNumber(account.getAccountNumber())
@@ -108,6 +107,40 @@ public class AccountService {
                 .member(account.getMember()).build();
 
     return ResponseEntity.ok().body(ResponseDto.success(accountResponseDto));
+    }
+
+    public ResponseEntity<?> getReturn() {
+        Member member = getMember();
+        List<StockHoldingResponseDto> responseDtoList = new ArrayList<>();
+        Account account = accountRepository.findByMember(member);
+        if(account == null){
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+        }
+        for (StockHolding stockHolding : account.getStockHoldingsList()) {
+            Long curPrice = (Long) redisRepository.getTradePrice(stockHolding.getStockCode());
+
+            // 종목별 손익 : (현재가 - 평균 매수가) * 총 보유 수량
+            // 평균 매수가 : 매수수량 * 매수가격 / 총 보유 수량
+            Long totalBuyPrice = buyOrderRepository.sumBuyPrice(stockHolding);
+            Long avgBuy = totalBuyPrice/stockHolding.getAmount();
+            Long profit = (curPrice - avgBuy) * stockHolding.getAmount();
+            stockHolding.setProfit(profit);
+
+            // 종목별 손익률 = (현재가격 - 평균 매수가) / 평균매수가 - 1
+            float returnRate = (curPrice-avgBuy)/avgBuy-1;
+            stockHolding.setReturnRate(returnRate);
+
+            StockHoldingResponseDto responseDto = StockHoldingResponseDto.builder()
+                    .id(stockHolding.getId())
+                    .stockCode(stockHolding.getStockCode())
+                    .targetReturnRate(stockHolding.getTargetReturnRate())
+                    .profit(stockHolding.getProfit())
+                    .returnRate(stockHolding.getReturnRate())
+                    .build();
+
+            responseDtoList.add(responseDto);
+        }
+        return ResponseEntity.ok().body(ResponseDto.success(responseDtoList));
     }
 
     public Member getMember(){

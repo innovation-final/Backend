@@ -3,7 +3,6 @@ package com.innovation.stockstock.stock.like;
 import com.innovation.stockstock.member.domain.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
 
 @Entity
@@ -19,6 +18,9 @@ public class LikeStock {
     private Member member;
 
     private String stockId;
+
+    private int buyLimitPrice;
+    private int sellLimitPrice;
 
     public LikeStock(Member member, String stockId) {
         this.member = member;

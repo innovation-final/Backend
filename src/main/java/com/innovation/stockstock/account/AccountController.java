@@ -23,4 +23,9 @@ public class AccountController {
         return accountService.getAccount();
     }
 
+    // 수익률 정보 조회
+    @GetMapping("/api/auth/account/return")
+    public ResponseEntity<?> getReturn(){
+        return accountService.getReturn();
+    }
 }

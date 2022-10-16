@@ -1,14 +1,18 @@
 package com.innovation.stockstock.notification.service;
 
+import com.innovation.stockstock.chatRedis.redis.RedisRepository;
 import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.member.domain.Member;
+import com.innovation.stockstock.notification.domain.Event;
 import com.innovation.stockstock.notification.domain.Notification;
 import com.innovation.stockstock.notification.dto.NotificationRequestDto;
 import com.innovation.stockstock.notification.dto.NotificationResponseDto;
 import com.innovation.stockstock.notification.repository.EmitterRepository;
 import com.innovation.stockstock.notification.repository.NotificationRepository;
 import com.innovation.stockstock.member.repository.MemberRepository;
+import com.innovation.stockstock.stock.like.LikeStock;
+import com.innovation.stockstock.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +32,8 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final MemberRepository memberRepository;
     private final EmitterService emitterService;
+    private final RedisRepository redisRepository;
+    private final StockRepository stockRepository;
 
     public ResponseEntity<?> send(Long memberId, NotificationRequestDto requestDto) {
         Optional<Member> member = memberRepository.findById(memberId);
@@ -85,5 +91,22 @@ public class NotificationService {
         }
         notificationRepository.deleteByMember(member.get());
         return ResponseEntity.ok().body(ResponseDto.success("알림 삭제 완료"));
+    }
+
+    public ResponseEntity<?> noticeLikeStockPrice(Member member){
+        List<LikeStock> likeStockList = member.getLikeStocks();
+        for(LikeStock likeStock:likeStockList){
+            int curPrice = (int) redisRepository.getTradePrice(likeStock.getStockId());
+            String stockCode = likeStock.getStockId();
+            String stockName = stockRepository.findByCode(stockCode).getName();
+            NotificationRequestDto notificationRequestDto=null;
+            if(likeStock.getBuyLimitPrice()<=curPrice){
+                notificationRequestDto = new NotificationRequestDto(Event.관심종목, stockName+"이 희망매수가("+likeStock.getBuyLimitPrice()+"원)이하입니다.");
+            }else if(likeStock.getSellLimitPrice()>=curPrice) {
+                notificationRequestDto = new NotificationRequestDto(Event.관심종목, stockName +"이 희망매도가("+likeStock.getSellLimitPrice()+"원)이상입니다.");
+            }
+            send(member.getId(), notificationRequestDto);
+        }
+        return ResponseEntity.ok().body(ResponseDto.success("관심종목 지정가 알림 완료"));
     }
 }

@@ -42,4 +42,13 @@ public class NotificationController {
     public SseEmitter subscribe(@PathVariable Long id, @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
         return emitterService.createEmitter(id);
     }
+
+    @GetMapping("/api/auth/tracelikestock")
+    // 지속적으로 프론트에서 api요청을 하거나 아님 서버에서 스케쥴링을 돌려 해당 이벤트 발생 시 리턴해주거나.
+    // 불필요한 api 요청 발생. vs 불필요한 전체종목 조회 발생.
+    public ResponseEntity<?> noticeLikeStockPrice() {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Member member = userDetails.getMember();
+        return notificationService.noticeLikeStockPrice(member);
+    }
 }

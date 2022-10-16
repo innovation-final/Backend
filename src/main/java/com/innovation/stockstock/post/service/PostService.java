@@ -23,9 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -55,6 +53,7 @@ public class PostService {
                     .build();
             responseDtoList.add(responseDto);
         }
+
         // 로그인 안 한 멤버일 때.
         String accessToken = request.getHeader("Authorization");
         if(accessToken==null) {
@@ -127,6 +126,16 @@ public class PostService {
     }
 
     private static PostResponseDto makePostOneResponse(Post post,List<CommentResponseDto> responseDtoList,boolean isDoneLike,boolean isDoneDislike){
+        // 댓글의 날짜순 정렬
+        for (int i=0;i<responseDtoList.size();i++){
+            for(int j=0;j<responseDtoList.size();j++){
+                if(responseDtoList.get(i).getCreatedAt().compareTo(responseDtoList.get(j).getCreatedAt())>0){
+                    CommentResponseDto temp = responseDtoList.get(i);
+                    responseDtoList.set(i,responseDtoList.get(j));
+                    responseDtoList.set(j,temp);
+                }
+            }
+        }
         return PostResponseDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
