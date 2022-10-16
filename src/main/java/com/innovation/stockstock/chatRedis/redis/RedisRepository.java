@@ -9,8 +9,8 @@ import javax.annotation.PostConstruct;
 @Repository
 @RequiredArgsConstructor
 public class RedisRepository {
-    private final RedisTemplate<String, Object> redisTemplate;
-    private ListOperations<String,Object> prices;
+    private final RedisTemplate<String, String> redisTemplate;
+    private ListOperations<String,String> prices;
 
     @PostConstruct
     private void init() {
@@ -18,7 +18,7 @@ public class RedisRepository {
     }
 
     // 실시간 데이터 현재가 리턴
-    public Object getTradePrice(String stockCode){
+    public String getTradePrice(String stockCode){
         return prices.range(stockCode, -1, -1).get(0);
     }
 }
