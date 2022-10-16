@@ -4,16 +4,23 @@ import com.innovation.stockstock.order.dto.OrderRequestDto;
 import com.innovation.stockstock.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService orderService;
+
+    @GetMapping("/api/auth/buy")
+    public ResponseEntity<?> getBuyOrders() {
+        return orderService.getBuyOrders();
+    }
+
+    @GetMapping("/api/auth/sell")
+    public ResponseEntity<?> getSellOrders() {
+        return orderService.getSellOrders();
+    }
 
     @PostMapping("/api/auth/buy/{stockCode}")
     public ResponseEntity<?> buyStock(@PathVariable String stockCode, @RequestBody OrderRequestDto requestDto) {

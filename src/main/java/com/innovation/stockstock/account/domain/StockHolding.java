@@ -22,6 +22,8 @@ public class StockHolding {
     private Long profit;
     private float returnRate;
     private int amount;
+    private float returnRate;
+    private Long profit;
 
     @ManyToOne
     @JoinColumn(name = "account_id")

@@ -6,11 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderRequestDto {
+@Builder
+public class OrderResponseDto {
+
+    private Long id;
     private String orderCategory;
+    private String date;
     private int amount;
     private int price;
 }

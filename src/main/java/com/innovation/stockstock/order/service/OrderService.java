@@ -6,11 +6,11 @@ import com.innovation.stockstock.account.repository.AccountRepository;
 import com.innovation.stockstock.account.repository.StockHoldingRepository;
 import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.common.dto.ResponseDto;
-import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.order.domain.BuyOrder;
 import com.innovation.stockstock.order.domain.LimitPriceOrder;
 import com.innovation.stockstock.order.domain.SellOrder;
 import com.innovation.stockstock.order.dto.OrderRequestDto;
+import com.innovation.stockstock.order.dto.OrderResponseDto;
 import com.innovation.stockstock.order.repository.BuyOrderRepository;
 import com.innovation.stockstock.order.repository.LimitPriceOrderRepository;
 import com.innovation.stockstock.order.repository.SellOrderRepository;
@@ -21,21 +21,65 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class OrderService {
-
     private final BuyOrderRepository buyOrderRepository;
     private final SellOrderRepository sellOrderRepository;
     private final AccountRepository accountRepository;
     private final StockHoldingRepository stockHoldingRepository;
     private final LimitPriceOrderRepository limitPriceOrderRepository;
 
+    public ResponseEntity<?> getBuyOrders() {
+        Account account = getAccount();
+        if (account == null) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+        }
+
+        ArrayList<OrderResponseDto> res = new ArrayList<>();
+        List<BuyOrder> buyOrders = buyOrderRepository.findAllByAccountId(account.getId());
+        for (BuyOrder buyOrder : buyOrders) {
+            res.add(
+                    OrderResponseDto.builder()
+                            .id(buyOrder.getId())
+                            .date(String.valueOf(buyOrder.getBuyAt()))
+                            .orderCategory(buyOrder.getOrderCategory())
+                            .amount(buyOrder.getBuyAmount())
+                            .price(buyOrder.getBuyPrice())
+                            .build()
+            );
+        }
+        return ResponseEntity.ok().body(ResponseDto.success(res));
+    }
+
+    public ResponseEntity<?> getSellOrders() {
+        Account account = getAccount();
+        if (account == null) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+        }
+
+        ArrayList<OrderResponseDto> res = new ArrayList<>();
+        List<SellOrder> sellOrders = sellOrderRepository.findAllByAccountId(account.getId());
+        for (SellOrder sellOrder : sellOrders) {
+            res.add(
+                    OrderResponseDto.builder()
+                            .id(sellOrder.getId())
+                            .date(String.valueOf(sellOrder.getSellAt()))
+                            .orderCategory(sellOrder.getOrderCategory())
+                            .amount(sellOrder.getSellAmount())
+                            .price(sellOrder.getSellPrice())
+                            .build()
+            );
+        }
+        return ResponseEntity.ok().body(ResponseDto.success(res));
+    }
 
     @Transactional
     public ResponseEntity<?> buyStock(String stockCode, OrderRequestDto requestDto) {
-        Member member = getMember();
-        Account account = accountRepository.findByMember(member);
+        Account account = getAccount();
         if (account == null) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
@@ -47,29 +91,19 @@ public class OrderService {
 
         if (category.equals("시장가") && totalPrice <= account.getBalance()) {
             StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
-            buyOrderRepository.save(
-                    BuyOrder.builder()
-                            .orderCategory(category)
-                            .buyPrice(price)
-                            .buyAmount(amount)
-                            .account(account)
-                            .stockHolding(stock)
-                            .build()
-            );
             if (stock == null) {
-                stockHoldingRepository.save(
+                stock = stockHoldingRepository.save(
                         StockHolding.builder()
                                 .stockCode(stockCode)
                                 .amount(amount)
                                 .account(account)
+                                .returnRate(0f)
+                                .profit(0L)
                                 .build()
                 );
             } else {
                 stock.updateAmount(true, amount);
             }
-            account.updateBalance(true, totalPrice);
-        } else if (category.equals("지정가")) {
-            StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
             buyOrderRepository.save(
                     BuyOrder.builder()
                             .orderCategory(category)
@@ -79,6 +113,8 @@ public class OrderService {
                             .stockHolding(stock)
                             .build()
             );
+            account.updateBalance(true, totalPrice);
+        } else if (category.equals("지정가")) {
             limitPriceOrderRepository.save(
                     LimitPriceOrder.builder()
                             .stockCode(stockCode)
@@ -96,8 +132,7 @@ public class OrderService {
 
     @Transactional
     public ResponseEntity<?> sellStock(String stockCode, OrderRequestDto requestDto) {
-        Member member = getMember();
-        Account account = accountRepository.findByMember(member);
+        Account account = getAccount();
         if (account == null) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
@@ -125,15 +160,6 @@ public class OrderService {
             stock.updateAmount(false, amount);
             account.updateBalance(false, totalPrice);
         } else if (category.equals("지정가")) {
-            sellOrderRepository.save(
-                    SellOrder.builder()
-                            .orderCategory(category)
-                            .sellPrice(price)
-                            .sellAmount(amount)
-                            .account(account)
-                            .stockHolding(stock)
-                            .build()
-            );
             limitPriceOrderRepository.save(
                     LimitPriceOrder.builder()
                             .stockCode(stockCode)
@@ -149,8 +175,8 @@ public class OrderService {
         return ResponseEntity.ok().body(ResponseDto.success("Sell Order Success"));
     }
 
-    public Member getMember() {
+    public Account getAccount() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userDetails.getMember();
+        return accountRepository.findByMember(userDetails.getMember());
     }
 }
