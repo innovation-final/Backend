@@ -19,9 +19,10 @@ public class StockHolding {
     private Long id;
     private String stockCode;
     private float targetReturnRate;
-    private int amount;
-    private float returnRate;
     private Long profit;
+    private float returnRate;
+    private int amount;
+    private int avgBuying;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
@@ -33,5 +34,15 @@ public class StockHolding {
         } else {
             this.amount -= amount;
         }
+    }
+    public void setReturnRate(float returnRate){
+        this.returnRate=returnRate;
+    }
+
+    public void setProfit(Long profit){
+        this.profit=profit;
+    }
+    public void setAvgBuying(int avgBuying){
+        this.avgBuying=avgBuying;
     }
 }

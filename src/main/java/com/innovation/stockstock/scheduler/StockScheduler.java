@@ -4,6 +4,9 @@ import com.innovation.stockstock.account.domain.Account;
 import com.innovation.stockstock.account.domain.StockHolding;
 import com.innovation.stockstock.account.repository.StockHoldingRepository;
 import com.innovation.stockstock.chatRedis.redis.RedisRepository;
+import com.innovation.stockstock.notification.domain.Event;
+import com.innovation.stockstock.notification.dto.NotificationRequestDto;
+import com.innovation.stockstock.notification.service.NotificationService;
 import com.innovation.stockstock.order.domain.BuyOrder;
 import com.innovation.stockstock.order.domain.LimitPriceOrder;
 import com.innovation.stockstock.order.domain.SellOrder;
@@ -14,10 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class StockScheduler {
     private final RedisRepository redisRepository;
     private final LimitPriceOrderRepository limitPriceOrderRepository;
     private final StockHoldingRepository stockHoldingRepository;
+    private final NotificationService notificationService;
     private final BuyOrderRepository buyOrderRepository;
     private final SellOrderRepository sellOrderRepository;
 
@@ -57,14 +59,22 @@ public class StockScheduler {
                                     .stockCode(stockCode)
                                     .amount(orderAmount)
                                     .account(account)
+                                    .avgBuying(orderPrice)
                                     .profit(0L)
                                     .returnRate(0f)
                                     .build()
                     );
                 } else {
+                    Long totalSumBuying = buyOrderRepository.sumBuyPrice(stock) + totalPrice;
+                    int totalAmount = buyOrderRepository.sumBuyAmount(stock)+orderAmount;
+                    int avgBuying = Long.valueOf(totalSumBuying/totalAmount).intValue();
+
+                    stock.setAvgBuying(avgBuying);
                     stock.updateAmount(true, orderAmount);
                 }
                 account.updateBalance(true, totalPrice);
+                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockCode()+"이 지정가("+orderPrice+"원) 이하로 체결되었습니다.");
+                notificationService.send(limitPriceOrder.getAccount().getMember().getId(),notificationRequestDto);
                 limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
                 buyOrderRepository.save(
                         BuyOrder.builder()
@@ -78,6 +88,8 @@ public class StockScheduler {
             } else if (stock != null && category.equals("sell") && orderPrice <= currentPrice && orderAmount <= stock.getAmount()) { // 지정가 매도주문 체결
                 stock.updateAmount(false, orderAmount);
                 account.updateBalance(false, totalPrice);
+                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockCode()+"이 지정가("+orderPrice+"원) 이상으로 체결되었습니다.");
+                notificationService.send(limitPriceOrder.getAccount().getMember().getId(),notificationRequestDto);
                 limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
                 sellOrderRepository.save(
                         SellOrder.builder()
