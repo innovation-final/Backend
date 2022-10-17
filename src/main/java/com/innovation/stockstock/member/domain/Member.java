@@ -33,7 +33,7 @@ public class Member {
     private String profileImg = "https://stockstock.s3.ap-northeast-2.amazonaws.com/%EA%B0%9C%EB%AF%B8.jpg";
     private String profileMsg;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<MemberAchievement> memberAchievements = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
