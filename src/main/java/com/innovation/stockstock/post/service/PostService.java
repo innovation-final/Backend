@@ -1,5 +1,6 @@
 package com.innovation.stockstock.post.service;
 
+import com.innovation.stockstock.comment.repository.CommentRepository;
 import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.comment.domain.Comment;
 import com.innovation.stockstock.comment.dto.CommentResponseDto;
@@ -34,6 +35,7 @@ public class PostService {
     private final JwtProvider jwtProvider;
     private final PostRepository postRepository;
     private final StockListRepository stockListRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional // 지연로딩 에러 해결
     public ResponseEntity<?> getPost(Long postId,HttpServletRequest request) {
@@ -42,8 +44,8 @@ public class PostService {
         if (post == null) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
-
-        for (Comment comment : post.getComments()) {
+        List<Comment> comments = commentRepository.findAllByPostOrderByCreatedAt(post);
+        for (Comment comment : comments) {
             CommentResponseDto responseDto = CommentResponseDto.builder()
                     .id(comment.getId())
                     .content(comment.getContent())
@@ -126,16 +128,6 @@ public class PostService {
     }
 
     private static PostResponseDto makePostOneResponse(Post post,List<CommentResponseDto> responseDtoList,boolean isDoneLike,boolean isDoneDislike){
-        // 댓글의 날짜순 정렬
-        for (int i=0;i<responseDtoList.size();i++){
-            for(int j=0;j<responseDtoList.size();j++){
-                if(responseDtoList.get(i).getCreatedAt().compareTo(responseDtoList.get(j).getCreatedAt())>0){
-                    CommentResponseDto temp = responseDtoList.get(i);
-                    responseDtoList.set(i,responseDtoList.get(j));
-                    responseDtoList.set(j,temp);
-                }
-            }
-        }
         return PostResponseDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
