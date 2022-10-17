@@ -65,4 +65,12 @@ public class Account extends Timestamped {
             this.balance += price;
         }
     }
+    public void setTotalReturnRate(float totalReturnRate){
+        this.totalReturnRate=totalReturnRate;
+    }
+
+    public void setTotalProfit(Long totalProfit){
+        this.totalProfit=totalProfit;
+    }
+
 }

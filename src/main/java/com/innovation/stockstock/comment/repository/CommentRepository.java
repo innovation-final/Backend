@@ -1,6 +1,7 @@
 package com.innovation.stockstock.comment.repository;
 
 import com.innovation.stockstock.comment.domain.Comment;
+import com.innovation.stockstock.post.domain.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

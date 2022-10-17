@@ -1,5 +1,6 @@
 package com.innovation.stockstock.post.service;
 
+import com.innovation.stockstock.comment.repository.CommentRepository;
 import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.comment.domain.Comment;
 import com.innovation.stockstock.comment.dto.CommentResponseDto;
@@ -23,9 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +35,7 @@ public class PostService {
     private final JwtProvider jwtProvider;
     private final PostRepository postRepository;
     private final StockListRepository stockListRepository;
+//    private final CommentRepository commentRepository;
 
     @Transactional // 지연로딩 에러 해결
     public ResponseEntity<?> getPost(Long postId,HttpServletRequest request) {
@@ -57,6 +57,7 @@ public class PostService {
                     .build();
             responseDtoList.add(responseDto);
         }
+
         // 로그인 안 한 멤버일 때.
         String accessToken = request.getHeader("Authorization");
         if(accessToken==null) {

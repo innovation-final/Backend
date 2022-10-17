@@ -72,7 +72,7 @@ public class MyPageService {
                         .nickname(member.getNickname())
                         .profileImg(member.getProfileImg())
                         .profileMsg(member.getProfileMsg())
-                        .totalReturnRate(member.getTotalReturnRate())
+                        .totalReturnRate(member.getAccount().getTotalReturnRate())
                         .achievements(achievementsList)
                         .build()
         );

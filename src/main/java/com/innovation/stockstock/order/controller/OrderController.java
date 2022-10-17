@@ -1,5 +1,6 @@
 package com.innovation.stockstock.order.controller;
 
+import com.innovation.stockstock.order.dto.GetOrderRequestDto;
 import com.innovation.stockstock.order.dto.OrderRequestDto;
 import com.innovation.stockstock.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -12,14 +13,9 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @GetMapping("/api/auth/buy")
-    public ResponseEntity<?> getBuyOrders() {
-        return orderService.getBuyOrders();
-    }
-
-    @GetMapping("/api/auth/sell")
-    public ResponseEntity<?> getSellOrders() {
-        return orderService.getSellOrders();
+    @GetMapping("/api/auth/order")
+    public ResponseEntity<?> getOrders(GetOrderRequestDto requestDto) {
+        return orderService.getOrders(requestDto);
     }
 
     @PostMapping("/api/auth/buy/{stockCode}")

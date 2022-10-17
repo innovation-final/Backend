@@ -23,4 +23,9 @@ public class AccountController {
         return accountService.getAccount();
     }
 
+    // 종목별 수익률 정보 조회
+    @GetMapping("/api/auth/account/stock")
+    public ResponseEntity<?> getReturn(){
+        return accountService.getReturn();
+    }
 }
