@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class Achievement {
-    @Id
+    @Id @GeneratedValue
     private Long id;
 
     private String name;
