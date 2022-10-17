@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,11 +98,17 @@ public class OrderService {
                                 .stockCode(stockCode)
                                 .amount(amount)
                                 .account(account)
+                                .avgBuying(price)
                                 .returnRate(0f)
                                 .profit(0L)
                                 .build()
                 );
             } else {
+                Long totalSumBuying = buyOrderRepository.sumBuyPrice(stock) + totalPrice;
+                int totalAmount = buyOrderRepository.sumBuyAmount(stock)+amount;
+                int avgBuying = Long.valueOf(totalSumBuying/totalAmount).intValue();
+
+                stock.setAvgBuying(avgBuying);
                 stock.updateAmount(true, amount);
             }
             buyOrderRepository.save(

@@ -59,11 +59,17 @@ public class StockScheduler {
                                     .stockCode(stockCode)
                                     .amount(orderAmount)
                                     .account(account)
+                                    .avgBuying(orderPrice)
                                     .profit(0L)
                                     .returnRate(0f)
                                     .build()
                     );
                 } else {
+                    Long totalSumBuying = buyOrderRepository.sumBuyPrice(stock) + totalPrice;
+                    int totalAmount = buyOrderRepository.sumBuyAmount(stock)+orderAmount;
+                    int avgBuying = Long.valueOf(totalSumBuying/totalAmount).intValue();
+
+                    stock.setAvgBuying(avgBuying);
                     stock.updateAmount(true, orderAmount);
                 }
                 account.updateBalance(true, totalPrice);

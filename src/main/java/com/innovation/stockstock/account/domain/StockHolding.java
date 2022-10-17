@@ -42,4 +42,7 @@ public class StockHolding {
     public void setProfit(Long profit){
         this.profit=profit;
     }
+    public void setAvgBuying(int avgBuying){
+        this.avgBuying=avgBuying;
+    }
 }

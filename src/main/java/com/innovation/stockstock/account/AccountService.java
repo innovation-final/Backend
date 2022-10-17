@@ -75,7 +75,7 @@ public class AccountService {
             }
             int curPrice = Integer.parseInt(redisRepository.getTradePrice(stockHolding.getStockCode()));
             int amount = buyOrderRepository.sumBuyAmount(stockHolding);
-            Long avgBuying = buyOrderRepository.sumBuyPrice(stockHolding)/amount; // stockHolding.getAvgBuying();
+            Long avgBuying = buyOrderRepository.sumBuyPrice(stockHolding)/amount;
             Long profit = Long.valueOf((curPrice - avgBuying) *stockHolding.getAmount());
             stockHolding.setProfit(profit);
             // float returnRate = Float.valueOf((curPrice-avgBuying)/avgBuying)-1;
@@ -136,8 +136,7 @@ public class AccountService {
                 continue;
             }
             int curPrice = Integer.parseInt(redisRepository.getTradePrice(stockHolding.getStockCode()));
-            int amount = buyOrderRepository.sumBuyAmount(stockHolding);
-            Long avgBuying = buyOrderRepository.sumBuyPrice(stockHolding)/amount; // stockHolding.getAvgBuying();
+            int avgBuying = stockHolding.getAvgBuying();
             Long profit = Long.valueOf((curPrice - avgBuying) *stockHolding.getAmount());
             stockHolding.setProfit(profit);
 
