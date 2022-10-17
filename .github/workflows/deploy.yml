@@ -5,14 +5,6 @@ on:
     branches:
       - main
 
-# 본인이 설정한 값을 여기서 채워넣습니다.
-# 리전, 버킷 이름, CodeDeploy 앱 이름, CodeDeploy 배포 그룹 이름
-env:
-  AWS_REGION: ap-northeast-2
-  S3_BUCKET_NAME: innovation-final-cd
-  CODE_DEPLOY_APPLICATION_NAME: Stock-Stock
-  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: stock-stock
-
 permissions:
   contents: read
 
@@ -23,6 +15,14 @@ jobs:
     environment: production
 
     steps:
+    # 환경 세팅
+    - name: Set environment values
+      run: |
+        echo "AWS_REGION=ap-northeast-2" >> $GITHUB_ENV |
+        echo "S3_BUCKET_NAME=innovation-final-cd" >> $GITHUB_ENV |
+        echo "CODE_DEPLOY_APPLICATION_NAME=Stock-Stock" >> $GITHUB_ENV |
+        echo "CODE_DEPLOY_DEPLOYMENT_GROUP_NAME=stock-stock" >> $GITHUB_ENV     
+      
     # 기본 체크아웃
     - name: Checkout
       uses: actions/checkout@v3

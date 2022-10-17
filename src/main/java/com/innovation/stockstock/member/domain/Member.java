@@ -28,7 +28,6 @@ public class Member {
     private String nickname;
     private String profileImg = "https://stockstock.s3.ap-northeast-2.amazonaws.com/%EA%B0%9C%EB%AF%B8.jpg";
     private String profileMsg;
-    private float totalReturnRate;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Achievements> achievements= new ArrayList<>();

@@ -1,6 +1,5 @@
 package com.innovation.stockstock.chatRedis;
 
-import com.innovation.stockstock.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
