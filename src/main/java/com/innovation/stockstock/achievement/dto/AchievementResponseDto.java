@@ -7,4 +7,5 @@ import lombok.Getter;
 public class AchievementResponseDto {
     private Long id;
     private String name;
+    private String date;
 }

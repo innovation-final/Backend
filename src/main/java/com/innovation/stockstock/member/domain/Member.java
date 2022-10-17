@@ -1,7 +1,7 @@
 package com.innovation.stockstock.member.domain;
 
 import com.innovation.stockstock.account.domain.Account;
-import com.innovation.stockstock.achievement.domain.Achievement;
+import com.innovation.stockstock.achievement.domain.MemberAchievement;
 import com.innovation.stockstock.notification.domain.Notification;
 import com.innovation.stockstock.stock.like.LikeStock;
 import com.innovation.stockstock.post.domain.Post;
@@ -34,11 +34,8 @@ public class Member {
     private String profileMsg;
     private float totalReturnRate;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "member_achievement",
-            joinColumns = @JoinColumn(name = "member_id"),
-            inverseJoinColumns = @JoinColumn(name = "achievement_id"))
-    private List<Achievement> achievements = new ArrayList<>();
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MemberAchievement> memberAchievements = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
