@@ -20,6 +20,7 @@ import com.innovation.stockstock.post.repository.DislikeRepository;
 import com.innovation.stockstock.post.repository.LikeRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import com.innovation.stockstock.security.jwt.JwtProvider;
+import com.innovation.stockstock.security.jwt.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +52,7 @@ public class MyPageService {
     private final CommentRepository commentRepository;
     private final LikeRepository likeRepository;
     private final DislikeRepository dislikeRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public ResponseDto<?> getMyProfile(HttpServletRequest request) {
         Member member = getMemberFromJwt(request);
@@ -124,6 +126,7 @@ public class MyPageService {
             post.updateDislikes(false);
         }
         memberRepository.deleteById(memberId);
+        refreshTokenRepository.deleteById(getMemberFromJwt(request).getEmail());
         return ResponseDto.success("Delete Success");
     }
 
