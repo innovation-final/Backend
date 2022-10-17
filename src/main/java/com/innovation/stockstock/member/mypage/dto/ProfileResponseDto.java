@@ -1,6 +1,6 @@
 package com.innovation.stockstock.member.mypage.dto;
 
-import com.innovation.stockstock.member.dto.AchievementsResponseDto;
+import com.innovation.stockstock.achievement.dto.AchievementResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,5 +18,5 @@ public class ProfileResponseDto {
     private String profileMsg;
     private String email;
     private float totalReturnRate;
-    private List<AchievementsResponseDto> achievements;
+    private List<AchievementResponseDto> achievements;
 }

@@ -3,13 +3,21 @@ package com.innovation.stockstock.member.mypage;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.innovation.stockstock.achievement.domain.MemberAchievement;
+import com.innovation.stockstock.comment.domain.Comment;
+import com.innovation.stockstock.comment.repository.CommentRepository;
 import com.innovation.stockstock.common.dto.ResponseDto;
-import com.innovation.stockstock.member.dto.AchievementsResponseDto;
-import com.innovation.stockstock.member.domain.Achievements;
+import com.innovation.stockstock.achievement.dto.AchievementResponseDto;
+import com.innovation.stockstock.achievement.domain.Achievement;
 import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.member.mypage.dto.ProfileRequestDto;
 import com.innovation.stockstock.member.mypage.dto.ProfileResponseDto;
 import com.innovation.stockstock.member.repository.MemberRepository;
+import com.innovation.stockstock.post.domain.DislikePost;
+import com.innovation.stockstock.post.domain.LikePost;
+import com.innovation.stockstock.post.domain.Post;
+import com.innovation.stockstock.post.repository.DislikeRepository;
+import com.innovation.stockstock.post.repository.LikeRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import com.innovation.stockstock.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -40,15 +48,20 @@ public class MyPageService {
     private final AmazonS3Client s3Client;
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
+    private final CommentRepository commentRepository;
+    private final LikeRepository likeRepository;
+    private final DislikeRepository dislikeRepository;
 
     public ResponseDto<?> getMyProfile(HttpServletRequest request) {
         Member member = getMemberFromJwt(request);
-        List<AchievementsResponseDto> achievementsList = new ArrayList<>();
-        for (Achievements ach : member.getAchievements()) {
-            AchievementsResponseDto responseDto = AchievementsResponseDto.builder()
-                    .AchievementCode(ach.getAchievementCode())
-                    .member(member)
-                    .id(ach.getId())
+        List<AchievementResponseDto> achievementsList = new ArrayList<>();
+        List<MemberAchievement> memberAchievements = member.getMemberAchievements();
+        for (MemberAchievement memberAchievement : memberAchievements) {
+            Achievement achievement = memberAchievement.getAchievement();
+            AchievementResponseDto responseDto = AchievementResponseDto.builder()
+                    .id(achievement.getId())
+                    .name(achievement.getName())
+                    .date(String.valueOf(memberAchievement.getCreatedAt()))
                     .build();
             achievementsList.add(responseDto);
         }
@@ -92,9 +105,25 @@ public class MyPageService {
         }
     }
 
+    @Transactional
     public ResponseDto<?> deleteMyAccount(HttpServletRequest request) {
-        Member member = getMemberFromJwt(request);
-        memberRepository.deleteById(member.getId());
+        Long memberId = getMemberFromJwt(request).getId();
+        List<Comment> comments = commentRepository.findAllByMemberId(memberId);
+        for (Comment comment : comments) {
+            Post post = comment.getPost();
+            post.updateCommentNum(false);
+        }
+        List<LikePost> likePosts = likeRepository.findAllByMemberId(memberId);
+        for (LikePost likePost : likePosts) {
+            Post post = likePost.getPost();
+            post.updateLikes(false);
+        }
+        List<DislikePost> dislikePosts = dislikeRepository.findAllByMemberId(memberId);
+        for (DislikePost dislikePost : dislikePosts) {
+            Post post = dislikePost.getPost();
+            post.updateDislikes(false);
+        }
+        memberRepository.deleteById(memberId);
         return ResponseDto.success("Delete Success");
     }
 

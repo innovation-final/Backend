@@ -28,9 +28,10 @@ public class Post extends Timestamped {
     @Column(nullable = false)
     private String content;
     private String stockName;
-    private Long likes;
-    private Long dislikes;
+    private int likes;
+    private int dislikes;
     private int commentNum;
+    private int views;
 
     @ManyToOne
     @JoinColumn(name = "member_id")
@@ -51,9 +52,10 @@ public class Post extends Timestamped {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
         this.stockName = requestDto.getStockName();
-        this.likes = 0L;
-        this.dislikes = 0L;
+        this.likes = 0;
+        this.dislikes = 0;
         this.commentNum = 0;
+        this.views = 0;
         this.member = member;
     }
 
@@ -67,18 +69,14 @@ public class Post extends Timestamped {
         if (isAdded) {
             this.likes++;
         } else {
-            if (likes > 0L) {
-                this.likes--;
-            }
+            this.likes--;
         }
     }
     public void updateDislikes(Boolean isAdded) {
         if (isAdded) {
             this.dislikes++;
         } else {
-            if (dislikes > 0L) {
-                this.dislikes--;
-            }
+            this.dislikes--;
         }
     }
 
@@ -86,9 +84,11 @@ public class Post extends Timestamped {
         if (isAdded) {
             this.commentNum++;
         } else {
-            if (commentNum > 0) {
-                this.commentNum--;
-            }
+            this.commentNum--;
         }
+    }
+
+    public void addViews() {
+        this.views++;
     }
 }
