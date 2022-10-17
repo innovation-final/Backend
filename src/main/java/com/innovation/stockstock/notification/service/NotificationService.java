@@ -96,7 +96,7 @@ public class NotificationService {
     public ResponseEntity<?> noticeLikeStockPrice(Member member){
         List<LikeStock> likeStockList = member.getLikeStocks();
         for(LikeStock likeStock:likeStockList){
-            int curPrice = (int) redisRepository.getTradePrice(likeStock.getStockId());
+            int curPrice = Integer.valueOf(redisRepository.getTradePrice(likeStock.getStockId()));
             String stockCode = likeStock.getStockId();
             String stockName = stockRepository.findByCode(stockCode).getName();
             NotificationRequestDto notificationRequestDto=null;
