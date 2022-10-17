@@ -44,12 +44,19 @@ public class OrderService {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
         Boolean isSigned = requestDto.getIsSigned();
         String orderCategory = requestDto.getOrderCategory();
-        LocalDateTime startDate = LocalDate.parse(requestDto.getStartDate(), formatter).atStartOfDay();
-        LocalDateTime endDate = LocalDate.parse(requestDto.getEndDate(), formatter).atTime(LocalTime.MAX);
+        LocalDateTime startDate;
+        LocalDateTime endDate;
+
+        if (requestDto.getStartDate() == null && requestDto.getEndDate() == null) {
+            startDate = LocalDateTime.of(LocalDate.now().getYear(), 1, 1, 0, 0, 0);
+            endDate = LocalDateTime.now();
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            startDate = LocalDate.parse(requestDto.getStartDate(), formatter).atStartOfDay();
+            endDate = LocalDate.parse(requestDto.getEndDate(), formatter).atTime(LocalTime.MAX);
+        }
 
         ArrayList<OrderResponseDto> res = new ArrayList<>();
         if (!isSigned) {
@@ -125,8 +132,8 @@ public class OrderService {
                 );
             } else {
                 Long totalSumBuying = buyOrderRepository.sumBuyPrice(stock) + totalPrice;
-                int totalAmount = buyOrderRepository.sumBuyAmount(stock)+amount;
-                int avgBuying = Long.valueOf(totalSumBuying/totalAmount).intValue();
+                int totalAmount = buyOrderRepository.sumBuyAmount(stock) + amount;
+                int avgBuying = Long.valueOf(totalSumBuying / totalAmount).intValue();
 
                 stock.setAvgBuying(avgBuying);
                 stock.updateAmount(true, amount);
