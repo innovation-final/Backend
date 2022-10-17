@@ -7,8 +7,7 @@ import lombok.Getter;
 @Builder
 public class StockHoldingResponseDto {
     private Long id;
-    private String stockCode;
-    private float targetReturnRate;
+    private String stockName;
     private Long profit;
     private float returnRate;
     private int amount;
