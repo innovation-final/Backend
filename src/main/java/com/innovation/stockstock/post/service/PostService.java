@@ -35,7 +35,7 @@ public class PostService {
     private final JwtProvider jwtProvider;
     private final PostRepository postRepository;
     private final StockListRepository stockListRepository;
-    private final CommentRepository commentRepository;
+//    private final CommentRepository commentRepository;
 
     @Transactional // 지연로딩 에러 해결
     public ResponseEntity<?> getPost(Long postId,HttpServletRequest request) {
@@ -44,8 +44,8 @@ public class PostService {
         if (post == null) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
-        List<Comment> comments = commentRepository.findAllByPostOrderByCreatedAt(post);
-        for (Comment comment : comments) {
+        //List<Comment> comments = commentRepository.findAllByPostOrderByCreatedAt(post);
+        for (Comment comment : post.getComments()) {
             CommentResponseDto responseDto = CommentResponseDto.builder()
                     .id(comment.getId())
                     .content(comment.getContent())
