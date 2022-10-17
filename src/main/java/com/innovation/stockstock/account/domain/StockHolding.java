@@ -22,6 +22,7 @@ public class StockHolding {
     private int amount;
     private float returnRate;
     private Long profit;
+    private int avgBuying;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
