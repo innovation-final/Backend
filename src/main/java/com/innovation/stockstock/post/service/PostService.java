@@ -45,6 +45,8 @@ public class PostService {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
 
+        post.addViews();
+
         for (Comment comment : post.getComments()) {
             CommentResponseDto responseDto = CommentResponseDto.builder()
                     .id(comment.getId())
@@ -135,6 +137,7 @@ public class PostService {
                 .likes(post.getLikes())
                 .dislikes(post.getDislikes())
                 .commentNum(post.getCommentNum())
+                .views(post.getViews())
                 .member(post.getMember())
                 .comments(responseDtoList)
                 .createdAt(String.valueOf(post.getCreatedAt()))
@@ -155,6 +158,7 @@ public class PostService {
                     .likes(post.getLikes())
                     .dislikes(post.getDislikes())
                     .commentNum(post.getCommentNum())
+                    .views(post.getViews())
                     .member(post.getMember())
                     .createdAt(String.valueOf(post.getCreatedAt()))
                     .modifiedAt(String.valueOf(post.getModifiedAt()))

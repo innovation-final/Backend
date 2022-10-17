@@ -31,6 +31,7 @@ public class Post extends Timestamped {
     private int likes;
     private int dislikes;
     private int commentNum;
+    private int views;
 
     @ManyToOne
     @JoinColumn(name = "member_id")
@@ -54,6 +55,7 @@ public class Post extends Timestamped {
         this.likes = 0;
         this.dislikes = 0;
         this.commentNum = 0;
+        this.views = 0;
         this.member = member;
     }
 
@@ -84,5 +86,9 @@ public class Post extends Timestamped {
         } else {
             this.commentNum--;
         }
+    }
+
+    public void addViews() {
+        this.views++;
     }
 }

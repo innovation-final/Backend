@@ -19,6 +19,7 @@ public class PostResponseDto {
     private int likes;
     private int dislikes;
     private int commentNum;
+    private int views;
     private Member member;
     private List<CommentResponseDto> comments;
     private String createdAt;
