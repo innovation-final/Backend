@@ -99,9 +99,14 @@ public class AccountService {
 
         account.setTotalProfit(accountTotalProfit);
         BigDecimal totalProfit = new BigDecimal(accountTotalProfit);
-        BigDecimal totalBuyingPrice = new BigDecimal(totalBuyPrice);
-        float returnRate = totalProfit.divide(totalBuyingPrice, 5, RoundingMode.HALF_EVEN).floatValue();
-        account.setTotalReturnRate(returnRate);
+
+        if(totalBuyPrice==0){
+            account.setTotalReturnRate(0);
+        }else{
+            BigDecimal totalBuyingPrice = new BigDecimal(totalBuyPrice);
+            float returnRate = totalProfit.divide(totalBuyingPrice, 5, RoundingMode.HALF_EVEN).floatValue();
+            account.setTotalReturnRate(returnRate);
+        }
 
         AccountResponseDto accountResponseDto = AccountResponseDto.builder()
                 .id(account.getId())
