@@ -67,6 +67,10 @@ public class MyPageService {
                     .build();
             achievementsList.add(responseDto);
         }
+        float totalReturnRate = 0;
+        if(!(member.getAccount()==null)){
+            totalReturnRate = member.getAccount().getTotalReturnRate();
+        }
         return ResponseDto.success(
                 ProfileResponseDto.builder()
                         .id(member.getId())
@@ -74,7 +78,7 @@ public class MyPageService {
                         .nickname(member.getNickname())
                         .profileImg(member.getProfileImg())
                         .profileMsg(member.getProfileMsg())
-                        .totalReturnRate(member.getAccount().getTotalReturnRate())
+                        .totalReturnRate(totalReturnRate)
                         .achievements(achievementsList)
                         .build()
         );
