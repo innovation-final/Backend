@@ -133,10 +133,6 @@ public class AccountService {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
         for (StockHolding stockHolding : account.getStockHoldingsList()) {
-            if(stockHolding.getAmount()==0){
-                stockHoldingRepository.deleteById(stockHolding.getId());
-                continue;
-            }
             int curPrice = Integer.parseInt(redisRepository.getTradePrice(stockHolding.getStockCode()));
             int avgBuying = stockHolding.getAvgBuying();
             Long profit = Long.valueOf((curPrice - avgBuying) *stockHolding.getAmount());
