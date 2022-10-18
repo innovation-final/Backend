@@ -24,6 +24,7 @@ public class LimitPriceOrder {
     @Id @GeneratedValue
     private Long id;
     private String stockCode;
+    private String stockName;
     private String category;
     private int amount;
     private int price;

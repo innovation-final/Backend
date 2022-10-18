@@ -41,6 +41,7 @@ public class StockScheduler {
         for (LimitPriceOrder limitPriceOrder : limitPriceOrders) {
             Account account = limitPriceOrder.getAccount();
             String category = limitPriceOrder.getCategory();
+            String stockName = limitPriceOrder.getStockName();
             String stockCode = limitPriceOrder.getStockCode();
             int orderPrice = limitPriceOrder.getPrice();
             int orderAmount = limitPriceOrder.getAmount();
@@ -57,6 +58,7 @@ public class StockScheduler {
                     stock = stockHoldingRepository.save(
                             StockHolding.builder()
                                     .stockCode(stockCode)
+                                    .stockName(stockName)
                                     .amount(orderAmount)
                                     .account(account)
                                     .avgBuying(orderPrice)
@@ -73,7 +75,7 @@ public class StockScheduler {
                     stock.updateAmount(true, orderAmount);
                 }
                 account.updateBalance(true, totalPrice);
-                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockCode()+"이 지정가("+orderPrice+"원) 이하로 체결되었습니다.");
+                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이하로 매수되었습니다.");
                 notificationService.send(limitPriceOrder.getAccount().getMember().getId(),notificationRequestDto);
                 limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
                 buyOrderRepository.save(
@@ -88,7 +90,7 @@ public class StockScheduler {
             } else if (stock != null && category.equals("sell") && orderPrice <= currentPrice && orderAmount <= stock.getAmount()) { // 지정가 매도주문 체결
                 stock.updateAmount(false, orderAmount);
                 account.updateBalance(false, totalPrice);
-                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockCode()+"이 지정가("+orderPrice+"원) 이상으로 체결되었습니다.");
+                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이상으로 매도되었습니다.");
                 notificationService.send(limitPriceOrder.getAccount().getMember().getId(),notificationRequestDto);
                 limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
                 sellOrderRepository.save(
