@@ -43,6 +43,7 @@ public class AccountService {
                 .expireAt(expiredAt)
                 .member(member)
                 .build();
+
         accountRepository.save(account);
         return ResponseEntity.ok().body(ResponseDto.success("Account opening"));
     }
@@ -146,7 +147,7 @@ public class AccountService {
         Account account = accountRepository.findByMember(member);
         if(account == null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
-        } else if (!account.getMember().equals(member)) {
+        } else if (!account.getMember().getId().equals(member.getId())) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NOT_ALLOWED));
         } else {
             if(requestDto.getTargetReturnRate()!=0){
@@ -156,7 +157,7 @@ public class AccountService {
                 account.updateExpiredAt(requestDto.getExpireAt());
             }
             if(requestDto.getSeedMoney()!=0){
-                account.updateSeedMoney(requestDto.getSeedMoney());
+                account.plusBalance(requestDto.getSeedMoney());
             }
             return ResponseEntity.ok().body(ResponseDto.success("Account Info Update Success"));
         }

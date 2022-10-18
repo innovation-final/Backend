@@ -79,8 +79,8 @@ public class Account extends Timestamped {
     public void updateExpiredAt(int days) {
         this.expireAt = LocalDateTime.now().plusDays(days);
     }
-    public void updateSeedMoney(int seedMoney){
-        this.seedMoney = seedMoney;
+    public void plusBalance(int seedMoney){
+        this.balance += seedMoney;
     }
 
 }
