@@ -73,4 +73,14 @@ public class Account extends Timestamped {
         this.totalProfit=totalProfit;
     }
 
+    public void updateTargetRate(float targetReturnRate) {
+        this.targetReturnRate = targetReturnRate;
+    }
+    public void updateExpiredAt(int days) {
+        this.expireAt = LocalDateTime.now().plusDays(days);
+    }
+    public void updateSeedMoney(int seedMoney){
+        this.seedMoney = seedMoney;
+    }
+
 }

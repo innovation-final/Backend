@@ -28,4 +28,10 @@ public class AccountController {
     public ResponseEntity<?> getReturn(){
         return accountService.getReturn();
     }
+
+    // 계좌 정보 수정
+    @PatchMapping("/api/auth/account")
+    public ResponseEntity<?> updateAccount(@RequestBody AccountRequestDto requestDto){
+        return accountService.updateAccount(requestDto);
+    }
 }

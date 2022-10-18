@@ -139,4 +139,26 @@ public class AccountService {
         }
         return ResponseEntity.ok().body(ResponseDto.success(responseDtoList));
     }
+
+    @Transactional
+    public ResponseEntity<?> updateAccount(AccountRequestDto requestDto) {
+        Member member = MemberUtil.getMember();
+        Account account = accountRepository.findByMember(member);
+        if(account == null){
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+        } else if (!account.getMember().equals(member)) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NOT_ALLOWED));
+        } else {
+            if(requestDto.getTargetReturnRate()!=0){
+                account.updateTargetRate(requestDto.getTargetReturnRate());
+            }
+            if(requestDto.getExpireAt()!=0){
+                account.updateExpiredAt(requestDto.getExpireAt());
+            }
+            if(requestDto.getSeedMoney()!=0){
+                account.updateSeedMoney(requestDto.getSeedMoney());
+            }
+            return ResponseEntity.ok().body(ResponseDto.success("Account Info Update Success"));
+        }
+    }
 }
