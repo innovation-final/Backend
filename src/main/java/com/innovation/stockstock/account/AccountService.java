@@ -13,7 +13,6 @@ import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.order.repository.BuyOrderRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
-import com.innovation.stockstock.stock.document.StockList;
 import com.innovation.stockstock.stock.repository.StockListRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -58,7 +57,7 @@ public class AccountService {
         return ResponseEntity.ok().body(ResponseDto.success("Account opening"));
     }
 
-    @Transactional // 지연로딩 해결
+    @Transactional
     public ResponseEntity<?> getAccount() {
         Member member = getMember();
         List<StockHoldingResponseDto> responseDtoList = new ArrayList<>();
@@ -87,10 +86,9 @@ public class AccountService {
 
             accountTotalProfit +=profit;
 
-            StockList stock= stockListRepository.findByCode(stockHolding.getStockCode());
             StockHoldingResponseDto responseDto = StockHoldingResponseDto.builder()
                     .id(stockHolding.getId())
-                    .stockName(stock.getName())
+                    .stockName(stockHolding.getStockName())
                     .profit(stockHolding.getProfit())
                     .returnRate(stockHolding.getReturnRate())
                     .amount(stockHolding.getAmount())
@@ -103,7 +101,6 @@ public class AccountService {
         BigDecimal totalProfit = new BigDecimal(accountTotalProfit);
         BigDecimal totalBuyingPrice = new BigDecimal(totalBuyPrice);
         float returnRate = totalProfit.divide(totalBuyingPrice, 5, RoundingMode.HALF_EVEN).floatValue();
-        // -50/203700
         account.setTotalReturnRate(returnRate);
 
         AccountResponseDto accountResponseDto = AccountResponseDto.builder()
@@ -148,10 +145,9 @@ public class AccountService {
 
             stockHolding.setReturnRate(returnRate);
 
-            StockList stock= stockListRepository.findByCode(stockHolding.getStockCode());
             StockHoldingResponseDto responseDto = StockHoldingResponseDto.builder()
                     .id(stockHolding.getId())
-                    .stockName(stock.getName())
+                    .stockName(stockHolding.getStockName())
                     .profit(stockHolding.getProfit())
                     .returnRate(stockHolding.getReturnRate())
                     .amount(stockHolding.getAmount())

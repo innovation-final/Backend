@@ -18,6 +18,7 @@ public class StockHolding {
     @Column(name = "stockholding_id")
     private Long id;
     private String stockCode;
+    private String stockName;
     private float targetReturnRate;
     private Long profit;
     private float returnRate;
@@ -38,7 +39,6 @@ public class StockHolding {
     public void setReturnRate(float returnRate){
         this.returnRate=returnRate;
     }
-
     public void setProfit(Long profit){
         this.profit=profit;
     }

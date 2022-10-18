@@ -13,4 +13,5 @@ public class OrderRequestDto {
     private String orderCategory;
     private int amount;
     private int price;
+    private String stockName;
 }

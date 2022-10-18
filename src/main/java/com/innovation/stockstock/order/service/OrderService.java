@@ -116,6 +116,7 @@ public class OrderService {
         int amount = requestDto.getAmount();
         int price = requestDto.getPrice();
         int totalPrice = amount * price;
+        String stockName = requestDto.getStockName();
 
         if (category.equals("시장가") && totalPrice <= account.getBalance()) {
             StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
@@ -123,6 +124,7 @@ public class OrderService {
                 stock = stockHoldingRepository.save(
                         StockHolding.builder()
                                 .stockCode(stockCode)
+                                .stockName(stockName)
                                 .amount(amount)
                                 .account(account)
                                 .avgBuying(price)
@@ -152,6 +154,7 @@ public class OrderService {
             limitPriceOrderRepository.save(
                     LimitPriceOrder.builder()
                             .stockCode(stockCode)
+                            .stockName(stockName)
                             .category("buy")
                             .price(price)
                             .amount(amount)
@@ -175,6 +178,7 @@ public class OrderService {
         int amount = requestDto.getAmount();
         int price = requestDto.getPrice();
         int totalPrice = amount * price;
+        String stockName = requestDto.getStockName();
 
         StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
         if (stock == null) {
@@ -197,6 +201,7 @@ public class OrderService {
             limitPriceOrderRepository.save(
                     LimitPriceOrder.builder()
                             .stockCode(stockCode)
+                            .stockName(stockName)
                             .category("sell")
                             .price(price)
                             .amount(amount)
