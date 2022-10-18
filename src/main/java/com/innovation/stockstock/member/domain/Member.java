@@ -9,11 +9,8 @@ import com.innovation.stockstock.comment.domain.Comment;
 import com.innovation.stockstock.post.domain.DislikePost;
 import com.innovation.stockstock.post.domain.LikePost;
 import lombok.*;
-
 import javax.persistence.*;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +27,7 @@ public class Member {
     private Long id;
     private String email;
     private String nickname;
-    private String profileImg = "https://stockstock.s3.ap-northeast-2.amazonaws.com/%EA%B0%9C%EB%AF%B8.jpg";
+    private String profileImg = "https://stockstock.s3.ap-northeast-2.amazonaws.com/e00a05fd-882b-448d-8b4f-9f3a541a5e2b-%EA%B0%9C%EB%AF%B8.jpg";
     private String profileMsg;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)

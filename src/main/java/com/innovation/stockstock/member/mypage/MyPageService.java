@@ -41,11 +41,8 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class MyPageService {
-
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-    @Value("${basic.image}")
-    private String basicImg;
     private final AmazonS3Client s3Client;
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
@@ -143,6 +140,7 @@ public class MyPageService {
 
     private String uploadS3(MultipartFile profileImg, Member member) throws IOException {
         String imgUrl = member.getProfileImg();
+        String basicImg ="https://stockstock.s3.ap-northeast-2.amazonaws.com/e00a05fd-882b-448d-8b4f-9f3a541a5e2b-%EA%B0%9C%EB%AF%B8.jpg";
         if(imgUrl!=null && !imgUrl.equals(basicImg)){fileDelete(imgUrl);}
         String s3FileName = UUID.randomUUID() + "-" + profileImg.getOriginalFilename();
         ObjectMetadata objMeta = new ObjectMetadata();
