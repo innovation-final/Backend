@@ -114,6 +114,7 @@ public class MyPageService {
     @Transactional
     public ResponseDto<?> deleteMyAccount(HttpServletRequest request) {
         Long memberId = getMemberFromJwt(request).getId();
+        String email = getMemberFromJwt(request).getEmail();
         List<Comment> comments = commentRepository.findAllByMemberId(memberId);
         for (Comment comment : comments) {
             Post post = comment.getPost();
@@ -130,7 +131,7 @@ public class MyPageService {
             post.updateDislikes(false);
         }
         memberRepository.deleteById(memberId);
-        refreshTokenRepository.deleteById(getMemberFromJwt(request).getEmail());
+        refreshTokenRepository.deleteById(email);
         return ResponseDto.success("Delete Success");
     }
 

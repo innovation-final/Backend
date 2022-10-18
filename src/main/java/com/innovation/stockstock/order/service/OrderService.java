@@ -65,6 +65,7 @@ public class OrderService {
                 res.add(
                         OrderResponseDto.builder()
                                 .id(limitPriceOrder.getId())
+                                .stockName(limitPriceOrder.getStockName())
                                 .date(String.valueOf(limitPriceOrder.getOrderAt()))
                                 .orderCategory("지정가")
                                 .amount(limitPriceOrder.getAmount())
@@ -79,6 +80,7 @@ public class OrderService {
                     res.add(
                             OrderResponseDto.builder()
                                     .id(buyOrder.getId())
+                                    .stockName(buyOrder.getStockName())
                                     .date(String.valueOf(buyOrder.getBuyAt()))
                                     .orderCategory(buyOrder.getOrderCategory())
                                     .amount(buyOrder.getBuyAmount())
@@ -92,6 +94,7 @@ public class OrderService {
                     res.add(
                             OrderResponseDto.builder()
                                     .id(sellOrder.getId())
+                                    .stockName(sellOrder.getStockName())
                                     .date(String.valueOf(sellOrder.getSellAt()))
                                     .orderCategory(sellOrder.getOrderCategory())
                                     .amount(sellOrder.getSellAmount())
@@ -142,6 +145,7 @@ public class OrderService {
             }
             buyOrderRepository.save(
                     BuyOrder.builder()
+                            .stockName(stockName)
                             .orderCategory(category)
                             .buyPrice(price)
                             .buyAmount(amount)
@@ -188,6 +192,7 @@ public class OrderService {
         if (category.equals("시장가") && amount <= stock.getAmount()) {
             sellOrderRepository.save(
                     SellOrder.builder()
+                            .stockName(stockName)
                             .orderCategory(category)
                             .sellPrice(price)
                             .sellAmount(amount)

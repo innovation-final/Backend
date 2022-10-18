@@ -23,7 +23,7 @@ public class SellOrder {
     @Id
     @GeneratedValue
     private Long id;
-
+    private String stockName;
     private String orderCategory;
     @CreatedDate
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd",timezone = "Asia/Seoul")
