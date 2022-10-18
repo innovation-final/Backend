@@ -22,6 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -131,7 +133,7 @@ public class OrderService {
                                 .amount(amount)
                                 .account(account)
                                 .avgBuying(price)
-                                .returnRate(0f)
+                                .returnRate(0f) // 시장가 = 현재가, 매수 시 수익 0
                                 .profit(0L)
                                 .build()
                 );
@@ -142,6 +144,15 @@ public class OrderService {
 
                 stock.setAvgBuying(avgBuying);
                 stock.updateAmount(true, amount);
+
+                long profit = price*amount - totalSumBuying; // 총보유량 * 현재가 - 총매수가
+                stock.setProfit(profit);
+
+                BigDecimal curPrice = new BigDecimal(price*totalAmount);
+                BigDecimal sumBuying=new BigDecimal(totalSumBuying);
+                float returnRate = curPrice.subtract(sumBuying).divide(sumBuying, 5, RoundingMode.HALF_EVEN).floatValue();
+                stock.setReturnRate(returnRate);
+
             }
             buyOrderRepository.save(
                     BuyOrder.builder()

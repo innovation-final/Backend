@@ -73,4 +73,7 @@ public class Account extends Timestamped {
         this.totalProfit=totalProfit;
     }
 
+    public void updateExpiredAt(int days) {
+        this.expireAt = this.expireAt.plusDays(days);
+    }
 }
