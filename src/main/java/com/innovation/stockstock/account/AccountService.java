@@ -4,6 +4,7 @@ import com.innovation.stockstock.account.domain.Account;
 import com.innovation.stockstock.account.domain.StockHolding;
 import com.innovation.stockstock.account.dto.AccountRequestDto;
 import com.innovation.stockstock.account.dto.AccountResponseDto;
+import com.innovation.stockstock.account.dto.AccountUpdateRequestDto;
 import com.innovation.stockstock.account.dto.StockHoldingResponseDto;
 import com.innovation.stockstock.account.repository.AccountRepository;
 import com.innovation.stockstock.chatRedis.redis.RedisRepository;
@@ -126,7 +127,7 @@ public class AccountService {
             BigDecimal cur = new BigDecimal(curPrice);
             BigDecimal avgBuy=new BigDecimal(avgBuying);
             float returnRate = cur.subtract(avgBuy).divide(avgBuy, 5, RoundingMode.HALF_EVEN).floatValue();
-            //double returnRate = (curPrice-avgBuying)/avgBuying;
+            // double returnRate = (curPrice-avgBuying)/avgBuying;
             stockHolding.setReturnRate(returnRate);
 
             StockHoldingResponseDto responseDto = StockHoldingResponseDto.builder()
@@ -142,7 +143,7 @@ public class AccountService {
     }
 
     @Transactional
-    public ResponseEntity<?> updateAccount(AccountRequestDto requestDto) {
+    public ResponseEntity<?> updateAccount(AccountUpdateRequestDto requestDto) {
         Member member = MemberUtil.getMember();
         Account account = accountRepository.findByMember(member);
         if(account == null){
@@ -150,14 +151,8 @@ public class AccountService {
         } else if (!account.getMember().getId().equals(member.getId())) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NOT_ALLOWED));
         } else {
-            if(requestDto.getTargetReturnRate()!=0){
-                account.updateTargetRate(requestDto.getTargetReturnRate());
-            }
             if(requestDto.getExpireAt()!=0){
                 account.updateExpiredAt(requestDto.getExpireAt());
-            }
-            if(requestDto.getSeedMoney()!=0){
-                account.plusBalance(requestDto.getSeedMoney());
             }
             return ResponseEntity.ok().body(ResponseDto.success("Account Info Update Success"));
         }

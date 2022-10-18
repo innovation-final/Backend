@@ -1,6 +1,7 @@
 package com.innovation.stockstock.account;
 
 import com.innovation.stockstock.account.dto.AccountRequestDto;
+import com.innovation.stockstock.account.dto.AccountUpdateRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +31,8 @@ public class AccountController {
     }
 
     // 계좌 정보 수정
-    @PatchMapping("/api/auth/account")
-    public ResponseEntity<?> updateAccount(@RequestBody AccountRequestDto requestDto){
+    @PostMapping("/api/auth/account/update")
+    public ResponseEntity<?> updateAccount(@RequestBody AccountUpdateRequestDto requestDto){
         return accountService.updateAccount(requestDto);
     }
 }
