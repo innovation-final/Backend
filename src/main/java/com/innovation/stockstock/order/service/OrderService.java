@@ -201,6 +201,9 @@ public class OrderService {
                             .build()
             );
             stock.updateAmount(false, amount);
+            if (stock.getAmount() == 0) {
+                stockHoldingRepository.deleteById(stock.getId());
+            }
             account.updateBalance(false, totalPrice);
         } else if (category.equals("지정가")) {
             limitPriceOrderRepository.save(

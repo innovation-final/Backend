@@ -76,10 +76,11 @@ public class StockScheduler {
                 }
                 account.updateBalance(true, totalPrice);
                 NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이하로 매수되었습니다.");
-                notificationService.send(limitPriceOrder.getAccount().getMember().getId(),notificationRequestDto);
+                notificationService.send(account.getMember().getId(),notificationRequestDto);
                 limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
                 buyOrderRepository.save(
                         BuyOrder.builder()
+                                .stockName(stockName)
                                 .orderCategory("지정가")
                                 .buyPrice(currentPrice)
                                 .buyAmount(orderAmount)
@@ -95,6 +96,7 @@ public class StockScheduler {
                 limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
                 sellOrderRepository.save(
                         SellOrder.builder()
+                                .stockName(stockName)
                                 .orderCategory("지정가")
                                 .sellPrice(currentPrice)
                                 .sellAmount(orderAmount)
@@ -102,6 +104,9 @@ public class StockScheduler {
                                 .stockHolding(stock)
                                 .build()
                 );
+                if (stock.getAmount() == 0) {
+                    stockHoldingRepository.deleteById(stock.getId());
+                }
             }
         }
         System.out.println(LocalDateTime.now());
