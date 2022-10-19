@@ -18,5 +18,4 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findFirst5ByOrderByCreatedAt();
 
     List<Post> findByStockName(String name);
-
 }

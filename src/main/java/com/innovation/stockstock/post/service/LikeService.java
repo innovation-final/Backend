@@ -1,7 +1,14 @@
 package com.innovation.stockstock.post.service;
 
+import com.innovation.stockstock.achievement.domain.Achievement;
+import com.innovation.stockstock.achievement.domain.MemberAchievement;
+import com.innovation.stockstock.achievement.repository.AchievementRepository;
+import com.innovation.stockstock.achievement.repository.MemberAchievementRepository;
 import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.common.dto.ResponseDto;
+import com.innovation.stockstock.notification.domain.Event;
+import com.innovation.stockstock.notification.dto.NotificationRequestDto;
+import com.innovation.stockstock.notification.service.NotificationService;
 import com.innovation.stockstock.post.domain.DislikePost;
 import com.innovation.stockstock.post.domain.LikePost;
 import com.innovation.stockstock.post.repository.DislikeRepository;
@@ -15,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Optional;
 
 @Service
@@ -24,71 +32,98 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
     private final DislikeRepository dislikeRepository;
+    private final MemberAchievementRepository memberAchievementRepository;
+    private final AchievementRepository achievementRepository;
+    private final NotificationService notificationService;
 
     @Transactional
-    public ResponseEntity<Object> disLike(Long postId) {
+    public ResponseEntity<Object> doDisLike(Long postId) {
         Member member = getMember();
         Post post = isPresentPost(postId);
-
-        Optional<DislikePost> isDoneDislike = dislikeRepository.findByPostAndMember(post,member);
-        Optional<LikePost> isDoneLike = likeRepository.findByPostAndMember(post,member);
-
-        if(post==null){
+        if (post == null) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
-        // 기존에 추천한 경우 추천 취소 및 비추천 등록
-        if(isDoneLike.isPresent()) {
-            likeRepository.delete(isDoneLike.get());
+
+        Member postWriter = post.getMember();
+        Optional<DislikePost> dislike = dislikeRepository.findByPostAndMember(post, member);
+        Optional<LikePost> like = likeRepository.findByPostAndMember(post, member);
+
+        if (like.isPresent()) { // 기존에 추천한 경우 추천 취소 및 비추천 등록
+            likeRepository.delete(like.get());
             post.updateLikes(false);
+            postWriter.updateLikeNum(false);
+
             DislikePost dislikePost = DislikePost.builder().post(post).member(member).build();
             post.updateDislikes(true);
+            postWriter.updateDislikeNum(true);
             dislikeRepository.save(dislikePost);
-            return ResponseEntity.ok().body(ResponseDto.success("Like Cancel And Dislike Update Success"));
-        // 과거 비추천하지 않은 경우에만 비추천 등록
-        } else if(isDoneDislike.isEmpty()){
+        } else if (dislike.isEmpty()) { // 과거 비추천하지 않은 경우에만 비추천 등록
             DislikePost dislikePost = DislikePost.builder().post(post).member(member).build();
             dislikeRepository.save(dislikePost);
+            postWriter.updateDislikeNum(true);
             post.updateDislikes(true);
-            return ResponseEntity.ok().body(ResponseDto.success("Dislike Success"));
-        // 과거 비추천한 경우에는 비추천 취소
-        }else{
-            dislikeRepository.delete(isDoneDislike.get());
+        } else { // 과거 비추천한 경우에는 비추천 취소
+            dislikeRepository.delete(dislike.get());
             post.updateDislikes(false);
-            return ResponseEntity.ok().body(ResponseDto.success("Dislike Cancel Success"));
+            postWriter.updateDislikeNum(false);
         }
+
+        if (postWriter.getDislikeNum() == 20) {
+            Achievement achievement = achievementRepository.findByName("DISLIKE");
+            boolean hasAchieved = memberAchievementRepository.existsByMemberAndAchievement(postWriter, achievement);
+            if (!hasAchieved) {
+                memberAchievementRepository.save(new MemberAchievement(postWriter, achievement));
+                NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.뱃지취득, postWriter.getNickname()+"님이 뱃지를 취득하였습니다.");
+                notificationService.send(postWriter.getId(), forPostWriter);
+            }
+        }
+        return ResponseEntity.ok().body(ResponseDto.success("Success"));
     }
 
     @Transactional
     public ResponseEntity<Object> doLike(Long postId) {
         Member member = getMember();
         Post post = isPresentPost(postId);
-        // 유저의 과거 추천, 비추천 이력 불러오기
-        Optional<DislikePost> isDoneDislike = dislikeRepository.findByPostAndMember(post,member);
-        Optional<LikePost> isDoneLike = likeRepository.findByPostAndMember(post,member);
-        // 추천과 비추천 동시 등록 불가
-        if(post==null){
+        if (post == null) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
+
+        Member postWriter = post.getMember();
+        Optional<DislikePost> dislike = dislikeRepository.findByPostAndMember(post, member);
+        Optional<LikePost> like = likeRepository.findByPostAndMember(post, member);
         // 과거 비추천한 경우 비추천 취소 및 추천 등록
-        if(isDoneDislike.isPresent()){
-            dislikeRepository.delete(isDoneDislike.get());
+        if (dislike.isPresent()) {
+            dislikeRepository.delete(dislike.get());
             post.updateDislikes(false);
+            postWriter.updateDislikeNum(false);
+
             LikePost likePost = LikePost.builder().post(post).member(member).build();
             post.updateLikes(true);
+            postWriter.updateLikeNum(true);
             likeRepository.save(likePost);
-            return ResponseEntity.ok().body(ResponseDto.success("Dislike Cancel And Like Update Success"));
             // 과거 추천하지 않은 경우에만 추천 등록
-        }else if(isDoneLike.isEmpty()){
+        } else if (like.isEmpty()) {
             LikePost likePost = LikePost.builder().post(post).member(member).build();
             likeRepository.save(likePost);
             post.updateLikes(true);
-            return ResponseEntity.ok().body(ResponseDto.success("Like Success"));
+            postWriter.updateLikeNum(true);
             // 과거 추천한 경우에는 추천 삭제
-        }else {
-            likeRepository.delete(isDoneLike.get());
+        } else {
+            likeRepository.delete(like.get());
             post.updateLikes(false);
-            return ResponseEntity.ok().body(ResponseDto.success("Like Cancel Success"));
+            postWriter.updateLikeNum(false);
         }
+
+        if (postWriter.getLikeNum() == 10) {
+            Achievement achievement = achievementRepository.findByName("LIKE");
+            boolean hasAchieved = memberAchievementRepository.existsByMemberAndAchievement(postWriter, achievement);
+            if (!hasAchieved) {
+                memberAchievementRepository.save(new MemberAchievement(postWriter, achievement));
+                NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.뱃지취득, postWriter.getNickname()+"님이 뱃지를 취득하였습니다.");
+                notificationService.send(postWriter.getId(), forPostWriter);
+            }
+        }
+        return ResponseEntity.ok().body(ResponseDto.success("Success"));
     }
 
 
@@ -96,7 +131,8 @@ public class LikeService {
         Optional<Post> optionalPost = postRepository.findById(id);
         return optionalPost.orElse(null);
     }
-    public Member getMember(){
+
+    public Member getMember() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userDetails.getMember();
     }

@@ -56,6 +56,7 @@ public class AccountService {
         if(account == null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
+
         List<StockHoldingResponseDto> responseDtoList = new ArrayList<>();
 
         long accountTotalProfit = 0L;
