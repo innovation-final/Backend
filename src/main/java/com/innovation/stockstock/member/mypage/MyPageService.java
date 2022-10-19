@@ -66,6 +66,7 @@ public class MyPageService {
     private final MemberUtil memberUtil;
     private final StockHoldingRepository stockHoldingRepository;
 
+    @Transactional
     public ResponseDto<?> getMyProfile(HttpServletRequest request) {
         Member member = getMemberFromJwt(request);
         List<AchievementResponseDto> achievementsList = achieventsList(member);
