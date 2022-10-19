@@ -18,7 +18,7 @@ import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.achievement.dto.AchievementResponseDto;
 import com.innovation.stockstock.achievement.domain.Achievement;
 import com.innovation.stockstock.member.domain.Member;
-import com.innovation.stockstock.member.mypage.dto.OtherProfiledResponseDto;
+import com.innovation.stockstock.member.mypage.dto.OtherProfileResponseDto;
 import com.innovation.stockstock.member.mypage.dto.ProfileRequestDto;
 import com.innovation.stockstock.member.mypage.dto.ProfileResponseDto;
 import com.innovation.stockstock.member.repository.MemberRepository;
@@ -40,8 +40,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -66,9 +64,10 @@ public class MyPageService {
     private final MemberUtil memberUtil;
     private final StockHoldingRepository stockHoldingRepository;
 
+    @Transactional
     public ResponseDto<?> getMyProfile(HttpServletRequest request) {
         Member member = getMemberFromJwt(request);
-        List<AchievementResponseDto> achievementsList = achieventsList(member);
+        List<AchievementResponseDto> achievementsList = achievementsList(member);
         float totalReturnRate = 0;
         Account account = accountRepository.findByMember(member);
         memberUtil.updateAccountInfoAtCurrentTime(account); // 현재가 기준 수익률 반영
@@ -138,33 +137,6 @@ public class MyPageService {
         return ResponseDto.success("Delete Success");
     }
 
-    private Member getMemberFromJwt(HttpServletRequest request) {
-        Authentication authentication = jwtProvider.getAuthentication(request.getHeader("Authorization").substring(7));
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        return userDetails.getMember();
-    }
-
-    private String uploadS3(MultipartFile profileImg, Member member) throws IOException {
-        String imgUrl = member.getProfileImg();
-        String basicImg ="https://stockstock.s3.ap-northeast-2.amazonaws.com/e00a05fd-882b-448d-8b4f-9f3a541a5e2b-%EA%B0%9C%EB%AF%B8.jpg";
-        if(imgUrl!=null && !imgUrl.equals(basicImg)){fileDelete(imgUrl);}
-        String s3FileName = UUID.randomUUID() + "-" + profileImg.getOriginalFilename();
-        ObjectMetadata objMeta = new ObjectMetadata();
-        objMeta.setContentLength(profileImg.getSize());
-        objMeta.setContentType(profileImg.getContentType()); // 이 값을 설정해야 다운로드가 되지 않음
-        s3Client.putObject(bucket, s3FileName, profileImg.getInputStream(), objMeta);
-       return s3Client.getUrl(bucket, s3FileName).toString();
-    }
-
-    public void fileDelete(String url){
-        try{
-            String decodeVal = URLDecoder.decode(url.substring(51), StandardCharsets.UTF_8);
-            s3Client.deleteObject(this.bucket,decodeVal);
-        }catch (AmazonServiceException e){
-            log.error(e.getErrorMessage());
-        }
-    }
-
     @Transactional
     public ResponseEntity<?> getInfoOther(Long memberId) {
         Optional<Member> optionalMember = memberRepository.findById(memberId);
@@ -172,12 +144,12 @@ public class MyPageService {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
         Member member = optionalMember.get();
-        List<AchievementResponseDto> achievementsList = achieventsList(member);
+        List<AchievementResponseDto> achievementsList = achievementsList(member);
         Account account = accountRepository.findByMember(member);
         if(account==null || account.getStockHoldingsList().isEmpty()){
             return ResponseEntity.ok().body(
                     ResponseDto.success(
-                            OtherProfiledResponseDto.builder()
+                            OtherProfileResponseDto.builder()
                                     .id(member.getId())
                                     .nickname(member.getNickname())
                                     .profileImg(member.getProfileImg())
@@ -214,24 +186,24 @@ public class MyPageService {
                     .stockHoldingsList(stockHoldingResponseDtoList)
                     .createdAt(String.valueOf(account.getCreatedAt()))
                     //.member(account.getMember())
-            .build();
+                    .build();
 
             return ResponseEntity.ok().body(
                     ResponseDto.success(
-                            OtherProfiledResponseDto.builder()
-                                .id(member.getId())
-                                .nickname(member.getNickname())
-                                .profileImg(member.getProfileImg())
-                                .profileMsg(member.getProfileMsg())
-                                .email(member.getEmail())
-                                .achievements(achievementsList)
-                                .account(accountResponseDto)
-                                .build()
+                            OtherProfileResponseDto.builder()
+                                    .id(member.getId())
+                                    .nickname(member.getNickname())
+                                    .profileImg(member.getProfileImg())
+                                    .profileMsg(member.getProfileMsg())
+                                    .email(member.getEmail())
+                                    .achievements(achievementsList)
+                                    .account(accountResponseDto)
+                                    .build()
                     )
             );
         }
     }
-    private List<AchievementResponseDto> achieventsList(Member member) {
+    private List<AchievementResponseDto> achievementsList(Member member) {
         List<AchievementResponseDto> achievementsList = new ArrayList<>();
         List<MemberAchievement> memberAchievements = member.getMemberAchievements();
         for (MemberAchievement memberAchievement : memberAchievements) {
@@ -244,5 +216,32 @@ public class MyPageService {
             achievementsList.add(responseDto);
         }
         return achievementsList;
+    }
+
+    private Member getMemberFromJwt(HttpServletRequest request) {
+        Authentication authentication = jwtProvider.getAuthentication(request.getHeader("Authorization").substring(7));
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        return userDetails.getMember();
+    }
+
+    private String uploadS3(MultipartFile profileImg, Member member) throws IOException {
+        String imgUrl = member.getProfileImg();
+        String basicImg ="https://stockstock.s3.ap-northeast-2.amazonaws.com/e00a05fd-882b-448d-8b4f-9f3a541a5e2b-%EA%B0%9C%EB%AF%B8.jpg";
+        if(imgUrl!=null && !imgUrl.equals(basicImg)){fileDelete(imgUrl);}
+        String s3FileName = UUID.randomUUID() + "-" + profileImg.getOriginalFilename();
+        ObjectMetadata objMeta = new ObjectMetadata();
+        objMeta.setContentLength(profileImg.getSize());
+        objMeta.setContentType(profileImg.getContentType()); // 이 값을 설정해야 다운로드가 되지 않음
+        s3Client.putObject(bucket, s3FileName, profileImg.getInputStream(), objMeta);
+       return s3Client.getUrl(bucket, s3FileName).toString();
+    }
+
+    public void fileDelete(String url){
+        try{
+            String decodeVal = URLDecoder.decode(url.substring(51), StandardCharsets.UTF_8);
+            s3Client.deleteObject(this.bucket,decodeVal);
+        }catch (AmazonServiceException e){
+            log.error(e.getErrorMessage());
+        }
     }
 }

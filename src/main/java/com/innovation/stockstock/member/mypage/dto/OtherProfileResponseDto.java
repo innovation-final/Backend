@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OtherProfiledResponseDto {
+public class OtherProfileResponseDto {
     private Long id;
     private String nickname;
     private String profileImg;
