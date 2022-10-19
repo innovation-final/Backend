@@ -3,13 +3,22 @@ package com.innovation.stockstock.member.mypage;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.innovation.stockstock.account.domain.Account;
+import com.innovation.stockstock.account.domain.StockHolding;
+import com.innovation.stockstock.account.dto.AccountResponseDto;
+import com.innovation.stockstock.account.dto.StockHoldingResponseDto;
+import com.innovation.stockstock.account.repository.AccountRepository;
+import com.innovation.stockstock.account.repository.StockHoldingRepository;
 import com.innovation.stockstock.achievement.domain.MemberAchievement;
 import com.innovation.stockstock.comment.domain.Comment;
 import com.innovation.stockstock.comment.repository.CommentRepository;
+import com.innovation.stockstock.common.ErrorCode;
+import com.innovation.stockstock.common.MemberUtil;
 import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.achievement.dto.AchievementResponseDto;
 import com.innovation.stockstock.achievement.domain.Achievement;
 import com.innovation.stockstock.member.domain.Member;
+import com.innovation.stockstock.member.mypage.dto.OtherProfiledResponseDto;
 import com.innovation.stockstock.member.mypage.dto.ProfileRequestDto;
 import com.innovation.stockstock.member.mypage.dto.ProfileResponseDto;
 import com.innovation.stockstock.member.repository.MemberRepository;
@@ -31,10 +40,13 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -50,23 +62,18 @@ public class MyPageService {
     private final LikeRepository likeRepository;
     private final DislikeRepository dislikeRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final AccountRepository accountRepository;
+    private final MemberUtil memberUtil;
+    private final StockHoldingRepository stockHoldingRepository;
 
     public ResponseDto<?> getMyProfile(HttpServletRequest request) {
         Member member = getMemberFromJwt(request);
-        List<AchievementResponseDto> achievementsList = new ArrayList<>();
-        List<MemberAchievement> memberAchievements = member.getMemberAchievements();
-        for (MemberAchievement memberAchievement : memberAchievements) {
-            Achievement achievement = memberAchievement.getAchievement();
-            AchievementResponseDto responseDto = AchievementResponseDto.builder()
-                    .id(achievement.getId())
-                    .name(achievement.getName())
-                    .date(String.valueOf(memberAchievement.getCreatedAt()))
-                    .build();
-            achievementsList.add(responseDto);
-        }
+        List<AchievementResponseDto> achievementsList = achieventsList(member);
         float totalReturnRate = 0;
-        if(!(member.getAccount()==null)){
-            totalReturnRate = member.getAccount().getTotalReturnRate();
+        Account account = accountRepository.findByMember(member);
+        memberUtil.updateAccountInfoAtCurrentTime(account); // 현재가 기준 수익률 반영
+        if(account!=null){
+            totalReturnRate = account.getTotalReturnRate();
         }
         return ResponseDto.success(
                 ProfileResponseDto.builder()
@@ -87,7 +94,6 @@ public class MyPageService {
         String nickname = requestDto.getNickname();
         MultipartFile profileImg = requestDto.getProfileImg();
         String profileMsg = requestDto.getProfileMsg();
-
         try {
             if (nickname == null && profileImg == null && profileMsg == null) {
                 return ResponseEntity.ok().body(ResponseDto.success("Nothing Changed"));
@@ -157,5 +163,86 @@ public class MyPageService {
         }catch (AmazonServiceException e){
             log.error(e.getErrorMessage());
         }
+    }
+
+    @Transactional
+    public ResponseEntity<?> getInfoOther(Long memberId) {
+        Optional<Member> optionalMember = memberRepository.findById(memberId);
+        if(optionalMember.isEmpty()){
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+        }
+        Member member = optionalMember.get();
+        List<AchievementResponseDto> achievementsList = achieventsList(member);
+        Account account = accountRepository.findByMember(member);
+        if(account==null || account.getStockHoldingsList().isEmpty()){
+            return ResponseEntity.ok().body(
+                    ResponseDto.success(
+                            OtherProfiledResponseDto.builder()
+                                    .id(member.getId())
+                                    .nickname(member.getNickname())
+                                    .profileImg(member.getProfileImg())
+                                    .profileMsg(member.getProfileMsg())
+                                    .email(member.getEmail())
+                                    .achievements(achievementsList)
+                                    .account(null)
+                                    .build()
+                    )
+            );
+        }else{
+            memberUtil.updateAccountInfoAtCurrentTime(account);
+            List<StockHoldingResponseDto> stockHoldingResponseDtoList = new ArrayList<>();
+            List<StockHolding> stockHoldings = stockHoldingRepository.findByAccount(account);
+            for(StockHolding stockHolding:stockHoldings){
+                StockHoldingResponseDto responseDto = StockHoldingResponseDto.builder()
+                        .id(stockHolding.getId())
+                        .stockName(stockHolding.getStockName())
+                        .profit(stockHolding.getProfit())
+                        .returnRate(stockHolding.getReturnRate())
+                        .amount(stockHolding.getAmount())
+                        .build();
+                stockHoldingResponseDtoList.add(responseDto);
+            }
+            AccountResponseDto accountResponseDto = AccountResponseDto.builder()
+                    .id(account.getId())
+                    .accountNumber(account.getAccountNumber())
+                    .seedMoney(account.getSeedMoney())
+                    .balance(account.getBalance())
+                    .targetReturnRate(account.getTargetReturnRate())
+                    .totalReturnRate(account.getTotalReturnRate())
+                    .totalProfit(account.getTotalProfit())
+                    .expireAt(String.valueOf(account.getExpireAt()))
+                    .stockHoldingsList(stockHoldingResponseDtoList)
+                    .createdAt(String.valueOf(account.getCreatedAt()))
+                    //.member(account.getMember())
+            .build();
+
+            return ResponseEntity.ok().body(
+                    ResponseDto.success(
+                            OtherProfiledResponseDto.builder()
+                                .id(member.getId())
+                                .nickname(member.getNickname())
+                                .profileImg(member.getProfileImg())
+                                .profileMsg(member.getProfileMsg())
+                                .email(member.getEmail())
+                                .achievements(achievementsList)
+                                .account(accountResponseDto)
+                                .build()
+                    )
+            );
+        }
+    }
+    private List<AchievementResponseDto> achieventsList(Member member) {
+        List<AchievementResponseDto> achievementsList = new ArrayList<>();
+        List<MemberAchievement> memberAchievements = member.getMemberAchievements();
+        for (MemberAchievement memberAchievement : memberAchievements) {
+            Achievement achievement = memberAchievement.getAchievement();
+            AchievementResponseDto responseDto = AchievementResponseDto.builder()
+                    .id(achievement.getId())
+                    .name(achievement.getName())
+                    .date(String.valueOf(memberAchievement.getCreatedAt()))
+                    .build();
+            achievementsList.add(responseDto);
+        }
+        return achievementsList;
     }
 }

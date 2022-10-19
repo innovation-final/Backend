@@ -19,7 +19,6 @@ public class StockHolding {
     private Long id;
     private String stockCode;
     private String stockName;
-    private float targetReturnRate;
     private Long profit;
     private float returnRate;
     private int amount;
