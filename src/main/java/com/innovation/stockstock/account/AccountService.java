@@ -56,7 +56,35 @@ public class AccountService {
         if(account == null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
+<<<<<<< HEAD
         List<StockHoldingResponseDto> responseDtoList = new ArrayList<>();
+=======
+        Long accountTotalProfit = 0L;
+        Long totalBuyPrice = 0L;
+        for (StockHolding stockHolding : account.getStockHoldingsList()) {
+            int curPrice = Integer.parseInt(redisRepository.getTradePrice(stockHolding.getStockCode()));
+            int amount = buyOrderRepository.sumBuyAmount(stockHolding);
+            Long avgBuying = buyOrderRepository.sumBuyPrice(stockHolding)/amount;
+            Long profit = Long.valueOf((curPrice - avgBuying) *stockHolding.getAmount());
+            stockHolding.setProfit(profit);
+            // float returnRate = Float.valueOf((curPrice-avgBuying)/avgBuying)-1;
+            totalBuyPrice+=stockHolding.getAmount()*avgBuying;
+            BigDecimal cur = new BigDecimal(curPrice);
+            BigDecimal avgBuy=new BigDecimal(avgBuying);
+            float returnRate = cur.subtract(avgBuy).divide(avgBuy, 5, RoundingMode.HALF_EVEN).floatValue();
+            stockHolding.setReturnRate(returnRate);
+
+            accountTotalProfit +=profit;
+
+            StockList stock= stockListRepository.findByCode(stockHolding.getStockCode());
+            StockHoldingResponseDto responseDto = StockHoldingResponseDto.builder()
+                    .id(stockHolding.getId())
+                    .stockName(stock.getName())
+                    .profit(stockHolding.getProfit())
+                    .returnRate(stockHolding.getReturnRate())
+                    .amount(stockHolding.getAmount())
+                    .build();
+>>>>>>> 7b7d1a7a6c4effc48bd50b02f6ff316d51ff01bc
 
         long accountTotalProfit = 0L;
         long totalBuyPrice = 0L;

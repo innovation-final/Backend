@@ -1,8 +1,18 @@
 package com.innovation.stockstock.post.service;
 
+<<<<<<< HEAD
+=======
+import com.innovation.stockstock.achievement.domain.Achievement;
+import com.innovation.stockstock.achievement.domain.MemberAchievement;
+import com.innovation.stockstock.achievement.repository.AchievementRepository;
+import com.innovation.stockstock.achievement.repository.MemberAchievementRepository;
+>>>>>>> 7b7d1a7a6c4effc48bd50b02f6ff316d51ff01bc
 import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.comment.domain.Comment;
 import com.innovation.stockstock.comment.dto.CommentResponseDto;
+import com.innovation.stockstock.notification.domain.Event;
+import com.innovation.stockstock.notification.dto.NotificationRequestDto;
+import com.innovation.stockstock.notification.service.NotificationService;
 import com.innovation.stockstock.post.repository.DislikeRepository;
 import com.innovation.stockstock.post.repository.LikeRepository;
 import com.innovation.stockstock.post.domain.Post;
@@ -34,7 +44,9 @@ public class PostService {
     private final JwtProvider jwtProvider;
     private final PostRepository postRepository;
     private final StockListRepository stockListRepository;
-//    private final CommentRepository commentRepository;
+    private final MemberAchievementRepository memberAchievementRepository;
+    private final AchievementRepository achievementRepository;
+    private final NotificationService notificationService;
 
     @Transactional // 지연로딩 에러 해결
     public ResponseEntity<?> getPost(Long postId,HttpServletRequest request) {
@@ -66,6 +78,18 @@ public class PostService {
         try {
             // 로그인한 멤버일 때.
             Member member = getMemberFromJwt(request);
+            Member postWriter = post.getMember();
+
+            if (!member.getId().equals(postWriter.getId())) {
+                postWriter.addViewNum();
+                if (postWriter.getViewNum() == 30) {
+                    Achievement achievement = achievementRepository.findByName("VIEW");
+                    memberAchievementRepository.save(new MemberAchievement(postWriter, achievement));
+                    NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.뱃지취득, postWriter.getNickname()+"님이 뱃지를 취득하였습니다.");
+                    notificationService.send(postWriter.getId(), notificationRequestDto);
+                }
+            }
+
             // 멤버가 좋아요를 눌렀는 지 여부를 확인
             boolean isDonelike = likeRepository.existsByMemberAndPost(member, post);
             boolean isDoneDislike = dislikeRepository.existsByMemberAndPost(member, post);
@@ -98,6 +122,16 @@ public class PostService {
         Member member = getMemberFromJwt(request);
         Post post = new Post(requestDto, member);
         postRepository.save(post);
+        member.updatePostNum(true);
+        if (member.getPostNum() == 10) {
+            Achievement achievement = achievementRepository.findByName("POST");
+            boolean hasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, achievement);
+            if (!hasAchieved) {
+                memberAchievementRepository.save(new MemberAchievement(member, achievement));
+                NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.뱃지취득, member.getNickname()+"님이 뱃지를 취득하였습니다.");
+                notificationService.send(member.getId(), forPostWriter);
+            }
+        }
         return ResponseEntity.ok().body(ResponseDto.success("Write Post Success"));
     }
 
@@ -123,9 +157,32 @@ public class PostService {
         } else if (!post.getMember().getId().equals(member.getId())) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NOT_ALLOWED));
         } else {
+            member.updatePostNum(false);
+
             postRepository.deleteById(postId);
             return ResponseEntity.ok().body(ResponseDto.success("Delete Post Success"));
         }
+    }
+
+    public ResponseEntity<?> getAllPostsByPages(Pageable pageable) {
+        Page<Post> posts = postRepository.findAll(pageable);
+        List<Post> postList = posts.getContent();
+        List<PostResponseDto> responseDtoList = makePostResponse(postList);
+        Long totalSum = posts.getTotalElements();
+        HashMap<Object,Object> response = new HashMap<>();
+        response.put("총 게시글 개수",totalSum);
+        response.put("페이지당 게시글",responseDtoList);
+        return ResponseEntity.ok().body(ResponseDto.success(response));
+    }
+
+    public ResponseDto<?> getStockPosts(String code) {
+        StockList stock = stockListRepository.findByCode(code);
+        if(stock == null){
+            return ResponseDto.fail(ErrorCode.NULL_ID);
+        }
+        List<Post> postList = postRepository.findByStockName(stock.getName());
+        List<PostResponseDto> postResponseDtoList = makePostResponse(postList);
+        return ResponseDto.success(postResponseDtoList);
     }
 
     private static PostResponseDto makePostOneResponse(Post post,List<CommentResponseDto> responseDtoList,boolean isDoneLike,boolean isDoneDislike){
@@ -172,26 +229,5 @@ public class PostService {
         Authentication authentication = jwtProvider.getAuthentication(request.getHeader("Authorization").substring(7));
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         return userDetails.getMember();
-    }
-
-    public ResponseEntity<?> getAllPostsByPages(Pageable pageable) {
-        Page<Post> posts = postRepository.findAll(pageable);
-        List<Post> postList = posts.getContent();
-        List<PostResponseDto> responseDtoList = makePostResponse(postList);
-        Long totalSum = posts.getTotalElements();
-        HashMap<Object,Object> response = new HashMap<>();
-        response.put("총 게시글 개수",totalSum);
-        response.put("페이지당 게시글",responseDtoList);
-        return ResponseEntity.ok().body(ResponseDto.success(response));
-    }
-
-    public ResponseDto<?> getStockPosts(String code) {
-        StockList stock = stockListRepository.findByCode(code);
-        if(stock == null){
-            return ResponseDto.fail(ErrorCode.NULL_ID);
-        }
-        List<Post> postList = postRepository.findByStockName(stock.getName());
-        List<PostResponseDto> postResponseDtoList = makePostResponse(postList);
-        return ResponseDto.success(postResponseDtoList);
     }
 }
