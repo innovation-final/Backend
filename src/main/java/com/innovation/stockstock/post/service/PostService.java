@@ -1,6 +1,5 @@
 package com.innovation.stockstock.post.service;
 
-import com.innovation.stockstock.comment.repository.CommentRepository;
 import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.comment.domain.Comment;
 import com.innovation.stockstock.comment.dto.CommentResponseDto;

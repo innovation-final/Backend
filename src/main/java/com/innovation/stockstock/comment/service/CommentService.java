@@ -2,6 +2,7 @@ package com.innovation.stockstock.comment.service;
 
 import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.comment.dto.CommentRequestDto;
+import com.innovation.stockstock.common.MemberUtil;
 import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.comment.domain.Comment;
 import com.innovation.stockstock.member.domain.Member;
@@ -28,7 +29,7 @@ public class CommentService {
     private final NotificationService notificationService;
     @Transactional
     public ResponseEntity<Object> postComment(Long postId, CommentRequestDto commentRequestDto) {
-        Member member = getMember();
+        Member member = MemberUtil.getMember();
         Post post = isPresentPost(postId);
         Comment comment = Comment.builder().post(post).content(commentRequestDto.getContent()).member(member).build();
         commentRepository.save(comment);
@@ -43,7 +44,7 @@ public class CommentService {
 
     @Transactional
     public ResponseEntity<Object> putComment(Long commentId, CommentRequestDto commentRequestDto) {
-        Member member = getMember();
+        Member member = MemberUtil.getMember();
         Comment comment = isPresentComment(commentId);
         if(comment==null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
@@ -58,7 +59,7 @@ public class CommentService {
 
     @Transactional
     public ResponseEntity<Object> deleteComment(Long commentId) {
-        Member member = getMember();
+        Member member = MemberUtil.getMember();
         Comment comment = isPresentComment(commentId);
         if(comment==null){
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
@@ -74,10 +75,6 @@ public class CommentService {
         return ResponseEntity.ok().body(ResponseDto.success("Delete Comment Success"));
     }
 
-    public Member getMember(){
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userDetails.getMember();
-    }
     public Post isPresentPost(Long id) {
         Optional<Post> optionalPost = postRepository.findById(id);
         return optionalPost.orElse(null);
