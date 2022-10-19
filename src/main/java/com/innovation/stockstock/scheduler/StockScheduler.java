@@ -17,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,6 +44,7 @@ public class StockScheduler {
         for (LimitPriceOrder limitPriceOrder : limitPriceOrders) {
             Account account = limitPriceOrder.getAccount();
             String category = limitPriceOrder.getCategory();
+            String stockName = limitPriceOrder.getStockName();
             String stockCode = limitPriceOrder.getStockCode();
             int orderPrice = limitPriceOrder.getPrice();
             int orderAmount = limitPriceOrder.getAmount();
@@ -57,9 +61,10 @@ public class StockScheduler {
                     stock = stockHoldingRepository.save(
                             StockHolding.builder()
                                     .stockCode(stockCode)
+                                    .stockName(stockName)
                                     .amount(orderAmount)
                                     .account(account)
-                                    .avgBuying(orderPrice)
+                                    .avgBuying(currentPrice)
                                     .profit(0L)
                                     .returnRate(0f)
                                     .build()
@@ -69,15 +74,24 @@ public class StockScheduler {
                     int totalAmount = buyOrderRepository.sumBuyAmount(stock)+orderAmount;
                     int avgBuying = Long.valueOf(totalSumBuying/totalAmount).intValue();
 
+                    long profit = currentPrice*totalAmount - totalSumBuying; // 총보유량 * 현재가 - 총매수가
+                    stock.setProfit(profit);
+
+                    BigDecimal curPrice = new BigDecimal(currentPrice*totalAmount);
+                    BigDecimal sumBuying=new BigDecimal(totalSumBuying);
+                    float returnRate = curPrice.subtract(sumBuying).divide(sumBuying, 5, RoundingMode.HALF_EVEN).floatValue();
+                    stock.setReturnRate(returnRate);
+
                     stock.setAvgBuying(avgBuying);
                     stock.updateAmount(true, orderAmount);
                 }
                 account.updateBalance(true, totalPrice);
-                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockCode()+"이 지정가("+orderPrice+"원) 이하로 체결되었습니다.");
-                notificationService.send(limitPriceOrder.getAccount().getMember().getId(),notificationRequestDto);
+                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이하인 "+currentPrice+ "원에 매수되었습니다.");
+                notificationService.send(account.getMember().getId(),notificationRequestDto);
                 limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
                 buyOrderRepository.save(
                         BuyOrder.builder()
+                                .stockName(stockName)
                                 .orderCategory("지정가")
                                 .buyPrice(currentPrice)
                                 .buyAmount(orderAmount)
@@ -88,11 +102,12 @@ public class StockScheduler {
             } else if (stock != null && category.equals("sell") && orderPrice <= currentPrice && orderAmount <= stock.getAmount()) { // 지정가 매도주문 체결
                 stock.updateAmount(false, orderAmount);
                 account.updateBalance(false, totalPrice);
-                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockCode()+"이 지정가("+orderPrice+"원) 이상으로 체결되었습니다.");
+                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이상인 "+currentPrice+"원에 매도되었습니다.");
                 notificationService.send(limitPriceOrder.getAccount().getMember().getId(),notificationRequestDto);
                 limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
                 sellOrderRepository.save(
                         SellOrder.builder()
+                                .stockName(stockName)
                                 .orderCategory("지정가")
                                 .sellPrice(currentPrice)
                                 .sellAmount(orderAmount)
@@ -100,6 +115,9 @@ public class StockScheduler {
                                 .stockHolding(stock)
                                 .build()
                 );
+                if (stock.getAmount() == 0) {
+                    stockHoldingRepository.deleteById(stock.getId());
+                }
             }
         }
         System.out.println(LocalDateTime.now());

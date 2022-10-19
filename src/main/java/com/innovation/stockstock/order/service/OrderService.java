@@ -22,6 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -44,12 +46,19 @@ public class OrderService {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
         Boolean isSigned = requestDto.getIsSigned();
         String orderCategory = requestDto.getOrderCategory();
-        LocalDateTime startDate = LocalDate.parse(requestDto.getStartDate(), formatter).atStartOfDay();
-        LocalDateTime endDate = LocalDate.parse(requestDto.getEndDate(), formatter).atTime(LocalTime.MAX);
+        LocalDateTime startDate;
+        LocalDateTime endDate;
+
+        if (requestDto.getStartDate() == null && requestDto.getEndDate() == null) {
+            startDate = LocalDateTime.of(LocalDate.now().getYear(), 1, 1, 0, 0, 0);
+            endDate = LocalDateTime.now();
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            startDate = LocalDate.parse(requestDto.getStartDate(), formatter).atStartOfDay();
+            endDate = LocalDate.parse(requestDto.getEndDate(), formatter).atTime(LocalTime.MAX);
+        }
 
         ArrayList<OrderResponseDto> res = new ArrayList<>();
         if (!isSigned) {
@@ -58,6 +67,7 @@ public class OrderService {
                 res.add(
                         OrderResponseDto.builder()
                                 .id(limitPriceOrder.getId())
+                                .stockName(limitPriceOrder.getStockName())
                                 .date(String.valueOf(limitPriceOrder.getOrderAt()))
                                 .orderCategory("지정가")
                                 .amount(limitPriceOrder.getAmount())
@@ -72,6 +82,7 @@ public class OrderService {
                     res.add(
                             OrderResponseDto.builder()
                                     .id(buyOrder.getId())
+                                    .stockName(buyOrder.getStockName())
                                     .date(String.valueOf(buyOrder.getBuyAt()))
                                     .orderCategory(buyOrder.getOrderCategory())
                                     .amount(buyOrder.getBuyAmount())
@@ -85,6 +96,7 @@ public class OrderService {
                     res.add(
                             OrderResponseDto.builder()
                                     .id(sellOrder.getId())
+                                    .stockName(sellOrder.getStockName())
                                     .date(String.valueOf(sellOrder.getSellAt()))
                                     .orderCategory(sellOrder.getOrderCategory())
                                     .amount(sellOrder.getSellAmount())
@@ -109,6 +121,7 @@ public class OrderService {
         int amount = requestDto.getAmount();
         int price = requestDto.getPrice();
         int totalPrice = amount * price;
+        String stockName = requestDto.getStockName();
 
         if (category.equals("시장가") && totalPrice <= account.getBalance()) {
             StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
@@ -116,23 +129,34 @@ public class OrderService {
                 stock = stockHoldingRepository.save(
                         StockHolding.builder()
                                 .stockCode(stockCode)
+                                .stockName(stockName)
                                 .amount(amount)
                                 .account(account)
                                 .avgBuying(price)
-                                .returnRate(0f)
+                                .returnRate(0f) // 시장가 = 현재가, 매수 시 수익 0
                                 .profit(0L)
                                 .build()
                 );
             } else {
                 Long totalSumBuying = buyOrderRepository.sumBuyPrice(stock) + totalPrice;
-                int totalAmount = buyOrderRepository.sumBuyAmount(stock)+amount;
-                int avgBuying = Long.valueOf(totalSumBuying/totalAmount).intValue();
+                int totalAmount = buyOrderRepository.sumBuyAmount(stock) + amount;
+                int avgBuying = Long.valueOf(totalSumBuying / totalAmount).intValue();
 
                 stock.setAvgBuying(avgBuying);
                 stock.updateAmount(true, amount);
+
+                long profit = price*amount - totalSumBuying; // 총보유량 * 현재가 - 총매수가
+                stock.setProfit(profit);
+
+                BigDecimal curPrice = new BigDecimal(price*totalAmount);
+                BigDecimal sumBuying=new BigDecimal(totalSumBuying);
+                float returnRate = curPrice.subtract(sumBuying).divide(sumBuying, 5, RoundingMode.HALF_EVEN).floatValue();
+                stock.setReturnRate(returnRate);
+
             }
             buyOrderRepository.save(
                     BuyOrder.builder()
+                            .stockName(stockName)
                             .orderCategory(category)
                             .buyPrice(price)
                             .buyAmount(amount)
@@ -145,6 +169,7 @@ public class OrderService {
             limitPriceOrderRepository.save(
                     LimitPriceOrder.builder()
                             .stockCode(stockCode)
+                            .stockName(stockName)
                             .category("buy")
                             .price(price)
                             .amount(amount)
@@ -168,6 +193,7 @@ public class OrderService {
         int amount = requestDto.getAmount();
         int price = requestDto.getPrice();
         int totalPrice = amount * price;
+        String stockName = requestDto.getStockName();
 
         StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
         if (stock == null) {
@@ -177,6 +203,7 @@ public class OrderService {
         if (category.equals("시장가") && amount <= stock.getAmount()) {
             sellOrderRepository.save(
                     SellOrder.builder()
+                            .stockName(stockName)
                             .orderCategory(category)
                             .sellPrice(price)
                             .sellAmount(amount)
@@ -185,11 +212,15 @@ public class OrderService {
                             .build()
             );
             stock.updateAmount(false, amount);
+            if (stock.getAmount() == 0) {
+                stockHoldingRepository.deleteById(stock.getId());
+            }
             account.updateBalance(false, totalPrice);
         } else if (category.equals("지정가")) {
             limitPriceOrderRepository.save(
                     LimitPriceOrder.builder()
                             .stockCode(stockCode)
+                            .stockName(stockName)
                             .category("sell")
                             .price(price)
                             .amount(amount)

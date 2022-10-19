@@ -1,6 +1,7 @@
 package com.innovation.stockstock.account;
 
 import com.innovation.stockstock.account.dto.AccountRequestDto;
+import com.innovation.stockstock.account.dto.AccountUpdateRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +24,15 @@ public class AccountController {
         return accountService.getAccount();
     }
 
-    // 종목별 수익률 정보 조회
-    @GetMapping("/api/auth/account/stock")
+    // 보유 종목 정보 조회
+    @GetMapping("/api/auth/account/stocks")
     public ResponseEntity<?> getReturn(){
         return accountService.getReturn();
+    }
+
+    // 계좌 정보 수정
+    @PostMapping("/api/auth/account/update")
+    public ResponseEntity<?> updateAccount(@RequestBody AccountUpdateRequestDto requestDto){
+        return accountService.updateAccount(requestDto);
     }
 }

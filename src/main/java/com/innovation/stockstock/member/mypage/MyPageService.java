@@ -20,6 +20,7 @@ import com.innovation.stockstock.post.repository.DislikeRepository;
 import com.innovation.stockstock.post.repository.LikeRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
 import com.innovation.stockstock.security.jwt.JwtProvider;
+import com.innovation.stockstock.security.jwt.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,17 +41,15 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class MyPageService {
-
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-    @Value("${basic.image}")
-    private String basicImg;
     private final AmazonS3Client s3Client;
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
     private final CommentRepository commentRepository;
     private final LikeRepository likeRepository;
     private final DislikeRepository dislikeRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public ResponseDto<?> getMyProfile(HttpServletRequest request) {
         Member member = getMemberFromJwt(request);
@@ -65,6 +64,10 @@ public class MyPageService {
                     .build();
             achievementsList.add(responseDto);
         }
+        float totalReturnRate = 0;
+        if(!(member.getAccount()==null)){
+            totalReturnRate = member.getAccount().getTotalReturnRate();
+        }
         return ResponseDto.success(
                 ProfileResponseDto.builder()
                         .id(member.getId())
@@ -72,7 +75,7 @@ public class MyPageService {
                         .nickname(member.getNickname())
                         .profileImg(member.getProfileImg())
                         .profileMsg(member.getProfileMsg())
-                        .totalReturnRate(member.getAccount().getTotalReturnRate())
+                        .totalReturnRate(totalReturnRate)
                         .achievements(achievementsList)
                         .build()
         );
@@ -108,6 +111,7 @@ public class MyPageService {
     @Transactional
     public ResponseDto<?> deleteMyAccount(HttpServletRequest request) {
         Long memberId = getMemberFromJwt(request).getId();
+        String email = getMemberFromJwt(request).getEmail();
         List<Comment> comments = commentRepository.findAllByMemberId(memberId);
         for (Comment comment : comments) {
             Post post = comment.getPost();
@@ -124,6 +128,7 @@ public class MyPageService {
             post.updateDislikes(false);
         }
         memberRepository.deleteById(memberId);
+        refreshTokenRepository.deleteById(email);
         return ResponseDto.success("Delete Success");
     }
 
@@ -135,6 +140,7 @@ public class MyPageService {
 
     private String uploadS3(MultipartFile profileImg, Member member) throws IOException {
         String imgUrl = member.getProfileImg();
+        String basicImg ="https://stockstock.s3.ap-northeast-2.amazonaws.com/e00a05fd-882b-448d-8b4f-9f3a541a5e2b-%EA%B0%9C%EB%AF%B8.jpg";
         if(imgUrl!=null && !imgUrl.equals(basicImg)){fileDelete(imgUrl);}
         String s3FileName = UUID.randomUUID() + "-" + profileImg.getOriginalFilename();
         ObjectMetadata objMeta = new ObjectMetadata();
