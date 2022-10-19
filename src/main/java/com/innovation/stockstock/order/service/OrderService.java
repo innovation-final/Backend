@@ -4,8 +4,17 @@ import com.innovation.stockstock.account.domain.Account;
 import com.innovation.stockstock.account.domain.StockHolding;
 import com.innovation.stockstock.account.repository.AccountRepository;
 import com.innovation.stockstock.account.repository.StockHoldingRepository;
+import com.innovation.stockstock.achievement.domain.Achievement;
+import com.innovation.stockstock.achievement.domain.MemberAchievement;
+import com.innovation.stockstock.achievement.repository.AchievementRepository;
+import com.innovation.stockstock.achievement.repository.MemberAchievementRepository;
 import com.innovation.stockstock.common.ErrorCode;
+import com.innovation.stockstock.common.MemberUtil;
 import com.innovation.stockstock.common.dto.ResponseDto;
+import com.innovation.stockstock.member.domain.Member;
+import com.innovation.stockstock.notification.domain.Event;
+import com.innovation.stockstock.notification.dto.NotificationRequestDto;
+import com.innovation.stockstock.notification.service.NotificationService;
 import com.innovation.stockstock.order.domain.BuyOrder;
 import com.innovation.stockstock.order.domain.LimitPriceOrder;
 import com.innovation.stockstock.order.domain.SellOrder;
@@ -39,6 +48,9 @@ public class OrderService {
     private final AccountRepository accountRepository;
     private final StockHoldingRepository stockHoldingRepository;
     private final LimitPriceOrderRepository limitPriceOrderRepository;
+    private final AchievementRepository achievementRepository;
+    private final MemberAchievementRepository memberAchievementRepository;
+    private final NotificationService notificationService;
 
     public ResponseEntity<?> getOrders(GetOrderRequestDto requestDto) {
         Account account = getAccount();
@@ -112,7 +124,8 @@ public class OrderService {
 
     @Transactional
     public ResponseEntity<?> buyStock(String stockCode, OrderRequestDto requestDto) {
-        Account account = getAccount();
+        Member member = MemberUtil.getMember();
+        Account account = accountRepository.findByMember(member);
         if (account == null) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
@@ -122,6 +135,7 @@ public class OrderService {
         int price = requestDto.getPrice();
         int totalPrice = amount * price;
         String stockName = requestDto.getStockName();
+        int totalAmount = amount;
 
         if (category.equals("시장가") && totalPrice <= account.getBalance()) {
             StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
@@ -139,7 +153,7 @@ public class OrderService {
                 );
             } else {
                 Long totalSumBuying = buyOrderRepository.sumBuyPrice(stock) + totalPrice;
-                int totalAmount = buyOrderRepository.sumBuyAmount(stock) + amount;
+                totalAmount += buyOrderRepository.sumBuyAmount(stock);
                 int avgBuying = Long.valueOf(totalSumBuying / totalAmount).intValue();
 
                 stock.setAvgBuying(avgBuying);
@@ -165,6 +179,27 @@ public class OrderService {
                             .build()
             );
             account.updateBalance(true, totalPrice);
+
+            // 첫 매수인 경우 뱃지 부여 및 알람 전송
+            Achievement firstBuying = achievementRepository.findByName("BUY");
+            boolean firstBuyingHasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, firstBuying);
+            if (!firstBuyingHasAchieved) {
+                memberAchievementRepository.save(new MemberAchievement(member, firstBuying));
+                NotificationRequestDto forFirstBuyer = new NotificationRequestDto(Event.뱃지취득, "뱃지를 취득하였습니다.");
+                notificationService.send(member.getId(), forFirstBuyer);
+            }
+
+            // 한 종목 100주 이상 매수 시 최대 주주
+            if (totalAmount>=100) {
+                Achievement topStockholder = achievementRepository.findByName("STOCKHOLD");
+                boolean topStockholderHasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, topStockholder);
+                if (!topStockholderHasAchieved) {
+                    memberAchievementRepository.save(new MemberAchievement(member, topStockholder));
+                    NotificationRequestDto forTopStockholder = new NotificationRequestDto(Event.뱃지취득, "뱃지를 취득하였습니다.");
+                    notificationService.send(member.getId(), forTopStockholder);
+                }
+            }
+
         } else if (category.equals("지정가")) {
             limitPriceOrderRepository.save(
                     LimitPriceOrder.builder()

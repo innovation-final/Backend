@@ -40,5 +40,8 @@ public class MyPageController {
         log.info("MaxUploadSizeExceededException", e);
         return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.FILE_SIZE_EXCEED));
     }
-
+    @GetMapping("/api/profile/{memberId}")
+    public ResponseEntity<?> getInfoOther(@PathVariable Long memberId){
+        return myPageService.getInfoOther(memberId);
+    }
 }

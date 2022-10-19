@@ -1,12 +1,9 @@
 package com.innovation.stockstock.post.service;
 
-<<<<<<< HEAD
-=======
 import com.innovation.stockstock.achievement.domain.Achievement;
 import com.innovation.stockstock.achievement.domain.MemberAchievement;
 import com.innovation.stockstock.achievement.repository.AchievementRepository;
 import com.innovation.stockstock.achievement.repository.MemberAchievementRepository;
->>>>>>> 7b7d1a7a6c4effc48bd50b02f6ff316d51ff01bc
 import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.comment.domain.Comment;
 import com.innovation.stockstock.comment.dto.CommentResponseDto;
