@@ -36,13 +36,13 @@ public class MemberService {
         } catch (ExpiredJwtException e) {
             refreshTokenRepository.deleteByToken(refreshToken);
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.REFRESH_TOKEN_EXPIRED));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.INVALID_TOKEN));
         }
 
         RefreshToken tokenFromDB = refreshTokenRepository.findById(member.getEmail()).orElse(null);
 
-        if (!jwtProvider.validateToken(refreshToken)) {
-            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.INVALID_TOKEN));
-        } else if (tokenFromDB == null) {
+        if (tokenFromDB == null) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
         } else if (!refreshToken.equals(tokenFromDB.getToken())) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.REFRESH_TOKEN_NOT_ALLOWED));

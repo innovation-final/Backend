@@ -1,5 +1,6 @@
 package com.innovation.stockstock.member.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.innovation.stockstock.account.domain.Account;
 import com.innovation.stockstock.achievement.domain.MemberAchievement;
 import com.innovation.stockstock.notification.domain.Notification;
@@ -41,6 +42,7 @@ public class Member {
     private int commentNum;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<MemberAchievement> memberAchievements = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -1,5 +1,6 @@
 package com.innovation.stockstock.achievement.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.innovation.stockstock.member.domain.Member;
 import lombok.Getter;
@@ -26,9 +27,10 @@ public class MemberAchievement {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @JsonBackReference
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "achievement_id")
     private Achievement achievement;
 
