@@ -165,6 +165,7 @@ public class MyPageService {
         }
     }
 
+    @Transactional
     public ResponseEntity<?> getInfoOther(Long memberId) {
         Optional<Member> optionalMember = memberRepository.findById(memberId);
         if(optionalMember.isEmpty()){
@@ -173,7 +174,7 @@ public class MyPageService {
         Member member = optionalMember.get();
         List<AchievementResponseDto> achievementsList = achieventsList(member);
         Account account = accountRepository.findByMember(member);
-        if(account==null){
+        if(account==null || account.getStockHoldingsList().isEmpty()){
             return ResponseEntity.ok().body(
                     ResponseDto.success(
                             OtherProfiledResponseDto.builder()
@@ -212,7 +213,8 @@ public class MyPageService {
                     .expireAt(String.valueOf(account.getExpireAt()))
                     .stockHoldingsList(stockHoldingResponseDtoList)
                     .createdAt(String.valueOf(account.getCreatedAt()))
-                    .member(account.getMember()).build();
+                    //.member(account.getMember())
+            .build();
 
             return ResponseEntity.ok().body(
                     ResponseDto.success(

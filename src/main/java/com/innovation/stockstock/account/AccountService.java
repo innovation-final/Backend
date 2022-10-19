@@ -58,15 +58,15 @@ public class AccountService {
         }
         List<StockHoldingResponseDto> responseDtoList = new ArrayList<>();
 
-        long accountTotalProfit = 0L;
-        long totalBuyPrice = 0L;
+        Long accountTotalProfit = 0L;
+        Long totalBuyPrice = 0L;
 
         if (!account.getStockHoldingsList().isEmpty()){
             for (StockHolding stockHolding : account.getStockHoldingsList()) {
                 int curPrice = Integer.parseInt(redisRepository.getTradePrice(stockHolding.getStockCode()));
                 int avgBuying = stockHolding.getAvgBuying();
 
-                long profit = (long) (curPrice - avgBuying) * stockHolding.getAmount();
+                Long profit = Long.valueOf((curPrice - avgBuying) *stockHolding.getAmount());
                 stockHolding.setProfit(profit);
 
                 BigDecimal cur = new BigDecimal(curPrice);
@@ -83,7 +83,7 @@ public class AccountService {
                         .build();
                 responseDtoList.add(responseDto);
 
-                totalBuyPrice += (long) stockHolding.getAmount() * avgBuying;
+                totalBuyPrice += stockHolding.getAmount() * avgBuying;
                 accountTotalProfit +=profit;
             }
             account.setTotalProfit(accountTotalProfit);
@@ -103,7 +103,9 @@ public class AccountService {
                 .expireAt(String.valueOf(account.getExpireAt()))
                 .stockHoldingsList(responseDtoList)
                 .createdAt(String.valueOf(account.getCreatedAt()))
-                .member(account.getMember()).build();
+                //.member(account.getMember())
+        .build();
+        System.out.println(accountResponseDto);
         return ResponseEntity.ok().body(ResponseDto.success(accountResponseDto));
     }
 
@@ -121,7 +123,7 @@ public class AccountService {
             int curPrice = Integer.parseInt(redisRepository.getTradePrice(stockHolding.getStockCode()));
             int avgBuying = stockHolding.getAvgBuying();
 
-            long profit = (long) (curPrice - avgBuying) *stockHolding.getAmount();
+            Long profit = (long) (curPrice - avgBuying) *stockHolding.getAmount();
             stockHolding.setProfit(profit);
 
             BigDecimal cur = new BigDecimal(curPrice);
