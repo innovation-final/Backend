@@ -103,9 +103,7 @@ public class AccountService {
                 .expireAt(String.valueOf(account.getExpireAt()))
                 .stockHoldingsList(responseDtoList)
                 .createdAt(String.valueOf(account.getCreatedAt()))
-                //.member(account.getMember())
-        .build();
-        System.out.println(accountResponseDto);
+                .build();
         return ResponseEntity.ok().body(ResponseDto.success(accountResponseDto));
     }
 
@@ -129,7 +127,6 @@ public class AccountService {
             BigDecimal cur = new BigDecimal(curPrice);
             BigDecimal avgBuy=new BigDecimal(avgBuying);
             float returnRate = cur.subtract(avgBuy).divide(avgBuy, 5, RoundingMode.HALF_EVEN).floatValue();
-            // double returnRate = (curPrice-avgBuying)/avgBuying;
             stockHolding.setReturnRate(returnRate);
 
             StockHoldingResponseDto responseDto = StockHoldingResponseDto.builder()
