@@ -32,6 +32,16 @@ public class Member {
     private String nickname;
     private String profileImg = "https://stockstock.s3.ap-northeast-2.amazonaws.com/%EA%B0%9C%EB%AF%B8.jpg";
     private String profileMsg;
+    @JsonIgnore
+    private int viewNum;
+    @JsonIgnore
+    private int likeNum;
+    @JsonIgnore
+    private int dislikeNum;
+    @JsonIgnore
+    private int postNum;
+    @JsonIgnore
+    private int commentNum;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberAchievement> memberAchievements = new ArrayList<>();
@@ -79,5 +89,37 @@ public class Member {
 
     public void updateProfileMsg(String profileMsg) {
         this.profileMsg = profileMsg;
+    }
+
+    public void updatePostNum(Boolean isAdded) {
+        if (isAdded) {
+            this.postNum++;
+        } else {
+            this.postNum--;
+        }
+    }
+    public void updateLikeNum(Boolean isAdded) {
+        if (isAdded) {
+            this.likeNum++;
+        } else {
+            this.likeNum--;
+        }
+    }
+    public void updateDislikeNum(Boolean isAdded) {
+        if (isAdded) {
+            this.dislikeNum++;
+        } else {
+            this.dislikeNum--;
+        }
+    }
+    public void updateCommentNum(Boolean isAdded) {
+        if (isAdded) {
+            this.commentNum++;
+        } else {
+            this.commentNum--;
+        }
+    }
+    public void addViewNum() {
+        this.viewNum++;
     }
 }

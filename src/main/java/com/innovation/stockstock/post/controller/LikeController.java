@@ -21,7 +21,7 @@ public class LikeController {
 
     @PostMapping("/api/auth/post/dislike/{postId}")
     public ResponseEntity<?> disLike(@PathVariable Long postId) {
-        return likeService.disLike(postId);
+        return likeService.doDisLike(postId);
     }
 
 }

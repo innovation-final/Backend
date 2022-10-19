@@ -69,10 +69,6 @@ public class AccountService {
         Long accountTotalProfit = 0L;
         Long totalBuyPrice = 0L;
         for (StockHolding stockHolding : account.getStockHoldingsList()) {
-            if(stockHolding.getAmount()==0){
-                stockHoldingRepository.deleteById(stockHolding.getId());
-                continue;
-            }
             int curPrice = Integer.parseInt(redisRepository.getTradePrice(stockHolding.getStockCode()));
             int amount = buyOrderRepository.sumBuyAmount(stockHolding);
             Long avgBuying = buyOrderRepository.sumBuyPrice(stockHolding)/amount;
