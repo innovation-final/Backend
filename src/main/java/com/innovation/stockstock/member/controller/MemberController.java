@@ -33,7 +33,7 @@ public class MemberController {
         return ResponseEntity.ok().body(ResponseDto.success("Kakao OAuth Success"));
     }
 
-    @PostMapping("/api/reissue")
+    @PostMapping("/api/auth/reissue")
     public ResponseEntity<?> reissueJwt(HttpServletRequest request, HttpServletResponse response) {
         return memberService.reissueJwt(request, response);
     }
