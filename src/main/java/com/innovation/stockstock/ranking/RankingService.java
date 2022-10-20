@@ -10,6 +10,7 @@ import com.innovation.stockstock.order.repository.BuyOrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class RankingService {
     private final RedisRepository redisRepository;
     private final BuyOrderRepository buyOrderRepository;
 
+    @Transactional
     public ResponseDto<?> getReturnRank() {
         List<Account> accounts = accountRepository.findAll();
         for (Account account : accounts) {

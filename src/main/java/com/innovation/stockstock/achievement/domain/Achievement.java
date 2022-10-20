@@ -13,10 +13,6 @@ public class Achievement {
 
     private String name;
 
-//    @OneToMany(mappedBy = "achievement")
-//    @JsonManagedReference
-//    private List<MemberAchievement> memberAchievements = new ArrayList<>();
-
     public Achievement(String name) {
         this.name = name;
     }

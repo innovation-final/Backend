@@ -1,6 +1,5 @@
 package com.innovation.stockstock.member.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.innovation.stockstock.account.domain.Account;
 import com.innovation.stockstock.achievement.domain.MemberAchievement;

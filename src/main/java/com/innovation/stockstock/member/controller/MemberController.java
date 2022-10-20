@@ -6,15 +6,10 @@ import com.innovation.stockstock.member.service.MemberService;
 import com.innovation.stockstock.member.oauth.service.GoogleMemberService;
 import com.innovation.stockstock.member.oauth.service.KakaoMemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 
 @RestController
