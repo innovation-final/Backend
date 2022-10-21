@@ -48,8 +48,8 @@ public class StockScheduler {
     private final LikeStockRepository likeStockRepository;
 
     @Transactional
-    @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
-    //@Scheduled(cron = "0 1/2 9-15 * * MON-FRI", zone = "Asia/Seoul")
+    // @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 1/2 9-15 * * MON-FRI", zone = "Asia/Seoul")
     public void contractLimitPriceOrder() throws InterruptedException {
         //TimeUnit.SECONDS.sleep(21);
         System.out.println(LocalDateTime.now());
@@ -158,7 +158,7 @@ public class StockScheduler {
         System.out.println(LocalDateTime.now());
     }
     @Transactional
-    @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
+    // @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
     public void noticeLikeStockPrice() {
         List<LikeStock> likeStockList = likeStockRepository.findAll();
         for(LikeStock likeStock:likeStockList){
