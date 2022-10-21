@@ -45,7 +45,7 @@ public class PostService {
     private final AchievementRepository achievementRepository;
     private final NotificationService notificationService;
 
-    @Transactional // 지연로딩 에러 해결
+    @Transactional(readOnly = true) // 지연로딩 에러 해결
     public ResponseEntity<?> getPost(Long postId,HttpServletRequest request) {
         List<CommentResponseDto> responseDtoList = new ArrayList<>();
         Post post = postRepository.findById(postId).orElse(null);
@@ -115,6 +115,7 @@ public class PostService {
         return ResponseDto.success(responseDtoList);
     }
 
+    @Transactional
     public ResponseEntity<?> writePost(PostRequestDto requestDto, HttpServletRequest request) {
         Member member = getMemberFromJwt(request);
         Post post = new Post(requestDto, member);
