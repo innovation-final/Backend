@@ -171,6 +171,7 @@ public class MyPageService {
                         .profit(stockHolding.getProfit())
                         .returnRate(stockHolding.getReturnRate())
                         .amount(stockHolding.getAmount())
+                        .avgBuying(stockHolding.getAvgBuying())
                         .build();
                 stockHoldingResponseDtoList.add(responseDto);
             }

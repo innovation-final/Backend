@@ -80,6 +80,7 @@ public class AccountService {
                         .profit(stockHolding.getProfit())
                         .returnRate(stockHolding.getReturnRate())
                         .amount(stockHolding.getAmount())
+                        .avgBuying(stockHolding.getAvgBuying())
                         .build();
                 responseDtoList.add(responseDto);
 
@@ -135,6 +136,7 @@ public class AccountService {
                     .profit(stockHolding.getProfit())
                     .returnRate(stockHolding.getReturnRate())
                     .amount(stockHolding.getAmount())
+                    .avgBuying(stockHolding.getAvgBuying())
                     .build();
             responseDtoList.add(responseDto);
         }
