@@ -68,10 +68,10 @@ public class MyPageService {
     public ResponseDto<?> getMyProfile(HttpServletRequest request) {
         Member member = getMemberFromJwt(request);
         List<AchievementResponseDto> achievementsList = achievementsList(member);
-        float totalReturnRate = 0;
+        float totalReturnRate = 0f;
         Account account = accountRepository.findByMember(member);
-        memberUtil.updateAccountInfoAtCurrentTime(account); // 현재가 기준 수익률 반영
         if(account!=null){
+            memberUtil.updateAccountInfoAtCurrentTime(account); // 현재가 기준 수익률 반영
             totalReturnRate = account.getTotalReturnRate();
         }
         return ResponseDto.success(
