@@ -20,7 +20,7 @@ public class LikeStock {
     private Member member;
 
     private String stockId;
-    private String stockName; // 이거 추가했는데 괜찮은가..
+    private String stockName;
 
     private int buyLimitPrice;
     private int sellLimitPrice;
