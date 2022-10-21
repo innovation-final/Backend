@@ -5,6 +5,7 @@ import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.stock.dto.StockRankResponseDto;
 import com.innovation.stockstock.stock.dto.StockResponseDto;
+import com.innovation.stockstock.stock.dto.StockYearResponseDto;
 import com.innovation.stockstock.stock.like.LikeStock;
 import com.innovation.stockstock.stock.like.LikeStockRepository;
 import com.innovation.stockstock.security.UserDetailsImpl;
@@ -25,14 +26,15 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class StockService {
-
     private final StockRepository stockRepository;
+
     private final StockRankRepository stockRankRepository;
     private final NewsRepository newsRepository;
     private final FinTableRepository finTableRepository;
     private final StockIndexRepository stockIndexRepository;
     private final LikeStockRepository likeStockRepository;
     private final StockListRepository stockListRepository;
+    private final StockYearRepository stockYearRepository;
 
     public ResponseEntity<?> getStock(String stockCode, HttpServletRequest request) {
         Stock stock = stockRepository.findByCode(stockCode);
@@ -107,6 +109,21 @@ public class StockService {
                         .build()
                 )
         );
+    }
+
+    public ResponseEntity<?> getStockYear(String stockCode) {
+        StockYear stockYear = stockYearRepository.findByCode(stockCode);
+        if (stockYear == null) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+        }
+
+        ArrayList<StockYearResponseDto> result = new ArrayList<>();
+        List<List<String>> dataList = stockYear.getData();
+        for (List<String> data : dataList) {
+            StockYearResponseDto stockYearResponseDto = new StockYearResponseDto(data.get(0), Integer.parseInt(data.get(1)));
+            result.add(stockYearResponseDto);
+        }
+        return ResponseEntity.ok().body(result);
     }
 
     public ResponseEntity<?> getStockNews(String stockCode) {

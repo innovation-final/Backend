@@ -18,6 +18,11 @@ public class StockController {
         return stockService.getStock(stockCode, request);
     }
 
+    @GetMapping("/api/stock/year/{stockCode}")
+    public ResponseEntity<?> getStockYear(@PathVariable String stockCode) {
+        return stockService.getStockYear(stockCode);
+    }
+
     @GetMapping("/api/stock/news/{stockCode}")
     public ResponseEntity<?> getStockNews(@PathVariable String stockCode) {
         return stockService.getStockNews(stockCode);
