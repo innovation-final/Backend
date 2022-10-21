@@ -16,10 +16,8 @@ import com.innovation.stockstock.notification.dto.NotificationRequestDto;
 import com.innovation.stockstock.notification.service.NotificationService;
 import com.innovation.stockstock.comment.repository.CommentRepository;
 import com.innovation.stockstock.post.repository.PostRepository;
-import com.innovation.stockstock.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
@@ -42,8 +40,8 @@ public class CommentService {
 
         post.updateCommentNum(true);
         if(!member.getId().equals(post.getMember().getId())){
-            //NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.댓글, member.getNickname()+"님이 댓글을 달았습니다.");
-            //notificationService.send(post.getMember().getId(), forPostWriter);
+            NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.댓글, member.getNickname()+"님이 댓글을 달았습니다.");
+            notificationService.send(post.getMember().getId(), forPostWriter);
 
             member.updateCommentNum(true);
             if (member.getCommentNum() == 10) {
