@@ -24,7 +24,6 @@ import java.util.List;
 public class MemberUtil {
     private final RedisRepository redisRepository;
     private final StockHoldingRepository stockHoldingRepository;
-    private final AccountRepository accountRepository;
 
     public static Member getMember(){
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -35,9 +34,7 @@ public class MemberUtil {
     public void updateAccountInfoAtCurrentTime(Account account){ // 사용 시 계좌 null인 경우 고려
         Long accountTotalProfit = 0L;
         Long totalBuyPrice = 0L;
-        //List<StockHolding> stockHoldings = stockHoldingRepository.findByAccount(account);
-        // if (!stockHoldings.isEmpty()){ //  LazyInit
-            for (StockHolding stockHolding : account.getStockHoldingsList()) { //stockHoldings
+            for (StockHolding stockHolding : account.getStockHoldingsList()) { //stockHoldings이 있는 경우
                 int curPrice = Integer.parseInt(redisRepository.getTradePrice(stockHolding.getStockCode()));
                 int avgBuying = stockHolding.getAvgBuying();
 
@@ -54,10 +51,13 @@ public class MemberUtil {
             }
             account.setTotalProfit(accountTotalProfit);
             BigDecimal totalProfit = new BigDecimal(accountTotalProfit);
-            BigDecimal totalBuyingPrice = new BigDecimal(totalBuyPrice);
-            float returnRate = totalProfit.divide(totalBuyingPrice, 5, RoundingMode.HALF_EVEN).floatValue();
+            float returnRate = 0f;
+            if(totalBuyPrice!=0L){
+                BigDecimal totalBuyingPrice = new BigDecimal(totalBuyPrice);
+                returnRate = totalProfit.divide(totalBuyingPrice, 5, RoundingMode.HALF_EVEN).floatValue();
+            }
             account.setTotalReturnRate(returnRate);
-        }
+            }
 
     // 보유 종목 리스트 수익률 업데이트
     public void updateStockListInfoAtCurrentTime(Account account) {
@@ -72,6 +72,7 @@ public class MemberUtil {
 
                 BigDecimal cur = new BigDecimal(curPrice);
                 BigDecimal avgBuy = new BigDecimal(avgBuying);
+
                 float returnRate = cur.subtract(avgBuy).divide(avgBuy, 5, RoundingMode.HALF_EVEN).floatValue();
                 stockHolding.setReturnRate(returnRate);
             }

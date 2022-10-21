@@ -8,6 +8,7 @@ import com.innovation.stockstock.achievement.domain.MemberAchievement;
 import com.innovation.stockstock.achievement.repository.AchievementRepository;
 import com.innovation.stockstock.achievement.repository.MemberAchievementRepository;
 import com.innovation.stockstock.chatRedis.redis.RedisRepository;
+import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.member.repository.MemberRepository;
 import com.innovation.stockstock.notification.domain.Event;
@@ -19,7 +20,10 @@ import com.innovation.stockstock.order.domain.SellOrder;
 import com.innovation.stockstock.order.repository.BuyOrderRepository;
 import com.innovation.stockstock.order.repository.LimitPriceOrderRepository;
 import com.innovation.stockstock.order.repository.SellOrderRepository;
+import com.innovation.stockstock.stock.like.LikeStock;
+import com.innovation.stockstock.stock.like.LikeStockRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,10 +45,11 @@ public class StockScheduler {
     private final AchievementRepository achievementRepository;
     private final MemberAchievementRepository memberAchievementRepository;
     private final MemberRepository memberRepository;
+    private final LikeStockRepository likeStockRepository;
 
     @Transactional
-    @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
-    //@Scheduled(cron = "0 1/2 9-15 * * MON-FRI", zone = "Asia/Seoul")
+    // @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 1/2 9-15 * * MON-FRI", zone = "Asia/Seoul")
     public void contractLimitPriceOrder() throws InterruptedException {
         //TimeUnit.SECONDS.sleep(21);
         System.out.println(LocalDateTime.now());
@@ -115,7 +120,7 @@ public class StockScheduler {
                 boolean firstBuyingHasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, firstBuying);
                 if (!firstBuyingHasAchieved) {
                     memberAchievementRepository.save(new MemberAchievement(member, firstBuying));
-                    NotificationRequestDto forFirstBuyer = new NotificationRequestDto(Event.뱃지취득, "뱃지를 취득하였습니다.");
+                    NotificationRequestDto forFirstBuyer = new NotificationRequestDto(Event.뱃지취득, "워렌버핏이 돼보자 뱃지를 얻었습니다.");
                     notificationService.send(member.getId(), forFirstBuyer);
                 }
 
@@ -125,7 +130,7 @@ public class StockScheduler {
                     boolean topStockholderHasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, topStockholder);
                     if (!topStockholderHasAchieved) {
                         memberAchievementRepository.save(new MemberAchievement(member, topStockholder));
-                        NotificationRequestDto forTopStockholder = new NotificationRequestDto(Event.뱃지취득, "뱃지를 취득하였습니다.");
+                        NotificationRequestDto forTopStockholder = new NotificationRequestDto(Event.뱃지취득, "이 구역의 최대주주 뱃지를 얻었습니다.");
                         notificationService.send(member.getId(), forTopStockholder);
                     }
                 }
@@ -151,5 +156,24 @@ public class StockScheduler {
             }
         }
         System.out.println(LocalDateTime.now());
+    }
+    @Transactional
+    // @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
+    public void noticeLikeStockPrice() {
+        List<LikeStock> likeStockList = likeStockRepository.findAll();
+        for(LikeStock likeStock:likeStockList){
+            int curPrice = Integer.valueOf(redisRepository.getTradePrice(likeStock.getStockId()));
+            String stockName = likeStock.getStockName();
+            NotificationRequestDto notificationRequestDto=null;
+            if(likeStock.getBuyLimitPrice()<=curPrice){
+                Member member = likeStock.getMember();
+                notificationRequestDto = new NotificationRequestDto(Event.관심종목, stockName+"이 희망매수가("+likeStock.getBuyLimitPrice()+"원)이하입니다.");
+                notificationService.send(member.getId(), notificationRequestDto);
+            }else if(likeStock.getSellLimitPrice()>=curPrice) {
+                Member member = likeStock.getMember();
+                notificationRequestDto = new NotificationRequestDto(Event.관심종목, stockName +"이 희망매도가("+likeStock.getSellLimitPrice()+"원)이상입니다.");
+                notificationService.send(member.getId(), notificationRequestDto);
+            }
+        }
     }
 }

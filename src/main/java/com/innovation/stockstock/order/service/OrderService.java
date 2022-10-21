@@ -185,7 +185,7 @@ public class OrderService {
             boolean firstBuyingHasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, firstBuying);
             if (!firstBuyingHasAchieved) {
                 memberAchievementRepository.save(new MemberAchievement(member, firstBuying));
-                NotificationRequestDto forFirstBuyer = new NotificationRequestDto(Event.뱃지취득, "뱃지를 취득하였습니다.");
+                NotificationRequestDto forFirstBuyer = new NotificationRequestDto(Event.뱃지취득, "워렌버핏이 돼보자 뱃지를 얻었습니다.");
                 notificationService.send(member.getId(), forFirstBuyer);
             }
 
@@ -195,7 +195,7 @@ public class OrderService {
                 boolean topStockholderHasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, topStockholder);
                 if (!topStockholderHasAchieved) {
                     memberAchievementRepository.save(new MemberAchievement(member, topStockholder));
-                    NotificationRequestDto forTopStockholder = new NotificationRequestDto(Event.뱃지취득, "뱃지를 취득하였습니다.");
+                    NotificationRequestDto forTopStockholder = new NotificationRequestDto(Event.뱃지취득, "이 구역의 최대주주 뱃지를 얻었습니다.");
                     notificationService.send(member.getId(), forTopStockholder);
                 }
             }

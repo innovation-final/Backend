@@ -185,7 +185,6 @@ public class MyPageService {
                     .expireAt(String.valueOf(account.getExpireAt()))
                     .stockHoldingsList(stockHoldingResponseDtoList)
                     .createdAt(String.valueOf(account.getCreatedAt()))
-                    //.member(account.getMember())
                     .build();
 
             return ResponseEntity.ok().body(

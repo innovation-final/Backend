@@ -1,12 +1,14 @@
 package com.innovation.stockstock.stock.like;
 
 import com.innovation.stockstock.member.domain.Member;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor
 public class LikeStock {
     @Id @GeneratedValue
@@ -18,12 +20,14 @@ public class LikeStock {
     private Member member;
 
     private String stockId;
+    private String stockName;
 
     private int buyLimitPrice;
     private int sellLimitPrice;
 
-    public LikeStock(Member member, String stockId) {
+    public LikeStock(Member member, String stockId, String stockName) {
         this.member = member;
         this.stockId = stockId;
+        this.stockName = stockName;
     }
 }
