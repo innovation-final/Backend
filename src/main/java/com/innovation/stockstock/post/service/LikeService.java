@@ -73,7 +73,7 @@ public class LikeService {
             boolean hasAchieved = memberAchievementRepository.existsByMemberAndAchievement(postWriter, achievement);
             if (!hasAchieved) {
                 memberAchievementRepository.save(new MemberAchievement(postWriter, achievement));
-                NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.뱃지취득, postWriter.getNickname()+"님이 뱃지를 취득하였습니다.");
+                NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.뱃지취득, "음 무슨글을 썼길래 뱃지를 얻었습니다. 상호 배려하는 글을 작성해주세요.");
                 notificationService.send(postWriter.getId(), forPostWriter);
             }
         }
@@ -119,7 +119,7 @@ public class LikeService {
             boolean hasAchieved = memberAchievementRepository.existsByMemberAndAchievement(postWriter, achievement);
             if (!hasAchieved) {
                 memberAchievementRepository.save(new MemberAchievement(postWriter, achievement));
-                NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.뱃지취득, postWriter.getNickname()+"님이 뱃지를 취득하였습니다.");
+                NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.뱃지취득, "러블리한 인플루언서 뱃지를 얻었습니다.");
                 notificationService.send(postWriter.getId(), forPostWriter);
             }
         }

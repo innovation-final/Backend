@@ -51,7 +51,7 @@ public class CommentService {
                 boolean hasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, achievement);
                 if (!hasAchieved) {
                     memberAchievementRepository.save(new MemberAchievement(member, achievement));
-                    NotificationRequestDto forCommentWriter = new NotificationRequestDto(Event.뱃지취득, member.getNickname()+"님이 뱃지를 취득하였습니다.");
+                    NotificationRequestDto forCommentWriter = new NotificationRequestDto(Event.뱃지취득, "조잘조잘 수다왕 뱃지를 얻었습니다.");
                     notificationService.send(member.getId(), forCommentWriter);
                 }
             }
