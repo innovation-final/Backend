@@ -42,8 +42,8 @@ public class CommentService {
 
         post.updateCommentNum(true);
         if(!member.getId().equals(post.getMember().getId())){
-            NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.댓글, member.getNickname()+"님이 댓글을 달았습니다.");
-            notificationService.send(post.getMember().getId(), forPostWriter);
+            //NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.댓글, member.getNickname()+"님이 댓글을 달았습니다.");
+            //notificationService.send(post.getMember().getId(), forPostWriter);
 
             member.updateCommentNum(true);
             if (member.getCommentNum() == 10) {

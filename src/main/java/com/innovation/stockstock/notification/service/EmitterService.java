@@ -10,7 +10,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class EmitterService {
     private final EmitterRepository emitterRepository;
-    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 10;
+    private static final Long DEFAULT_TIMEOUT = 60L * 1000;
 
     public SseEmitter createEmitter(Long memberId) {
 
@@ -19,7 +19,7 @@ public class EmitterService {
 
         emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
         emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
-        emitter.onError(e -> {emitterRepository.deleteById(emitterId);});
+        emitter.onError(e -> emitterRepository.deleteById(emitterId));
 
         String eventId = memberId+"_"+System.currentTimeMillis();
         sendToClient(emitter, eventId, emitterId, "EventStream Created.");
