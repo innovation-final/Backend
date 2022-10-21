@@ -210,7 +210,8 @@ public class StockService {
 
     public ResponseDto<?> likeStock(String stockCode) {
         Member member = getMember();
-        likeStockRepository.save(new LikeStock(member, stockCode));
+        String stockName = stockRepository.findByCode(stockCode).getName();
+        likeStockRepository.save(new LikeStock(member, stockCode,stockName));
         return ResponseDto.success("Like Success");
     }
 

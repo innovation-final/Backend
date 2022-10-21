@@ -92,21 +92,4 @@ public class NotificationService {
         notificationRepository.deleteByMember(member.get());
         return ResponseEntity.ok().body(ResponseDto.success("알림 삭제 완료"));
     }
-
-    public ResponseEntity<?> noticeLikeStockPrice(Member member){
-        List<LikeStock> likeStockList = member.getLikeStocks();
-        for(LikeStock likeStock:likeStockList){
-            int curPrice = Integer.valueOf(redisRepository.getTradePrice(likeStock.getStockId()));
-            String stockCode = likeStock.getStockId();
-            String stockName = stockRepository.findByCode(stockCode).getName();
-            NotificationRequestDto notificationRequestDto=null;
-            if(likeStock.getBuyLimitPrice()<=curPrice){
-                notificationRequestDto = new NotificationRequestDto(Event.관심종목, stockName+"이 희망매수가("+likeStock.getBuyLimitPrice()+"원)이하입니다.");
-            }else if(likeStock.getSellLimitPrice()>=curPrice) {
-                notificationRequestDto = new NotificationRequestDto(Event.관심종목, stockName +"이 희망매도가("+likeStock.getSellLimitPrice()+"원)이상입니다.");
-            }
-            send(member.getId(), notificationRequestDto);
-        }
-        return ResponseEntity.ok().body(ResponseDto.success("관심종목 지정가 알림 완료"));
-    }
 }
