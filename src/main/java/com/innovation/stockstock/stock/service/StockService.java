@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -123,7 +124,11 @@ public class StockService {
             StockYearResponseDto stockYearResponseDto = new StockYearResponseDto(data.get(0), Integer.parseInt(data.get(1)));
             result.add(stockYearResponseDto);
         }
-        return ResponseEntity.ok().body(result);
+
+        Map<String,Object> response = new HashMap<>();
+        response.put("name", stockYear.getName());
+        response.put("data", result);
+        return ResponseEntity.ok().body(response);
     }
 
     public ResponseEntity<?> getStockNews(String stockCode) {

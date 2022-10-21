@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StockYearResponseDto {
-    private String name;
+    private String date;
     private int price;
 }
