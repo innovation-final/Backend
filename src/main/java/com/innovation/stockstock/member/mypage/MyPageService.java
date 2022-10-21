@@ -170,6 +170,7 @@ public class MyPageService {
                         .stockName(stockHolding.getStockName())
                         .profit(stockHolding.getProfit())
                         .returnRate(stockHolding.getReturnRate())
+                        .avgBuying(stockHolding.getAvgBuying())
                         .amount(stockHolding.getAmount())
                         .build();
                 stockHoldingResponseDtoList.add(responseDto);

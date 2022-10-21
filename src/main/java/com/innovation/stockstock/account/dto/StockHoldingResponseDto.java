@@ -11,4 +11,5 @@ public class StockHoldingResponseDto {
     private Long profit;
     private float returnRate;
     private int amount;
+    private int avgBuying;
 }

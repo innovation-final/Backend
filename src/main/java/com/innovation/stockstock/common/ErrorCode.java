@@ -32,7 +32,7 @@ public enum ErrorCode {
     NOT_ALLOWED("NOT_ALLOWED", "Only The Writer Is Allowed"),
 
     // 용량 초과
-    FILE_SIZE_EXCEED("FILE_SIZE_EXCEED","File size exceeded. Limit is 128KB."),
+    FILE_SIZE_EXCEED("FILE_SIZE_EXCEED","File size exceeded. Limit is 1MB."),
 
     // 중복 계좌 개설 불가
     NOT_DUPLICATES("ONE_ACCOUNT_PER_PERSON","Duplicate account opening is not allowed."),

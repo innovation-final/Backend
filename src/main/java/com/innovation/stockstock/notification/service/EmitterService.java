@@ -10,7 +10,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class EmitterService {
     private final EmitterRepository emitterRepository;
-    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 10;
+    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 10 ;
 
     public SseEmitter createEmitter(Long memberId) {
 
