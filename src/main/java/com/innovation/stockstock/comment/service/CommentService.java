@@ -39,21 +39,25 @@ public class CommentService {
         commentRepository.save(comment);
 
         post.updateCommentNum(true);
-        if(!member.getId().equals(post.getMember().getId())){
-            NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.댓글, member.getNickname()+"님이 댓글을 달았습니다.");
-            notificationService.send(post.getMember().getId(), forPostWriter);
-
-            member.updateCommentNum(true);
-            if (member.getCommentNum() == 10) {
-                Achievement achievement = achievementRepository.findByName("COMMENT");
-                boolean hasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, achievement);
-                if (!hasAchieved) {
-                    memberAchievementRepository.save(new MemberAchievement(member, achievement));
-                    NotificationRequestDto forCommentWriter = new NotificationRequestDto(Event.뱃지취득, "조잘조잘 수다왕 뱃지를 얻었습니다.");
-                    notificationService.send(member.getId(), forCommentWriter);
-                }
+        member.updateCommentNum(true);
+        if (member.getCommentNum() == 10) {
+            Achievement achievement = achievementRepository.findByName("COMMENT");
+            boolean hasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, achievement);
+            if (!hasAchieved) {
+                memberAchievementRepository.save(new MemberAchievement(member, achievement));
+                NotificationRequestDto forCommentWriter = new NotificationRequestDto(Event.뱃지취득, "조잘조잘 수다왕 뱃지를 얻었습니다.");
+                notificationService.send(member.getId(), forCommentWriter);
             }
         }
+        if(!member.getId().equals(post.getMember().getId())) {
+            NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.댓글, member.getNickname() + "님이 댓글을 달았습니다.");
+            try {
+                notificationService.send(post.getMember().getId(), forPostWriter);
+            } catch (Exception e) {
+                e.getMessage();
+            }
+        }
+
         return ResponseEntity.ok().body(ResponseDto.success("Write Comment Success"));
     }
 
