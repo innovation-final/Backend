@@ -30,12 +30,13 @@ public class BuyOrder {
     private LocalDateTime buyAt;
     private int buyAmount;
     private int buyPrice;
+    private String stockCode;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @ManyToOne
-    @JoinColumn(name = "stockholding_id")
-    private StockHolding stockHolding;
+//    @ManyToOne
+//    @JoinColumn(name = "stockholding_id")
+//    private StockHolding stockHolding;
 }

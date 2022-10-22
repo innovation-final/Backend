@@ -20,8 +20,10 @@ import com.innovation.stockstock.order.domain.SellOrder;
 import com.innovation.stockstock.order.repository.BuyOrderRepository;
 import com.innovation.stockstock.order.repository.LimitPriceOrderRepository;
 import com.innovation.stockstock.order.repository.SellOrderRepository;
+import com.innovation.stockstock.stock.document.Stock;
 import com.innovation.stockstock.stock.like.LikeStock;
 import com.innovation.stockstock.stock.like.LikeStockRepository;
+import com.innovation.stockstock.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -31,6 +33,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -46,6 +49,7 @@ public class StockScheduler {
     private final MemberAchievementRepository memberAchievementRepository;
     private final MemberRepository memberRepository;
     private final LikeStockRepository likeStockRepository;
+    private final StockRepository stockRepository;
 
     @Transactional
     // @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
@@ -64,10 +68,13 @@ public class StockScheduler {
             int totalAmount = orderAmount;
 
             Member member = memberRepository.findByAccount(account);
-
-            int currentPrice = Integer.parseInt(redisRepository.getTradePrice(stockCode));
-            if (currentPrice == 0) {
-                return;
+            int currentPrice = 0;
+            try {
+                currentPrice = Integer.parseInt(redisRepository.getTradePrice(stockCode));
+            }catch(Exception e){
+                Stock stock = stockRepository.findByCode(stockCode);
+                Map<String, String> current = stock.getCurrent();
+                currentPrice = Integer.valueOf(current.get("last_price"));
             }
             int totalPrice = orderAmount * currentPrice;
             StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
@@ -81,13 +88,14 @@ public class StockScheduler {
                                     .amount(orderAmount)
                                     .account(account)
                                     .avgBuying(currentPrice)
-                                    .profit(0L)
-                                    .returnRate(0f)
                                     .build()
                     );
                 } else {
-                    Long totalSumBuying = buyOrderRepository.sumBuyPrice(stock) + totalPrice;
-                    totalAmount += buyOrderRepository.sumBuyAmount(stock);
+                    // 미실현 수익
+                    // 보유주식현재가 - 보유주식매수가
+                    Long totalSumBuying = stockHoldingRepository.sumHoldingBuyPrice(stockCode) + totalPrice;
+                    totalAmount += stockHoldingRepository.holdingAmountByStockCode(stockCode);
+
                     int avgBuying = Long.valueOf(totalSumBuying/totalAmount).intValue();
 
                     long profit = currentPrice*totalAmount - totalSumBuying; // 총보유량 * 현재가 - 총매수가
@@ -112,7 +120,8 @@ public class StockScheduler {
                                 .buyPrice(currentPrice)
                                 .buyAmount(orderAmount)
                                 .account(account)
-                                .stockHolding(stock)
+                                //.stockHolding(stock)
+                                .stockCode(stockCode)
                                 .build()
                 );
                 // 첫 매수인 경우 뱃지 부여 및 알람 전송
@@ -135,6 +144,12 @@ public class StockScheduler {
                     }
                 }
             } else if (stock != null && category.equals("sell") && orderPrice <= currentPrice && orderAmount <= stock.getAmount()) { // 지정가 매도주문 체결
+                Long buyingPrice = Long.valueOf(stock.getAvgBuying()*orderAmount);
+
+                // 매도시마다 계좌실현손익 , 계좌잔고 , 보유종목 보유량 업데이트
+                account.updateTotalRealizedProfit(orderAmount * currentPrice - buyingPrice);
+                account.updateBalance(false, totalPrice);
+
                 stock.updateAmount(false, orderAmount);
                 account.updateBalance(false, totalPrice);
                 NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이상인 "+currentPrice+"원에 매도되었습니다.");
@@ -143,11 +158,13 @@ public class StockScheduler {
                 sellOrderRepository.save(
                         SellOrder.builder()
                                 .stockName(stockName)
+                                .stockCode(stockCode)
                                 .orderCategory("지정가")
                                 .sellPrice(currentPrice)
                                 .sellAmount(orderAmount)
                                 .account(account)
-                                .stockHolding(stock)
+                                .buyingPrice(buyingPrice)
+                                //.stockHolding(stock)
                                 .build()
                 );
                 if (stock.getAmount() == 0) {

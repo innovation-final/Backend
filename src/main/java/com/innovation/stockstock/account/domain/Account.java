@@ -39,6 +39,14 @@ public class Account extends Timestamped {
 
     private Long totalProfit;
 
+    private Long totalRealizedProfit;
+
+    private Long totalUnrealizedProfit;
+
+    private float totalRealizedReturnRate;
+
+    private float totalUnrealizedReturnRate;
+
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss",timezone = "Asia/Seoul")
     private LocalDateTime expireAt;
 
@@ -68,11 +76,24 @@ public class Account extends Timestamped {
     public void setTotalReturnRate(float totalReturnRate){
         this.totalReturnRate=totalReturnRate;
     }
-
     public void setTotalProfit(Long totalProfit){
         this.totalProfit=totalProfit;
     }
-
+    public void setTotalUnrealizedProfit(Long totalUnrealizedProfit){
+        this.totalUnrealizedProfit=totalUnrealizedProfit;
+    }
+    public void setTotalRealizedReturnRate(float totalRealizedReturnRate){
+        this.totalRealizedReturnRate=totalRealizedReturnRate;
+    }
+    public void updateTotalRealizedProfit(Long totalRealizedProfit) {
+        this.totalRealizedProfit += totalRealizedProfit;
+    }
+    public void setTotalUnrealizedReturnRate(float totalUnrealizedReturnRate){
+        this.totalUnrealizedReturnRate=totalUnrealizedReturnRate;
+    }
+    public void setTotalRealizedProfit(Long totalRealizedProfit){
+        this.totalRealizedProfit=totalRealizedProfit;
+    }
     public void updateExpiredAt(int days) {
         this.expireAt = this.expireAt.plusDays(days);
     }

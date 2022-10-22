@@ -30,7 +30,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -147,19 +146,17 @@ public class OrderService {
                                 .amount(amount)
                                 .account(account)
                                 .avgBuying(price)
-                                .returnRate(0f) // 시장가 = 현재가, 매수 시 수익 0
-                                .profit(0L)
                                 .build()
                 );
             } else {
-                Long totalSumBuying = buyOrderRepository.sumBuyPrice(stock) + totalPrice;
-                totalAmount += buyOrderRepository.sumBuyAmount(stock);
+                Long totalSumBuying = stockHoldingRepository.sumHoldingBuyPrice(stockCode) + totalPrice;
+                totalAmount += stockHoldingRepository.holdingAmountByStockCode(stockCode);
                 int avgBuying = Long.valueOf(totalSumBuying / totalAmount).intValue();
 
                 stock.setAvgBuying(avgBuying);
                 stock.updateAmount(true, amount);
 
-                long profit = price*amount - totalSumBuying; // 총보유량 * 현재가 - 총매수가
+                long profit = price * amount - totalSumBuying; // 총보유량 * 현재가 - 총매수가
                 stock.setProfit(profit);
 
                 BigDecimal curPrice = new BigDecimal(price*totalAmount);
@@ -175,7 +172,8 @@ public class OrderService {
                             .buyPrice(price)
                             .buyAmount(amount)
                             .account(account)
-                            .stockHolding(stock)
+                            //.stockHolding(stock)
+                            .stockCode(stockCode)
                             .build()
             );
             account.updateBalance(true, totalPrice);
@@ -236,21 +234,31 @@ public class OrderService {
         }
 
         if (category.equals("시장가") && amount <= stock.getAmount()) {
+            Long buyingPrice = Long.valueOf(stock.getAvgBuying()*amount);
+
             sellOrderRepository.save(
                     SellOrder.builder()
                             .stockName(stockName)
+                            .stockCode(stockCode)
                             .orderCategory(category)
                             .sellPrice(price)
                             .sellAmount(amount)
                             .account(account)
-                            .stockHolding(stock)
+                            .buyingPrice(buyingPrice)
                             .build()
             );
             stock.updateAmount(false, amount);
+
             if (stock.getAmount() == 0) {
                 stockHoldingRepository.deleteById(stock.getId());
             }
+
+            Long realizedProfit = amount * price - buyingPrice;
+
+            // 매도시마다 계좌실현손익 , 계좌잔고 , 보유종목보유량 업데이트(수익률은 계좌정보 조회할 때 업데이트)
+            account.updateTotalRealizedProfit(realizedProfit);
             account.updateBalance(false, totalPrice);
+
         } else if (category.equals("지정가")) {
             limitPriceOrderRepository.save(
                     LimitPriceOrder.builder()

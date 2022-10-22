@@ -7,11 +7,21 @@ import com.innovation.stockstock.account.dto.AccountResponseDto;
 import com.innovation.stockstock.account.dto.AccountUpdateRequestDto;
 import com.innovation.stockstock.account.dto.StockHoldingResponseDto;
 import com.innovation.stockstock.account.repository.AccountRepository;
+import com.innovation.stockstock.account.repository.StockHoldingRepository;
 import com.innovation.stockstock.chatRedis.redis.RedisRepository;
 import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.common.MemberUtil;
 import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.member.domain.Member;
+import com.innovation.stockstock.order.domain.BuyOrder;
+import com.innovation.stockstock.order.domain.SellOrder;
+import com.innovation.stockstock.order.repository.BuyOrderRepository;
+import com.innovation.stockstock.order.repository.SellOrderRepository;
+import com.innovation.stockstock.stock.document.Index;
+import com.innovation.stockstock.stock.document.Stock;
+import com.innovation.stockstock.stock.repository.StockIndexRepository;
+import com.innovation.stockstock.stock.repository.StockListRepository;
+import com.innovation.stockstock.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,6 +36,7 @@ import java.util.*;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final RedisRepository redisRepository;
+    private final MemberUtil memberUtil;
     public ResponseEntity<?> makeAccount(AccountRequestDto accountRequestDto) {
         Member member = MemberUtil.getMember();
         if (accountRepository.findByMember(member)!=null){
@@ -39,9 +50,10 @@ public class AccountService {
                 .seedMoney(accountRequestDto.getSeedMoney())
                 .balance((long) accountRequestDto.getSeedMoney())
                 .targetReturnRate(accountRequestDto.getTargetReturnRate())
-                .totalReturnRate(0f)
-                .totalProfit(0L)
                 .expireAt(expiredAt)
+                .totalRealizedProfit(0L)
+                .totalUnrealizedProfit(0L)
+                .totalUnrealizedReturnRate(0L)
                 .member(member)
                 .build();
 
@@ -53,59 +65,45 @@ public class AccountService {
     public ResponseEntity<?> getAccount() {
         Member member = MemberUtil.getMember();
         Account account = accountRepository.findByMember(member);
-        if(account == null){
+        if (account == null) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
         }
+        memberUtil.updateAccountInfoAtCurrentTime(account);
+        List<StockHolding> stockHoldings = account.getStockHoldingsList();
         List<StockHoldingResponseDto> responseDtoList = new ArrayList<>();
 
-        Long accountTotalProfit = 0L;
-        Long totalBuyPrice = 0L;
-
-        if (!account.getStockHoldingsList().isEmpty()){
-            for (StockHolding stockHolding : account.getStockHoldingsList()) {
-                int curPrice = Integer.parseInt(redisRepository.getTradePrice(stockHolding.getStockCode()));
-                int avgBuying = stockHolding.getAvgBuying();
-
-                Long profit = Long.valueOf((curPrice - avgBuying) *stockHolding.getAmount());
-                stockHolding.setProfit(profit);
-
-                BigDecimal cur = new BigDecimal(curPrice);
-                BigDecimal avgBuy=new BigDecimal(avgBuying);
-                float returnRate = cur.subtract(avgBuy).divide(avgBuy, 5, RoundingMode.HALF_EVEN).floatValue();
-                stockHolding.setReturnRate(returnRate);
-
+        if (!stockHoldings.isEmpty()) {
+            for (StockHolding stockHolding : stockHoldings) {
                 StockHoldingResponseDto responseDto = StockHoldingResponseDto.builder()
                         .id(stockHolding.getId())
                         .stockName(stockHolding.getStockName())
                         .profit(stockHolding.getProfit())
                         .returnRate(stockHolding.getReturnRate())
                         .amount(stockHolding.getAmount())
+                        .avgBuying(stockHolding.getAvgBuying())
                         .build();
                 responseDtoList.add(responseDto);
-
-                totalBuyPrice += stockHolding.getAmount() * avgBuying;
-                accountTotalProfit +=profit;
             }
-            account.setTotalProfit(accountTotalProfit);
-            BigDecimal totalProfit = new BigDecimal(accountTotalProfit);
-            BigDecimal totalBuyingPrice = new BigDecimal(totalBuyPrice);
-            float returnRate = totalProfit.divide(totalBuyingPrice, 5, RoundingMode.HALF_EVEN).floatValue();
-            account.setTotalReturnRate(returnRate);
         }
-        AccountResponseDto accountResponseDto = AccountResponseDto.builder()
-                .id(account.getId())
-                .accountNumber(account.getAccountNumber())
-                .seedMoney(account.getSeedMoney())
-                .balance(account.getBalance())
-                .targetReturnRate(account.getTargetReturnRate())
-                .totalReturnRate(account.getTotalReturnRate())
-                .totalProfit(account.getTotalProfit())
-                .expireAt(String.valueOf(account.getExpireAt()))
-                .stockHoldingsList(responseDtoList)
-                .createdAt(String.valueOf(account.getCreatedAt()))
-                .build();
-        return ResponseEntity.ok().body(ResponseDto.success(accountResponseDto));
-    }
+            AccountResponseDto accountResponseDto = AccountResponseDto.builder()
+                    .id(account.getId())
+                    .accountNumber(account.getAccountNumber())
+                    .seedMoney(account.getSeedMoney())
+                    .balance(account.getBalance())
+                    .targetReturnRate(account.getTargetReturnRate())
+                    .totalReturnRate(account.getTotalReturnRate())
+                    .totalProfit(account.getTotalProfit())
+                    .expireAt(String.valueOf(account.getExpireAt()))
+                    .stockHoldingsList(responseDtoList)
+                    .createdAt(String.valueOf(account.getCreatedAt()))
+                    .totalRealizedProfit(account.getTotalRealizedProfit())
+                    .totalRealizedReturnRate(account.getTotalRealizedReturnRate())
+                    .totalUnrealizedProfit(account.getTotalUnrealizedProfit())
+                    .totalUnrealizedReturnRate(account.getTotalUnrealizedReturnRate())
+                    .build();
+
+            return ResponseEntity.ok().body(ResponseDto.success(accountResponseDto));
+        }
 
     @Transactional // 보유 종목 정보
     public ResponseEntity<?> getReturn() {
@@ -135,6 +133,7 @@ public class AccountService {
                     .profit(stockHolding.getProfit())
                     .returnRate(stockHolding.getReturnRate())
                     .amount(stockHolding.getAmount())
+                    .avgBuying(stockHolding.getAvgBuying())
                     .build();
             responseDtoList.add(responseDto);
         }

@@ -18,5 +18,9 @@ public class AccountResponseDto {
     private String expireAt;
     private List<StockHoldingResponseDto> stockHoldingsList;
     private String createdAt;
+    private Long totalRealizedProfit;
+    private Long totalUnrealizedProfit;
+    private float totalRealizedReturnRate;
+    private float totalUnrealizedReturnRate;
 
 }

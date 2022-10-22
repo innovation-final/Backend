@@ -42,10 +42,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -175,6 +172,7 @@ public class MyPageService {
                         .build();
                 stockHoldingResponseDtoList.add(responseDto);
             }
+
             AccountResponseDto accountResponseDto = AccountResponseDto.builder()
                     .id(account.getId())
                     .accountNumber(account.getAccountNumber())
@@ -186,6 +184,10 @@ public class MyPageService {
                     .expireAt(String.valueOf(account.getExpireAt()))
                     .stockHoldingsList(stockHoldingResponseDtoList)
                     .createdAt(String.valueOf(account.getCreatedAt()))
+                    .totalRealizedProfit(account.getTotalRealizedProfit())
+                    .totalRealizedReturnRate(account.getTotalRealizedReturnRate())
+                    .totalUnrealizedProfit(account.getTotalUnrealizedProfit())
+                    .totalUnrealizedReturnRate(account.getTotalUnrealizedReturnRate())
                     .build();
 
             return ResponseEntity.ok().body(

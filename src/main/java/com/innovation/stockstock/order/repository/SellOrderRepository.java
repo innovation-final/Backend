@@ -2,7 +2,6 @@ package com.innovation.stockstock.order.repository;
 
 import com.innovation.stockstock.order.domain.SellOrder;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
