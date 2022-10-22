@@ -20,7 +20,4 @@ public class AccountResponseDto {
     private String createdAt;
     private Long totalRealizedProfit;
     private Long totalUnrealizedProfit;
-    private float totalRealizedReturnRate;
-    private float totalUnrealizedReturnRate;
-
 }

@@ -8,7 +8,6 @@ import com.innovation.stockstock.achievement.domain.MemberAchievement;
 import com.innovation.stockstock.achievement.repository.AchievementRepository;
 import com.innovation.stockstock.achievement.repository.MemberAchievementRepository;
 import com.innovation.stockstock.chatRedis.redis.RedisRepository;
-import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.member.repository.MemberRepository;
 import com.innovation.stockstock.notification.domain.Event;
@@ -21,11 +20,9 @@ import com.innovation.stockstock.order.repository.BuyOrderRepository;
 import com.innovation.stockstock.order.repository.LimitPriceOrderRepository;
 import com.innovation.stockstock.order.repository.SellOrderRepository;
 import com.innovation.stockstock.stock.document.Stock;
-import com.innovation.stockstock.stock.like.LikeStock;
 import com.innovation.stockstock.stock.like.LikeStockRepository;
 import com.innovation.stockstock.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,12 +88,12 @@ public class StockScheduler {
                                     .build()
                     );
                 } else {
-                    // 미실현 수익
-                    // 보유주식현재가 - 보유주식매수가
+                    // 미실현 수익 : 보유주식현재가 - 보유주식매수가
                     Long totalSumBuying = stockHoldingRepository.sumHoldingBuyPrice(stockCode) + totalPrice;
-                    totalAmount += stockHoldingRepository.holdingAmountByStockCode(stockCode);
+                    totalAmount += stock.getAmount();
 
                     int avgBuying = Long.valueOf(totalSumBuying/totalAmount).intValue();
+                    stock.setAvgBuying(avgBuying);
 
                     long profit = currentPrice*totalAmount - totalSumBuying; // 총보유량 * 현재가 - 총매수가
                     stock.setProfit(profit);
@@ -106,7 +103,6 @@ public class StockScheduler {
                     float returnRate = curPrice.subtract(sumBuying).divide(sumBuying, 5, RoundingMode.HALF_EVEN).floatValue();
                     stock.setReturnRate(returnRate);
 
-                    stock.setAvgBuying(avgBuying);
                     stock.updateAmount(true, orderAmount);
                 }
                 account.updateBalance(true, totalPrice);
@@ -120,7 +116,6 @@ public class StockScheduler {
                                 .buyPrice(currentPrice)
                                 .buyAmount(orderAmount)
                                 .account(account)
-                                //.stockHolding(stock)
                                 .stockCode(stockCode)
                                 .build()
                 );
@@ -163,8 +158,6 @@ public class StockScheduler {
                                 .sellPrice(currentPrice)
                                 .sellAmount(orderAmount)
                                 .account(account)
-                                .buyingPrice(buyingPrice)
-                                //.stockHolding(stock)
                                 .build()
                 );
                 if (stock.getAmount() == 0) {
@@ -174,23 +167,23 @@ public class StockScheduler {
         }
         System.out.println(LocalDateTime.now());
     }
-    @Transactional
-    // @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
-    public void noticeLikeStockPrice() {
-        List<LikeStock> likeStockList = likeStockRepository.findAll();
-        for(LikeStock likeStock:likeStockList){
-            int curPrice = Integer.valueOf(redisRepository.getTradePrice(likeStock.getStockId()));
-            String stockName = likeStock.getStockName();
-            NotificationRequestDto notificationRequestDto=null;
-            if(likeStock.getBuyLimitPrice()<=curPrice){
-                Member member = likeStock.getMember();
-                notificationRequestDto = new NotificationRequestDto(Event.관심종목, stockName+"이 희망매수가("+likeStock.getBuyLimitPrice()+"원)이하입니다.");
-                notificationService.send(member.getId(), notificationRequestDto);
-            }else if(likeStock.getSellLimitPrice()>=curPrice) {
-                Member member = likeStock.getMember();
-                notificationRequestDto = new NotificationRequestDto(Event.관심종목, stockName +"이 희망매도가("+likeStock.getSellLimitPrice()+"원)이상입니다.");
-                notificationService.send(member.getId(), notificationRequestDto);
-            }
-        }
-    }
+//    @Transactional
+//    // @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
+//    public void noticeLikeStockPrice() {
+//        List<LikeStock> likeStockList = likeStockRepository.findAll();
+//        for(LikeStock likeStock:likeStockList){
+//            int curPrice = Integer.valueOf(redisRepository.getTradePrice(likeStock.getStockId()));
+//            String stockName = likeStock.getStockName();
+//            NotificationRequestDto notificationRequestDto=null;
+//            if(likeStock.getBuyLimitPrice()<=curPrice){
+//                Member member = likeStock.getMember();
+//                notificationRequestDto = new NotificationRequestDto(Event.관심종목, stockName+"이 희망매수가("+likeStock.getBuyLimitPrice()+"원)이하입니다.");
+//                notificationService.send(member.getId(), notificationRequestDto);
+//            }else if(likeStock.getSellLimitPrice()>=curPrice) {
+//                Member member = likeStock.getMember();
+//                notificationRequestDto = new NotificationRequestDto(Event.관심종목, stockName +"이 희망매도가("+likeStock.getSellLimitPrice()+"원)이상입니다.");
+//                notificationService.send(member.getId(), notificationRequestDto);
+//            }
+//        }
+//    }
 }

@@ -186,9 +186,7 @@ public class MyPageService {
                     .stockHoldingsList(stockHoldingResponseDtoList)
                     .createdAt(String.valueOf(account.getCreatedAt()))
                     .totalRealizedProfit(account.getTotalRealizedProfit())
-                    .totalRealizedReturnRate(account.getTotalRealizedReturnRate())
                     .totalUnrealizedProfit(account.getTotalUnrealizedProfit())
-                    .totalUnrealizedReturnRate(account.getTotalUnrealizedReturnRate())
                     .build();
 
             return ResponseEntity.ok().body(

@@ -2,7 +2,6 @@ package com.innovation.stockstock.order.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.innovation.stockstock.account.domain.Account;
-import com.innovation.stockstock.account.domain.StockHolding;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,14 +30,9 @@ public class SellOrder {
     private int sellAmount;
     private int sellPrice;
     private String stockCode;
-    private Long buyingPrice;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
-
-    //@ManyToOne
-    //@JoinColumn(name = "stockholding_id")
-    //private StockHolding stockHolding;
 
 }

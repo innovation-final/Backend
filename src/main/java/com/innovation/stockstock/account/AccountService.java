@@ -7,21 +7,11 @@ import com.innovation.stockstock.account.dto.AccountResponseDto;
 import com.innovation.stockstock.account.dto.AccountUpdateRequestDto;
 import com.innovation.stockstock.account.dto.StockHoldingResponseDto;
 import com.innovation.stockstock.account.repository.AccountRepository;
-import com.innovation.stockstock.account.repository.StockHoldingRepository;
 import com.innovation.stockstock.chatRedis.redis.RedisRepository;
 import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.common.MemberUtil;
 import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.member.domain.Member;
-import com.innovation.stockstock.order.domain.BuyOrder;
-import com.innovation.stockstock.order.domain.SellOrder;
-import com.innovation.stockstock.order.repository.BuyOrderRepository;
-import com.innovation.stockstock.order.repository.SellOrderRepository;
-import com.innovation.stockstock.stock.document.Index;
-import com.innovation.stockstock.stock.document.Stock;
-import com.innovation.stockstock.stock.repository.StockIndexRepository;
-import com.innovation.stockstock.stock.repository.StockListRepository;
-import com.innovation.stockstock.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -51,9 +41,9 @@ public class AccountService {
                 .balance((long) accountRequestDto.getSeedMoney())
                 .targetReturnRate(accountRequestDto.getTargetReturnRate())
                 .expireAt(expiredAt)
+                .totalProfit(0L)
                 .totalRealizedProfit(0L)
                 .totalUnrealizedProfit(0L)
-                .totalUnrealizedReturnRate(0L)
                 .member(member)
                 .build();
 
@@ -97,9 +87,7 @@ public class AccountService {
                     .stockHoldingsList(responseDtoList)
                     .createdAt(String.valueOf(account.getCreatedAt()))
                     .totalRealizedProfit(account.getTotalRealizedProfit())
-                    .totalRealizedReturnRate(account.getTotalRealizedReturnRate())
                     .totalUnrealizedProfit(account.getTotalUnrealizedProfit())
-                    .totalUnrealizedReturnRate(account.getTotalUnrealizedReturnRate())
                     .build();
 
             return ResponseEntity.ok().body(ResponseDto.success(accountResponseDto));

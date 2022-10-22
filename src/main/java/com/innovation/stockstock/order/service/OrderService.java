@@ -150,13 +150,13 @@ public class OrderService {
                 );
             } else {
                 Long totalSumBuying = stockHoldingRepository.sumHoldingBuyPrice(stockCode) + totalPrice;
-                totalAmount += stockHoldingRepository.holdingAmountByStockCode(stockCode);
+                totalAmount += stock.getAmount();
                 int avgBuying = Long.valueOf(totalSumBuying / totalAmount).intValue();
 
                 stock.setAvgBuying(avgBuying);
                 stock.updateAmount(true, amount);
 
-                long profit = price * amount - totalSumBuying; // 총보유량 * 현재가 - 총매수가
+                long profit = price * totalAmount - totalSumBuying; // 총보유량 * 현재가 - 총매수가
                 stock.setProfit(profit);
 
                 BigDecimal curPrice = new BigDecimal(price*totalAmount);
@@ -172,7 +172,6 @@ public class OrderService {
                             .buyPrice(price)
                             .buyAmount(amount)
                             .account(account)
-                            //.stockHolding(stock)
                             .stockCode(stockCode)
                             .build()
             );
@@ -244,7 +243,6 @@ public class OrderService {
                             .sellPrice(price)
                             .sellAmount(amount)
                             .account(account)
-                            .buyingPrice(buyingPrice)
                             .build()
             );
             stock.updateAmount(false, amount);
