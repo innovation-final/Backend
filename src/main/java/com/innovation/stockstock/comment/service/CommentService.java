@@ -50,14 +50,15 @@ public class CommentService {
                 notificationService.send(member.getId(), forCommentWriter);
             }
         }
-        if(!member.getId().equals(post.getMember().getId())){
-            NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.댓글, member.getNickname()+"님이 댓글을 달았습니다.");
+        if(!member.getId().equals(post.getMember().getId())) {
+            NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.댓글, member.getNickname() + "님이 댓글을 달았습니다.");
             try {
                 notificationService.send(post.getMember().getId(), forPostWriter);
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.getMessage();
             }
         }
+
         return ResponseEntity.ok().body(ResponseDto.success("Write Comment Success"));
     }
 
