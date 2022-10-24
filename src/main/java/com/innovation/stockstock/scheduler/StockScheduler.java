@@ -89,7 +89,7 @@ public class StockScheduler {
                     );
                 } else {
                     // 미실현 수익 : 보유주식현재가 - 보유주식매수가
-                    Long totalSumBuying = stockHoldingRepository.sumHoldingBuyPrice(stockCode) + totalPrice;
+                    Long totalSumBuying = stockHoldingRepository.sumHoldingBuyPrice(stockCode,account) + totalPrice;
                     totalAmount += stock.getAmount();
 
                     int avgBuying = Long.valueOf(totalSumBuying/totalAmount).intValue();
