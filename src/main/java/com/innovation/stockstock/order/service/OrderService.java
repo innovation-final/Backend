@@ -145,10 +145,11 @@ public class OrderService {
                                 .amount(amount)
                                 .account(account)
                                 .avgBuying(price)
+                                .profit(0L)
                                 .build()
                 );
             } else {
-                Long totalSumBuying = stockHoldingRepository.sumHoldingBuyPrice(stockCode) + totalPrice;
+                Long totalSumBuying = stockHoldingRepository.sumHoldingBuyPrice(stockCode,account) + totalPrice;
                 totalAmount += stock.getAmount();
                 int avgBuying = Long.valueOf(totalSumBuying / totalAmount).intValue();
 
