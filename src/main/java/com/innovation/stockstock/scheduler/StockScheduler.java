@@ -107,8 +107,12 @@ public class StockScheduler {
                 }
                 account.updateBalance(true, totalPrice);
                 NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이하인 "+currentPrice+ "원에 매수되었습니다.");
-                notificationService.send(account.getMember().getId(),notificationRequestDto);
-                limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
+                try {
+                    notificationService.send(account.getMember().getId(), notificationRequestDto);
+                }catch (Exception e){
+                    e.getMessage();
+                }
+                    limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
                 buyOrderRepository.save(
                         BuyOrder.builder()
                                 .stockName(stockName)
@@ -148,8 +152,12 @@ public class StockScheduler {
                 stock.updateAmount(false, orderAmount);
                 account.updateBalance(false, totalPrice);
                 NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이상인 "+currentPrice+"원에 매도되었습니다.");
-                notificationService.send(limitPriceOrder.getAccount().getMember().getId(),notificationRequestDto);
-                limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
+                try {
+                    notificationService.send(limitPriceOrder.getAccount().getMember().getId(), notificationRequestDto);
+                }catch (Exception e){
+                    e.getMessage();
+                }
+                    limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
                 sellOrderRepository.save(
                         SellOrder.builder()
                                 .stockName(stockName)

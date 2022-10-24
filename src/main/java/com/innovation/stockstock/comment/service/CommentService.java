@@ -47,7 +47,11 @@ public class CommentService {
             if (!hasAchieved) {
                 memberAchievementRepository.save(new MemberAchievement(member, achievement));
                 NotificationRequestDto forCommentWriter = new NotificationRequestDto(Event.뱃지취득, "조잘조잘 수다왕 뱃지를 얻었습니다.");
-                notificationService.send(member.getId(), forCommentWriter);
+                try {
+                    notificationService.send(member.getId(), forCommentWriter);
+                }catch (Exception e){
+                    e.getMessage();
+                }
             }
         }
         if(!member.getId().equals(post.getMember().getId())) {

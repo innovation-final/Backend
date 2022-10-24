@@ -127,10 +127,14 @@ public class PostService {
             if (!hasAchieved) {
                 memberAchievementRepository.save(new MemberAchievement(member, achievement));
                 NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.뱃지취득, "활발한 주식박사 뱃지를 얻었습니다.");
-                notificationService.send(member.getId(), forPostWriter);
+                try {
+                    notificationService.send(member.getId(), forPostWriter);
+                } catch (Exception e) {
+                    e.getMessage();
+                }
             }
         }
-        return ResponseEntity.ok().body(ResponseDto.success("Write Post Success"));
+         return ResponseEntity.ok().body(ResponseDto.success("Write Post Success"));
     }
 
     @Transactional
