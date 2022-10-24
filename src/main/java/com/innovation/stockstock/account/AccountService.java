@@ -81,13 +81,13 @@ public class AccountService {
                     .seedMoney(account.getSeedMoney())
                     .balance(account.getBalance())
                     .targetReturnRate(account.getTargetReturnRate())
-                    .totalReturnRate(account.getTotalReturnRate())
                     .totalProfit(account.getTotalProfit())
+                    .totalReturnRate(account.getTotalReturnRate())
+                    .totalRealizedProfit(account.getTotalRealizedProfit())
+                    .totalUnrealizedProfit(account.getTotalUnrealizedProfit())
                     .expireAt(String.valueOf(account.getExpireAt()))
                     .stockHoldingsList(responseDtoList)
                     .createdAt(String.valueOf(account.getCreatedAt()))
-                    .totalRealizedProfit(account.getTotalRealizedProfit())
-                    .totalUnrealizedProfit(account.getTotalUnrealizedProfit())
                     .build();
 
             return ResponseEntity.ok().body(ResponseDto.success(accountResponseDto));

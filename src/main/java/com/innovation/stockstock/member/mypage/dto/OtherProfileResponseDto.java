@@ -16,7 +16,7 @@ public class OtherProfileResponseDto {
     private String profileImg;
     private String profileMsg;
     private String email;
-    private AccountResponseDto account;
+    private AccountResponseDto account; // totalReturnRate;profit;realizedProfit;unrealizedProfit;
     private List<AchievementResponseDto> achievements;
 
 }

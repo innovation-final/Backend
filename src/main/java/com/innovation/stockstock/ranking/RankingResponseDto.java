@@ -1,5 +1,6 @@
 package com.innovation.stockstock.ranking;
 
+import com.innovation.stockstock.account.dto.AccountResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +15,9 @@ public class RankingResponseDto {
     String nickname;
     String profileImg;
     float targetReturnRate;
+//    AccountResponseDto account;
     float returnRate;
     Long profit;
+    Long realizedProfit;
+    Long unrealizedProfit;
 }

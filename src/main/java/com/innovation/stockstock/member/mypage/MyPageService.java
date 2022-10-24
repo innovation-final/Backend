@@ -65,23 +65,35 @@ public class MyPageService {
     public ResponseDto<?> getMyProfile(HttpServletRequest request) {
         Member member = getMemberFromJwt(request);
         List<AchievementResponseDto> achievementsList = achievementsList(member);
-        float totalReturnRate = 0f;
+
         Account account = accountRepository.findByMember(member);
-        if(account!=null){
-            memberUtil.updateAccountInfoAtCurrentTime(account); // 현재가 기준 수익률 반영
-            totalReturnRate = account.getTotalReturnRate();
+        AccountResponseDto accountResponseDto = null;
+        ProfileResponseDto profileResponseDto;
+        if(account == null){
+            profileResponseDto = ProfileResponseDto.builder()
+                    .id(member.getId())
+                    .email(member.getEmail())
+                    .nickname(member.getNickname())
+                    .profileImg(member.getProfileImg())
+                    .profileMsg(member.getProfileMsg())
+                    .achievements(achievementsList)
+                    .account(accountResponseDto)
+                    .build();
         }
-        return ResponseDto.success(
-                ProfileResponseDto.builder()
-                        .id(member.getId())
-                        .email(member.getEmail())
-                        .nickname(member.getNickname())
-                        .profileImg(member.getProfileImg())
-                        .profileMsg(member.getProfileMsg())
-                        .totalReturnRate(totalReturnRate)
-                        .achievements(achievementsList)
-                        .build()
-        );
+        else {
+            memberUtil.updateAccountInfoAtCurrentTime(account); // 현재가 기준 수익률 반영
+            accountResponseDto = getAccountResponseDto(account, null);
+            profileResponseDto = ProfileResponseDto.builder()
+                    .id(member.getId())
+                    .email(member.getEmail())
+                    .nickname(member.getNickname())
+                    .profileImg(member.getProfileImg())
+                    .profileMsg(member.getProfileMsg())
+                    .account(accountResponseDto)
+                    .achievements(achievementsList)
+                    .build();
+        }
+        return ResponseDto.success(profileResponseDto);
     }
 
     @Transactional
@@ -143,7 +155,9 @@ public class MyPageService {
         Member member = optionalMember.get();
         List<AchievementResponseDto> achievementsList = achievementsList(member);
         Account account = accountRepository.findByMember(member);
-        if(account==null || account.getStockHoldingsList().isEmpty()){
+        AccountResponseDto accountResponseDto=null;
+        List<StockHoldingResponseDto> stockHoldingResponseDtoList = new ArrayList<>();
+        if(account==null){
             return ResponseEntity.ok().body(
                     ResponseDto.success(
                             OtherProfileResponseDto.builder()
@@ -153,15 +167,14 @@ public class MyPageService {
                                     .profileMsg(member.getProfileMsg())
                                     .email(member.getEmail())
                                     .achievements(achievementsList)
-                                    .account(null)
-                                    .build()
-                    )
-            );
-        }else{
+                                    .account(accountResponseDto)
+                                    .build()));
+        }else if(account.getStockHoldingsList().isEmpty()){
+            accountResponseDto = getAccountResponseDto(account, stockHoldingResponseDtoList);
+        }else {
             memberUtil.updateAccountInfoAtCurrentTime(account);
-            List<StockHoldingResponseDto> stockHoldingResponseDtoList = new ArrayList<>();
             List<StockHolding> stockHoldings = stockHoldingRepository.findByAccount(account);
-            for(StockHolding stockHolding:stockHoldings){
+            for (StockHolding stockHolding : stockHoldings) {
                 StockHoldingResponseDto responseDto = StockHoldingResponseDto.builder()
                         .id(stockHolding.getId())
                         .stockName(stockHolding.getStockName())
@@ -173,22 +186,8 @@ public class MyPageService {
                         .build();
                 stockHoldingResponseDtoList.add(responseDto);
             }
-
-            AccountResponseDto accountResponseDto = AccountResponseDto.builder()
-                    .id(account.getId())
-                    .accountNumber(account.getAccountNumber())
-                    .seedMoney(account.getSeedMoney())
-                    .balance(account.getBalance())
-                    .targetReturnRate(account.getTargetReturnRate())
-                    .totalReturnRate(account.getTotalReturnRate())
-                    .totalProfit(account.getTotalProfit())
-                    .expireAt(String.valueOf(account.getExpireAt()))
-                    .stockHoldingsList(stockHoldingResponseDtoList)
-                    .createdAt(String.valueOf(account.getCreatedAt()))
-                    .totalRealizedProfit(account.getTotalRealizedProfit())
-                    .totalUnrealizedProfit(account.getTotalUnrealizedProfit())
-                    .build();
-
+            accountResponseDto = getAccountResponseDto(account, stockHoldingResponseDtoList);
+        }
             return ResponseEntity.ok().body(
                     ResponseDto.success(
                             OtherProfileResponseDto.builder()
@@ -203,7 +202,26 @@ public class MyPageService {
                     )
             );
         }
+
+    private AccountResponseDto getAccountResponseDto(Account account, List<StockHoldingResponseDto> stockHoldingResponseDtoList) {
+        AccountResponseDto accountResponseDto;
+        accountResponseDto = AccountResponseDto.builder()
+                .id(account.getId())
+                .accountNumber(account.getAccountNumber())
+                .seedMoney(account.getSeedMoney())
+                .balance(account.getBalance())
+                .targetReturnRate(account.getTargetReturnRate())
+                .totalReturnRate(account.getTotalReturnRate())
+                .totalProfit(account.getTotalProfit())
+                .expireAt(String.valueOf(account.getExpireAt()))
+                .stockHoldingsList(stockHoldingResponseDtoList)
+                .createdAt(String.valueOf(account.getCreatedAt()))
+                .totalRealizedProfit(account.getTotalRealizedProfit())
+                .totalUnrealizedProfit(account.getTotalUnrealizedProfit())
+                .build();
+        return accountResponseDto;
     }
+
     private List<AchievementResponseDto> achievementsList(Member member) {
         List<AchievementResponseDto> achievementsList = new ArrayList<>();
         List<MemberAchievement> memberAchievements = member.getMemberAchievements();

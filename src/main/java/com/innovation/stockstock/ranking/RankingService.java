@@ -32,6 +32,7 @@ public class RankingService {
 
         List<RankingResponseDto> res = new ArrayList<>();
         List<Account> result = accountRepository.findFirst10ByOrderByTotalReturnRateDesc();
+
         for (Account account : result) {
             Member member = account.getMember();
             res.add(
@@ -42,6 +43,8 @@ public class RankingService {
                             .targetReturnRate(account.getTargetReturnRate())
                             .returnRate(account.getTotalReturnRate())
                             .profit(account.getTotalProfit())
+                            .realizedProfit(account.getTotalRealizedProfit())
+                            .unrealizedProfit(account.getTotalUnrealizedProfit())
                             .build()
             );
         }

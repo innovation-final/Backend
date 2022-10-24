@@ -1,5 +1,6 @@
 package com.innovation.stockstock.member.mypage.dto;
 
+import com.innovation.stockstock.account.dto.AccountResponseDto;
 import com.innovation.stockstock.achievement.dto.AchievementResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,10 @@ public class ProfileResponseDto {
     private String profileImg;
     private String profileMsg;
     private String email;
-    private float totalReturnRate;
     private List<AchievementResponseDto> achievements;
+    private AccountResponseDto account;
+//    private Long profit;
+//    private float totalReturnRate;
+//    private Long realizedProfit;
+//    private Long unrealizedProfit;
 }
