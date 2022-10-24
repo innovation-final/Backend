@@ -11,6 +11,6 @@ public interface StockHoldingRepository extends JpaRepository<StockHolding,Long>
     StockHolding findByStockCodeAndAccountId(String stockCode, Long accountId);
     void deleteById(Long id);
     List<StockHolding> findByAccount(Account account);
-    @Query("select sum(s.amount*s.avgBuying) from StockHolding s where s.stockCode = :stockCode")
-    Long sumHoldingBuyPrice(String stockCode);
+    @Query("select s.amount*s.avgBuying from StockHolding s where s.stockCode = :stockCode and s.account = :account")
+    Long sumHoldingBuyPrice(String stockCode, Account account);
 }
