@@ -16,10 +16,15 @@ import com.innovation.stockstock.notification.dto.NotificationRequestDto;
 import com.innovation.stockstock.notification.service.NotificationService;
 import com.innovation.stockstock.comment.repository.CommentRepository;
 import com.innovation.stockstock.post.repository.PostRepository;
+import com.innovation.stockstock.security.UserDetailsImpl;
+import com.innovation.stockstock.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @Service
@@ -31,16 +36,31 @@ public class CommentService {
     private final NotificationService notificationService;
     private final MemberAchievementRepository memberAchievementRepository;
     private final AchievementRepository achievementRepository;
+    private final JwtProvider jwtProvider;
 
     @Transactional
-    public ResponseEntity<Object> postComment(Long postId, CommentRequestDto commentRequestDto) {
-        Member member = MemberUtil.getMember();
+    public ResponseEntity<Object> postComment(Long postId, CommentRequestDto commentRequestDto, HttpServletRequest request) {
+        Authentication authentication = jwtProvider.getAuthentication(request.getHeader("Authorization").substring(7));
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Member member = userDetails.getMember();
         Post post = isPresentPost(postId);
+        if (post == null) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+        }
         Comment comment = Comment.builder().post(post).content(commentRequestDto.getContent()).member(member).build();
         commentRepository.save(comment);
 
         post.updateCommentNum(true);
-        member.updateCommentNum(true);
+        if(!member.getId().equals(post.getMember().getId())) {
+            member.updateCommentNum(true);
+
+            NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.댓글, member.getNickname() + "님이 댓글을 달았습니다.");
+            try {
+                notificationService.send(post.getMember().getId(), forPostWriter);
+            } catch (Exception e) {
+                e.getMessage();
+            }
+        }
         if (member.getCommentNum() == 10) {
             Achievement achievement = achievementRepository.findByName("COMMENT");
             boolean hasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, achievement);
@@ -52,14 +72,6 @@ public class CommentService {
                 }catch (Exception e){
                     e.getMessage();
                 }
-            }
-        }
-        if(!member.getId().equals(post.getMember().getId())) {
-            NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.댓글, member.getNickname() + "님이 댓글을 달았습니다.");
-            try {
-                notificationService.send(post.getMember().getId(), forPostWriter);
-            } catch (Exception e) {
-                e.getMessage();
             }
         }
 

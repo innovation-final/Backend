@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 @RequiredArgsConstructor
 public class CommentController {
@@ -13,8 +15,8 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping(value = "/api/auth/comment/{postId}")
-    public ResponseEntity<?> postComment(@PathVariable Long postId,@RequestBody CommentRequestDto commentRequestDto) {
-        return commentService.postComment(postId, commentRequestDto);
+    public ResponseEntity<?> postComment(@PathVariable Long postId, @RequestBody CommentRequestDto commentRequestDto, HttpServletRequest request) {
+        return commentService.postComment(postId, commentRequestDto, request);
     }
 
     @PutMapping(value = "/api/auth/comment/{commentId}")
