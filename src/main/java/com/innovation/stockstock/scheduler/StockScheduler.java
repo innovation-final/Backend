@@ -20,7 +20,6 @@ import com.innovation.stockstock.order.repository.BuyOrderRepository;
 import com.innovation.stockstock.order.repository.LimitPriceOrderRepository;
 import com.innovation.stockstock.order.repository.SellOrderRepository;
 import com.innovation.stockstock.stock.document.Stock;
-import com.innovation.stockstock.stock.like.LikeStockRepository;
 import com.innovation.stockstock.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -28,7 +27,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -45,15 +43,12 @@ public class StockScheduler {
     private final AchievementRepository achievementRepository;
     private final MemberAchievementRepository memberAchievementRepository;
     private final MemberRepository memberRepository;
-    private final LikeStockRepository likeStockRepository;
     private final StockRepository stockRepository;
 
     @Transactional
-    // @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
     @Scheduled(cron = "0 1/2 9-15 * * MON-FRI", zone = "Asia/Seoul")
     public void contractLimitPriceOrder() throws InterruptedException {
         //TimeUnit.SECONDS.sleep(21);
-        System.out.println(LocalDateTime.now());
         List<LimitPriceOrder> limitPriceOrders = limitPriceOrderRepository.findAll();
         for (LimitPriceOrder limitPriceOrder : limitPriceOrders) {
             Account account = limitPriceOrder.getAccount();
@@ -65,7 +60,7 @@ public class StockScheduler {
             int totalAmount = orderAmount;
 
             Member member = memberRepository.findByAccount(account);
-            int currentPrice = 0;
+            int currentPrice;
             try {
                 currentPrice = Integer.parseInt(redisRepository.getTradePrice(stockCode));
             }catch(Exception e){
@@ -85,6 +80,8 @@ public class StockScheduler {
                                     .amount(orderAmount)
                                     .account(account)
                                     .avgBuying(currentPrice)
+                                    .profit(0L)
+                                    .returnRate(0f)
                                     .build()
                     );
                 } else {
@@ -105,14 +102,9 @@ public class StockScheduler {
 
                     stock.updateAmount(true, orderAmount);
                 }
+
                 account.updateBalance(true, totalPrice);
-                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이하인 "+currentPrice+ "원에 매수되었습니다.");
-                try {
-                    notificationService.send(account.getMember().getId(), notificationRequestDto);
-                }catch (Exception e){
-                    e.getMessage();
-                }
-                    limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
+
                 buyOrderRepository.save(
                         BuyOrder.builder()
                                 .stockName(stockName)
@@ -123,6 +115,15 @@ public class StockScheduler {
                                 .stockCode(stockCode)
                                 .build()
                 );
+                limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
+
+                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이하인 "+currentPrice+ "원에 매수되었습니다.");
+                try {
+                    notificationService.send(account.getMember().getId(), notificationRequestDto);
+                }catch (Exception e){
+                    e.getMessage();
+                }
+
                 // 첫 매수인 경우 뱃지 부여 및 알람 전송
                 Achievement firstBuying = achievementRepository.findByName("BUY");
                 boolean firstBuyingHasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, firstBuying);
@@ -150,14 +151,12 @@ public class StockScheduler {
                 account.updateBalance(false, totalPrice);
 
                 stock.updateAmount(false, orderAmount);
-                account.updateBalance(false, totalPrice);
-                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이상인 "+currentPrice+"원에 매도되었습니다.");
-                try {
-                    notificationService.send(limitPriceOrder.getAccount().getMember().getId(), notificationRequestDto);
-                }catch (Exception e){
-                    e.getMessage();
+                if (stock.getAmount() == 0) {
+                    stockHoldingRepository.deleteById(stock.getId());
                 }
-                    limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
+
+                account.updateBalance(false, totalPrice);
+
                 sellOrderRepository.save(
                         SellOrder.builder()
                                 .stockName(stockName)
@@ -168,12 +167,16 @@ public class StockScheduler {
                                 .account(account)
                                 .build()
                 );
-                if (stock.getAmount() == 0) {
-                    stockHoldingRepository.deleteById(stock.getId());
+                limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
+
+                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이상인 "+currentPrice+"원에 매도되었습니다.");
+                try {
+                    notificationService.send(limitPriceOrder.getAccount().getMember().getId(), notificationRequestDto);
+                }catch (Exception e){
+                    e.getMessage();
                 }
             }
         }
-        System.out.println(LocalDateTime.now());
     }
 //    @Transactional
 //    // @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
