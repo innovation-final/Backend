@@ -58,7 +58,7 @@ public class CommentService {
             try {
                 notificationService.send(post.getMember().getId(), forPostWriter);
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                ResponseEntity.badRequest().body(e.getMessage());
             }
         }
         if (member.getCommentNum() == 10) {
@@ -70,7 +70,7 @@ public class CommentService {
                 try {
                     notificationService.send(member.getId(), forCommentWriter);
                 }catch (Exception e){
-                    System.out.println(e.getMessage());
+                    ResponseEntity.badRequest().body(e.getMessage());
                 }
             }
         }
