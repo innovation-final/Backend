@@ -122,6 +122,10 @@ public class OrderService {
 
     @Transactional
     public ResponseEntity<?> buyStock(String stockCode, OrderRequestDto requestDto) {
+        if (isDisabled()) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.OUT_OF_MARKET_HOUR));
+        }
+
         Member member = MemberUtil.getMember();
         Account account = accountRepository.findByMember(member);
         if (account == null) {
@@ -138,7 +142,7 @@ public class OrderService {
         if (category.equals("시장가") && totalPrice <= account.getBalance()) {
             StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
             if (stock == null) {
-                stock = stockHoldingRepository.save(
+                stockHoldingRepository.save(
                         StockHolding.builder()
                                 .stockCode(stockCode)
                                 .stockName(stockName)
@@ -146,6 +150,7 @@ public class OrderService {
                                 .account(account)
                                 .avgBuying(price)
                                 .profit(0L)
+                                .returnRate(0f)
                                 .build()
                 );
             } else {
@@ -216,6 +221,10 @@ public class OrderService {
 
     @Transactional
     public ResponseEntity<?> sellStock(String stockCode, OrderRequestDto requestDto) {
+        if (isDisabled()) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.OUT_OF_MARKET_HOUR));
+        }
+
         Account account = getAccount();
         if (account == null) {
             return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
@@ -277,5 +286,12 @@ public class OrderService {
     public Account getAccount() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return accountRepository.findByMember(userDetails.getMember());
+    }
+
+    public boolean isDisabled() {
+        LocalTime now = LocalTime.now();
+        LocalTime marketStart = LocalTime.of(9, 0, 0);
+        LocalTime marketEnd = LocalTime.of(15, 30, 0);
+        return now.isBefore(marketStart) || now.isAfter(marketEnd);
     }
 }

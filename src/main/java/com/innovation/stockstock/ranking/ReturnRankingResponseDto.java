@@ -1,6 +1,5 @@
 package com.innovation.stockstock.ranking;
 
-import com.innovation.stockstock.account.dto.AccountResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RankingResponseDto {
+public class ReturnRankingResponseDto {
     Long memberId;
     String nickname;
     String profileImg;
