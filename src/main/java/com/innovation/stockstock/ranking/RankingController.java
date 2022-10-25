@@ -11,8 +11,13 @@ public class RankingController {
 
     private final RankingService rankingService;
 
-    @GetMapping("/api/rank")
+    @GetMapping("/api/rank/return")
     public ResponseEntity<?> getReturnRank() {
         return ResponseEntity.ok().body(rankingService.getReturnRank());
+    }
+
+    @GetMapping("/api/rank/like")
+    public ResponseEntity<?> getLikeRank() {
+        return ResponseEntity.ok().body(rankingService.getLikeRank());
     }
 }
