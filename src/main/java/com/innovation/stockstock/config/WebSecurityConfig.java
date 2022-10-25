@@ -90,7 +90,7 @@ public class WebSecurityConfig extends WebMvcConfigurationSupport {
         registry.addMapping("/**")
                 .allowedMethods("*")
                 .allowedHeaders("*")
-                .allowedOrigins("http://localhost:3000","http://innovationcamp1234.shop","https://innovationcamp1234.shop")
+                .allowedOrigins("https://main.stocks-talk.site","http://localhost:3000")
                 .exposedHeaders("*")
                 .allowCredentials(true);
     }
