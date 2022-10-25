@@ -118,7 +118,7 @@ public class MyPageService {
             }
             return ResponseEntity.ok().body(ResponseDto.success("Profile Changed"));
         } catch (IOException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
