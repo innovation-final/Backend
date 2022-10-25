@@ -39,7 +39,7 @@ public class AccountService {
                 .accountNumber(member.getId()+System.currentTimeMillis())
                 .seedMoney(accountRequestDto.getSeedMoney())
                 .balance((long) accountRequestDto.getSeedMoney())
-                .targetReturnRate(accountRequestDto.getTargetReturnRate())
+                .targetReturnRate(accountRequestDto.getTargetReturnRate()/100)
                 .expireAt(expiredAt)
                 .totalProfit(0L)
                 .totalRealizedProfit(0L)
