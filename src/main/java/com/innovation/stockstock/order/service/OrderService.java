@@ -291,7 +291,7 @@ public class OrderService {
     public boolean isDisabled() {
         LocalTime now = LocalTime.now();
         LocalTime marketStart = LocalTime.of(9, 0, 0);
-        LocalTime marketEnd = LocalTime.of(15, 30, 0);
+        LocalTime marketEnd = LocalTime.of(21, 0, 0);
         return now.isBefore(marketStart) || now.isAfter(marketEnd);
     }
 }
