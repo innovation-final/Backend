@@ -97,10 +97,9 @@ public class MyPageService {
     }
 
     @Transactional
-    public ResponseEntity<?> changeProfile(HttpServletRequest request, ProfileRequestDto requestDto) {
+    public ResponseEntity<?> changeProfile(HttpServletRequest request, ProfileRequestDto requestDto, MultipartFile profileImg) {
         Member member = getMemberFromJwt(request);
         String nickname = requestDto.getNickname();
-        MultipartFile profileImg = requestDto.getProfileImg();
         String profileMsg = requestDto.getProfileMsg();
         try {
             if (nickname == null && profileImg == null && profileMsg == null) {

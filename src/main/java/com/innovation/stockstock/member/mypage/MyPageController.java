@@ -9,6 +9,8 @@ import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
@@ -26,8 +28,8 @@ public class MyPageController {
     }
 
     @PatchMapping("/api/auth/mypage")
-    public ResponseEntity<?> changeProfile(HttpServletRequest request, @ModelAttribute ProfileRequestDto requestDto) {
-        return myPageService.changeProfile(request, requestDto);
+    public ResponseEntity<?> changeProfile(HttpServletRequest request, @RequestPart(required = false) ProfileRequestDto requestDto, @RequestPart(required = false) MultipartFile profileImg) {
+        return myPageService.changeProfile(request, requestDto, profileImg);
     }
 
     @DeleteMapping("/api/auth/mypage")
