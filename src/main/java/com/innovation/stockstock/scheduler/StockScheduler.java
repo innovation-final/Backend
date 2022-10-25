@@ -123,25 +123,31 @@ public class StockScheduler {
                 }catch (Exception e){
                     e.getMessage();
                 }
-
-                // 첫 매수인 경우 뱃지 부여 및 알람 전송
-                Achievement firstBuying = achievementRepository.findByName("BUY");
-                boolean firstBuyingHasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, firstBuying);
-                if (!firstBuyingHasAchieved) {
-                    memberAchievementRepository.save(new MemberAchievement(member, firstBuying));
-                    NotificationRequestDto forFirstBuyer = new NotificationRequestDto(Event.뱃지취득, "워렌버핏이 돼보자 뱃지를 얻었습니다.");
-                    notificationService.send(member.getId(), forFirstBuyer);
-                }
-
-                // 한 종목 100주 이상 매수 시 최대 주주
-                if (totalAmount>=100) {
-                    Achievement topStockholder = achievementRepository.findByName("STOCKHOLD");
-                    boolean topStockholderHasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, topStockholder);
-                    if (!topStockholderHasAchieved) {
-                        memberAchievementRepository.save(new MemberAchievement(member, topStockholder));
-                        NotificationRequestDto forTopStockholder = new NotificationRequestDto(Event.뱃지취득, "이 구역의 최대주주 뱃지를 얻었습니다.");
-                        notificationService.send(member.getId(), forTopStockholder);
+                try {
+                    // 첫 매수인 경우 뱃지 부여 및 알람 전송
+                    Achievement firstBuying = achievementRepository.findByName("BUY");
+                    boolean firstBuyingHasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, firstBuying);
+                    if (!firstBuyingHasAchieved) {
+                        memberAchievementRepository.save(new MemberAchievement(member, firstBuying));
+                        NotificationRequestDto forFirstBuyer = new NotificationRequestDto(Event.뱃지취득, "워렌버핏이 돼보자 뱃지를 얻었습니다.");
+                        notificationService.send(member.getId(), forFirstBuyer);
                     }
+                }catch (Exception e){
+                    e.getMessage();
+                }
+                try {
+                    // 한 종목 100주 이상 매수 시 최대 주주
+                    if (totalAmount >= 100) {
+                        Achievement topStockholder = achievementRepository.findByName("STOCKHOLD");
+                        boolean topStockholderHasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, topStockholder);
+                        if (!topStockholderHasAchieved) {
+                            memberAchievementRepository.save(new MemberAchievement(member, topStockholder));
+                            NotificationRequestDto forTopStockholder = new NotificationRequestDto(Event.뱃지취득, "이 구역의 최대주주 뱃지를 얻었습니다.");
+                            notificationService.send(member.getId(), forTopStockholder);
+                        }
+                    }
+                }catch (Exception e){
+                    e.getMessage();
                 }
             } else if (stock != null && category.equals("sell") && orderPrice <= currentPrice && orderAmount <= stock.getAmount()) { // 지정가 매도주문 체결
                 Long buyingPrice = Long.valueOf(stock.getAvgBuying()*orderAmount);

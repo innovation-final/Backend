@@ -25,7 +25,7 @@ public class MyPageController {
         return ResponseEntity.ok().body(myPageService.getMyProfile(request));
     }
 
-    @PatchMapping("/api/auth/mypage")
+    @PatchMapping ("/api/auth/mypage")
     public ResponseEntity<?> changeProfile(HttpServletRequest request, @ModelAttribute ProfileRequestDto requestDto) {
         return myPageService.changeProfile(request, requestDto);
     }
