@@ -122,9 +122,9 @@ public class OrderService {
 
     @Transactional
     public ResponseEntity<?> buyStock(String stockCode, OrderRequestDto requestDto) {
-        if (isDisabled()) {
-            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.OUT_OF_MARKET_HOUR));
-        }
+        //if (isDisabled()) {
+        //    return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.OUT_OF_MARKET_HOUR));
+        //}
 
         Member member = MemberUtil.getMember();
         Account account = accountRepository.findByMember(member);
@@ -221,9 +221,9 @@ public class OrderService {
 
     @Transactional
     public ResponseEntity<?> sellStock(String stockCode, OrderRequestDto requestDto) {
-        if (isDisabled()) {
-            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.OUT_OF_MARKET_HOUR));
-        }
+        //if (isDisabled()) {
+        //    return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.OUT_OF_MARKET_HOUR));
+        //}
 
         Account account = getAccount();
         if (account == null) {

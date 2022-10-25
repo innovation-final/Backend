@@ -9,7 +9,6 @@ import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,9 +26,9 @@ public class MyPageController {
         return ResponseEntity.ok().body(myPageService.getMyProfile(request));
     }
 
-    @PatchMapping("/api/auth/mypage")
-    public ResponseEntity<?> changeProfile(HttpServletRequest request, @RequestPart(required = false) ProfileRequestDto requestDto, @RequestPart(required = false) MultipartFile profileImg) {
-        return myPageService.changeProfile(request, requestDto, profileImg);
+    @PostMapping(value = "/api/auth/mypage")
+    public ResponseEntity<?> changeProfile(HttpServletRequest request, @ModelAttribute ProfileRequestDto requestDto) {
+        return myPageService.changeProfile(request, requestDto);
     }
 
     @DeleteMapping("/api/auth/mypage")
@@ -37,13 +36,14 @@ public class MyPageController {
         return ResponseEntity.ok().body(myPageService.deleteMyAccount(request));
     }
 
+    @GetMapping("/api/profile/{memberId}")
+    public ResponseEntity<?> getInfoOther(@PathVariable Long memberId){
+        return myPageService.getInfoOther(memberId);
+    }
+
     @ExceptionHandler({SizeLimitExceededException.class,MaxUploadSizeExceededException.class})
     protected ResponseEntity<?> MaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
         log.info("MaxUploadSizeExceededException", e);
         return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.FILE_SIZE_EXCEED));
-    }
-    @GetMapping("/api/profile/{memberId}")
-    public ResponseEntity<?> getInfoOther(@PathVariable Long memberId){
-        return myPageService.getInfoOther(memberId);
     }
 }
