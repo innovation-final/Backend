@@ -130,7 +130,7 @@ public class PostService {
                 try {
                     notificationService.send(member.getId(), forPostWriter);
                 } catch (Exception e) {
-                    e.getMessage();
+                    System.out.println(e.getMessage());
                 }
             }
         }

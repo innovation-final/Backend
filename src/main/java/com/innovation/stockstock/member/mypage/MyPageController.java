@@ -9,6 +9,7 @@ import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+
 import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
@@ -35,13 +36,14 @@ public class MyPageController {
         return ResponseEntity.ok().body(myPageService.deleteMyAccount(request));
     }
 
+    @GetMapping("/api/profile/{memberId}")
+    public ResponseEntity<?> getInfoOther(@PathVariable Long memberId){
+        return myPageService.getInfoOther(memberId);
+    }
+
     @ExceptionHandler({SizeLimitExceededException.class,MaxUploadSizeExceededException.class})
     protected ResponseEntity<?> MaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
         log.info("MaxUploadSizeExceededException", e);
         return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.FILE_SIZE_EXCEED));
-    }
-    @GetMapping("/api/profile/{memberId}")
-    public ResponseEntity<?> getInfoOther(@PathVariable Long memberId){
-        return myPageService.getInfoOther(memberId);
     }
 }

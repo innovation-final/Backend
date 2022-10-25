@@ -46,7 +46,7 @@ public class StockScheduler {
     private final StockRepository stockRepository;
 
     @Transactional
-    @Scheduled(cron = "0 1/2 9-15 * * MON-FRI", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 1/2 9-21 * * MON-FRI", zone = "Asia/Seoul")
     public void contractLimitPriceOrder() throws InterruptedException {
         //TimeUnit.SECONDS.sleep(21);
         List<LimitPriceOrder> limitPriceOrders = limitPriceOrderRepository.findAll();
