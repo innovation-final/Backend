@@ -38,7 +38,10 @@ public enum ErrorCode {
     NOT_DUPLICATES("ONE_ACCOUNT_PER_PERSON","Duplicate account opening is not allowed."),
 
     // 주문 불가
-    ORDER_FAIL("ORDER_FAIL", "Unable to Proceed Ordering");
+    ORDER_FAIL("ORDER_FAIL", "Unable to Proceed Ordering"),
+
+    // 장외 주문 불가
+    OUT_OF_MARKET_HOUR("OUT_OF_MARKET_HOUR", "Not Allowed to Order at Current Time");
 
     private final String code;
     private final String message;
