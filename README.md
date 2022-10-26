@@ -38,10 +38,10 @@
 ![architecture](https://user-images.githubusercontent.com/104505378/197699199-a8e3c943-273f-4a0b-bc06-28424382b127.jpg)
 
 ## 5. API 명세서 
-![API 명세서 바로가기](https://www.notion.so/API-22041a391cbb41919f50574665c7899c)
+[API 명세서 바로가기](https://www.notion.so/API-22041a391cbb41919f50574665c7899c)
 
 ## 6. ERD 
-![ERD 명세서 바로가기](https://www.notion.so/ERD-fe370cf911354aea909d03b7cb45cb67)
+[ERD 명세서 바로가기](https://www.notion.so/ERD-fe370cf911354aea909d03b7cb45cb67)
 
 ## 7. Trouble Shooting 
 주식 데이터 저장 및 조회
