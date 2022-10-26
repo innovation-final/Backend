@@ -103,12 +103,14 @@ public class MyPageService {
         Object profileImg = requestDto.getProfileImg();
         String profileMsg = requestDto.getProfileMsg();
         try {
-            if (nickname != null) {
-                member.updateNickname(nickname);
-            }
             if (profileImg != null) {
                 String imgUrl = uploadS3((MultipartFile) profileImg, member);
                 member.updateProfileImg(imgUrl);
+            }else{
+                member.updateProfileImg("https://stockstock.s3.ap-northeast-2.amazonaws.com/e00a05fd-882b-448d-8b4f-9f3a541a5e2b-%EA%B0%9C%EB%AF%B8.jpg");
+            }
+            if (nickname != null) {
+                member.updateNickname(nickname);
             }
             if (profileMsg != null) {
                 member.updateProfileMsg(profileMsg);
