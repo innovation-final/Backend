@@ -12,6 +12,7 @@ public class NotificationResponseDto {
     private Event type;
     private String message;
     private boolean isRead;
+    private Long postId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime createdAt;
@@ -21,5 +22,6 @@ public class NotificationResponseDto {
         this.message = notification.getMessage();
         this.isRead = notification.isRead();
         this.createdAt = notification.getCreatedAt();
+        this.postId = notification.getPostId();
     }
 }

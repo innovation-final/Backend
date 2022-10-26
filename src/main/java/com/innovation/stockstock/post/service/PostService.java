@@ -82,7 +82,7 @@ public class PostService {
                 if (postWriter.getViewNum() == 50) {
                     Achievement achievement = achievementRepository.findByName("VIEW");
                     memberAchievementRepository.save(new MemberAchievement(postWriter, achievement));
-                    NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.뱃지취득, "개미들의 친구 뱃지를 얻었습니다.");
+                    NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.뱃지취득, "개미들의 친구 뱃지를 얻었습니다.",null);
                     notificationService.send(postWriter.getId(), notificationRequestDto);
                 }
             }
@@ -126,7 +126,7 @@ public class PostService {
             boolean hasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, achievement);
             if (!hasAchieved) {
                 memberAchievementRepository.save(new MemberAchievement(member, achievement));
-                NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.뱃지취득, "활발한 주식박사 뱃지를 얻었습니다.");
+                NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.뱃지취득, "활발한 주식박사 뱃지를 얻었습니다.",null);
                 try {
                     notificationService.send(member.getId(), forPostWriter);
                 } catch (Exception e) {

@@ -54,7 +54,8 @@ public class CommentService {
         if(!member.getId().equals(post.getMember().getId())) {
             member.updateCommentNum(true);
 
-            NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.댓글, member.getNickname() + "님이 댓글을 달았습니다.");
+            NotificationRequestDto forPostWriter = new NotificationRequestDto(Event.댓글, member.getNickname() + "님이 댓글을 달았습니다.",postId);
+
             try {
                 notificationService.send(post.getMember().getId(), forPostWriter);
             } catch (Exception e) {
@@ -66,7 +67,7 @@ public class CommentService {
             boolean hasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, achievement);
             if (!hasAchieved) {
                 memberAchievementRepository.save(new MemberAchievement(member, achievement));
-                NotificationRequestDto forCommentWriter = new NotificationRequestDto(Event.뱃지취득, "조잘조잘 수다왕 뱃지를 얻었습니다.");
+                NotificationRequestDto forCommentWriter = new NotificationRequestDto(Event.뱃지취득, "조잘조잘 수다왕 뱃지를 얻었습니다.",null);
                 try {
                     notificationService.send(member.getId(), forCommentWriter);
                 }catch (Exception e){

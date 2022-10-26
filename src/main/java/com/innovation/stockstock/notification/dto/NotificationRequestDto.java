@@ -12,4 +12,5 @@ import java.io.Serializable;
 public class NotificationRequestDto implements Serializable {
     private Event type;
     private String message;
+    private Long postId;
 }

@@ -30,14 +30,16 @@ public class Notification extends Timestamped {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    // 알람을 누르면 이동할 링크
+    private Long postId;
 
     public Notification(NotificationRequestDto requestDto, Member member) {
         this.type = requestDto.getType();
         this.message = requestDto.getMessage();
         this.isRead = false;
         this.member = member;
+        this.postId = requestDto.getPostId();
     }
+
 
     public void changeState() {
         this.isRead = true;

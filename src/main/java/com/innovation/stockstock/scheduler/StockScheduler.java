@@ -117,7 +117,7 @@ public class StockScheduler {
                 );
                 limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
 
-                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이하인 "+currentPrice+ "원에 매수되었습니다.");
+                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이하인 "+currentPrice+ "원에 매수되었습니다.",null);
                 try {
                     notificationService.send(account.getMember().getId(), notificationRequestDto);
                 }catch (Exception e){
@@ -129,7 +129,7 @@ public class StockScheduler {
                     boolean firstBuyingHasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, firstBuying);
                     if (!firstBuyingHasAchieved) {
                         memberAchievementRepository.save(new MemberAchievement(member, firstBuying));
-                        NotificationRequestDto forFirstBuyer = new NotificationRequestDto(Event.뱃지취득, "워렌버핏이 돼보자 뱃지를 얻었습니다.");
+                        NotificationRequestDto forFirstBuyer = new NotificationRequestDto(Event.뱃지취득, "워렌버핏이 돼보자 뱃지를 얻었습니다.",null);
                         notificationService.send(member.getId(), forFirstBuyer);
                     }
                 }catch (Exception e){
@@ -142,7 +142,7 @@ public class StockScheduler {
                         boolean topStockholderHasAchieved = memberAchievementRepository.existsByMemberAndAchievement(member, topStockholder);
                         if (!topStockholderHasAchieved) {
                             memberAchievementRepository.save(new MemberAchievement(member, topStockholder));
-                            NotificationRequestDto forTopStockholder = new NotificationRequestDto(Event.뱃지취득, "이 구역의 최대주주 뱃지를 얻었습니다.");
+                            NotificationRequestDto forTopStockholder = new NotificationRequestDto(Event.뱃지취득, "이 구역의 최대주주 뱃지를 얻었습니다.",null);
                             notificationService.send(member.getId(), forTopStockholder);
                         }
                     }
@@ -175,7 +175,7 @@ public class StockScheduler {
                 );
                 limitPriceOrderRepository.deleteById(limitPriceOrder.getId());
 
-                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이상인 "+currentPrice+"원에 매도되었습니다.");
+                NotificationRequestDto notificationRequestDto = new NotificationRequestDto(Event.지정가, stock.getStockName()+"이/가 지정가("+orderPrice+"원) 이상인 "+currentPrice+"원에 매도되었습니다.",null);
                 try {
                     notificationService.send(limitPriceOrder.getAccount().getMember().getId(), notificationRequestDto);
                 }catch (Exception e){
