@@ -100,17 +100,14 @@ public class MyPageService {
     public ResponseEntity<?> changeProfile(HttpServletRequest request, ProfileRequestDto requestDto) {
         Member member = getMemberFromJwt(request);
         String nickname = requestDto.getNickname();
-        MultipartFile profileImg = requestDto.getProfileImg();
+        Object profileImg = requestDto.getProfileImg();
         String profileMsg = requestDto.getProfileMsg();
         try {
-            if (nickname == null && profileImg.isEmpty() && profileMsg == null) {
-                return ResponseEntity.ok().body(ResponseDto.success("Nothing Changed"));
-            }
             if (nickname != null) {
                 member.updateNickname(nickname);
             }
-            if (!profileImg.isEmpty()) {
-                String imgUrl = uploadS3(profileImg, member);
+            if (profileImg != null) {
+                String imgUrl = uploadS3((MultipartFile) profileImg, member);
                 member.updateProfileImg(imgUrl);
             }
             if (profileMsg != null) {
@@ -118,6 +115,7 @@ public class MyPageService {
             }
             return ResponseEntity.ok().body(ResponseDto.success("Profile Changed"));
         } catch (IOException e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
