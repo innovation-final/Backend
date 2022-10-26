@@ -109,7 +109,7 @@ public class MyPageService {
             if (nickname != null) {
                 member.updateNickname(nickname);
             }
-            if (profileImg != null) {
+            if (!profileImg.isEmpty()) {
                 String imgUrl = uploadS3(profileImg, member);
                 member.updateProfileImg(imgUrl);
             }
