@@ -103,7 +103,7 @@ public class MyPageService {
         MultipartFile profileImg = requestDto.getProfileImg();
         String profileMsg = requestDto.getProfileMsg();
         try {
-            if (nickname == null && profileImg == null && profileMsg == null) {
+            if (nickname == null && profileImg.isEmpty() && profileMsg == null) {
                 return ResponseEntity.ok().body(ResponseDto.success("Nothing Changed"));
             }
             if (nickname != null) {
