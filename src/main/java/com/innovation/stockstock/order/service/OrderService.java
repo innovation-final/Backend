@@ -54,7 +54,7 @@ public class OrderService {
     public ResponseEntity<?> getOrders(GetOrderRequestDto requestDto) {
         Account account = getAccount();
         if (account == null) {
-            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NO_ACCOUNT));
         }
 
         Boolean isSigned = requestDto.getIsSigned();
@@ -129,7 +129,7 @@ public class OrderService {
         Member member = MemberUtil.getMember();
         Account account = accountRepository.findByMember(member);
         if (account == null) {
-            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NO_ACCOUNT));
         }
 
         String category = requestDto.getOrderCategory();
@@ -220,7 +220,7 @@ public class OrderService {
                             .build()
             );
         } else {
-            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.ORDER_FAIL));
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.BUY_ORDER_FAIL));
         }
         return ResponseEntity.ok().body(ResponseDto.success("Buy Order Success"));
     }
@@ -233,7 +233,7 @@ public class OrderService {
 
         Account account = getAccount();
         if (account == null) {
-            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NULL_ID));
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NO_ACCOUNT));
         }
 
         String category = requestDto.getOrderCategory();
@@ -244,7 +244,7 @@ public class OrderService {
 
         StockHolding stock = stockHoldingRepository.findByStockCodeAndAccountId(stockCode, account.getId());
         if (stock == null) {
-            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.ORDER_FAIL));
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.NO_OWNER));
         }
 
         if (category.equals("시장가") && amount <= stock.getAmount()) {
@@ -284,7 +284,7 @@ public class OrderService {
                             .build()
             );
         } else {
-            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.ORDER_FAIL));
+            return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.SELL_ORDER_FAIL));
         }
         return ResponseEntity.ok().body(ResponseDto.success("Sell Order Success"));
     }
@@ -296,7 +296,7 @@ public class OrderService {
 
     public boolean isDisabled() {
         LocalTime now = LocalTime.now();
-        LocalTime marketStart = LocalTime.of(9, 0, 0);
+        LocalTime marketStart = LocalTime.of(9, 30, 0);
         LocalTime marketEnd = LocalTime.of(21, 0, 0);
         return now.isBefore(marketStart) || now.isAfter(marketEnd);
     }

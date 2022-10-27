@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
 
 @Slf4j
 @RestController
@@ -26,8 +28,8 @@ public class MyPageController {
         return ResponseEntity.ok().body(myPageService.getMyProfile(request));
     }
 
-    @PatchMapping ("/api/auth/mypage")
-    public ResponseEntity<?> changeProfile(HttpServletRequest request, @ModelAttribute ProfileRequestDto requestDto) {
+    @PatchMapping("/api/auth/mypage")
+    public ResponseEntity<?> changeProfile(HttpServletRequest request, @ModelAttribute @Valid ProfileRequestDto requestDto) {
         return myPageService.changeProfile(request, requestDto);
     }
 
@@ -45,5 +47,10 @@ public class MyPageController {
     protected ResponseEntity<?> MaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
         log.info("MaxUploadSizeExceededException", e);
         return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.FILE_SIZE_EXCEED));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<?> handleNicknameException(ConstraintViolationException e) {
+        return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.MAX_SIZE_OVER));
     }
 }
