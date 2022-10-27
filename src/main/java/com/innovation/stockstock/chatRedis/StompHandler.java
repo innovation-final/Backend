@@ -29,6 +29,11 @@ public class StompHandler implements ChannelInterceptor {
 
         if (StompCommand.SUBSCRIBE == accessor.getCommand()) { // 채팅룸 구독 요청
             // 기존의 채팅방을 불러와서 업데이트
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             chatRoom.updateNum(true);
             ChatMessage chatMessage = ChatMessage.builder()
                     .type(MessageType.CONNECT)
