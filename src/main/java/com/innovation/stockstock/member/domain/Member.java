@@ -30,9 +30,10 @@ public class Member {
     private Long id;
     private String email;
 
-    @Size(max = 6)
+    @Size(max = 20)
     private String nickname;
     private String profileImg = "https://stockstock.s3.ap-northeast-2.amazonaws.com/e00a05fd-882b-448d-8b4f-9f3a541a5e2b-%EA%B0%9C%EB%AF%B8.jpg";
+    @Size(max = 50)
     private String profileMsg;
     @JsonIgnore
     private int viewNum;

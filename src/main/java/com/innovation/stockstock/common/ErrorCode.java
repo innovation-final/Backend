@@ -17,7 +17,13 @@ public enum ErrorCode {
     INVALID_TOKEN("INVALID_TOKEN", "Invalid or No Token"),
 
     // 닉네임 길이 초과
-    MAX_SIZE_OVER("MAX_SIZE_OVER", "Over Maximum Length(6)"),
+    NICKNAME_SIZE_OVER("NICKNAME_SIZE_OVER", "Over Maximum Length(20)"),
+
+    // 자기소개 길이 초과
+    PROFILE_MSG_SIZE_OVER("PROFILE_MSG_SIZE_OVER", "Over Maximum Length(50)"),
+
+    // 닉네임, 자기소개 길이 초과
+    BOTH_SIZE_OVER("BOTH_SIZE_OVER", "Over Maximum Length"),
 
     // refresh-token DB에 없음
     REFRESH_TOKEN_NOT_FOUND("REFRESH_TOKEN_NOT_FOUND", "No Such Refresh Token"),
