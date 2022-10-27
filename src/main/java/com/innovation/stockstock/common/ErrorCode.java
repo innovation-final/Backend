@@ -16,6 +16,9 @@ public enum ErrorCode {
     //유효하지 않은 토큰
     INVALID_TOKEN("INVALID_TOKEN", "Invalid or No Token"),
 
+    // 닉네임 길이 초과
+    MAX_SIZE_OVER("MAX_SIZE_OVER", "Over Maximum Length(6)"),
+
     // refresh-token DB에 없음
     REFRESH_TOKEN_NOT_FOUND("REFRESH_TOKEN_NOT_FOUND", "No Such Refresh Token"),
 
@@ -37,8 +40,17 @@ public enum ErrorCode {
     // 중복 계좌 개설 불가
     NOT_DUPLICATES("ONE_ACCOUNT_PER_PERSON","Duplicate account opening is not allowed."),
 
-    // 주문 불가
-    ORDER_FAIL("ORDER_FAIL", "Unable to Proceed Ordering"),
+    // 매수 주문 불가: 잔액 초과
+    BUY_ORDER_FAIL("ORDER_FAIL", "Over Balance"),
+
+    // 매도 주문 불가: 보유 갯수 초과
+    SELL_ORDER_FAIL("ORDER_FAIL", "Over Holding Amount"),
+
+    // 계좌 없음
+    NO_ACCOUNT("ORDER_FAIL", "Has No Account to Order"),
+
+    // 보유하지 않은 종목
+    NO_OWNER("ORDER_FAIL", "Not Owner of the Stock"),
 
     // 장외 주문 불가
     OUT_OF_MARKET_HOUR("OUT_OF_MARKET_HOUR", "Not Allowed to Order at Current Time");

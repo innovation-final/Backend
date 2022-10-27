@@ -11,6 +11,8 @@ import com.innovation.stockstock.post.domain.DislikePost;
 import com.innovation.stockstock.post.domain.LikePost;
 import lombok.*;
 import javax.persistence.*;
+import javax.validation.constraints.Size;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,7 @@ public class Member {
     @Column(name = "member_id")
     private Long id;
     private String email;
+    @Size(max = 6)
     private String nickname;
     private String profileImg = "https://stockstock.s3.ap-northeast-2.amazonaws.com/e00a05fd-882b-448d-8b4f-9f3a541a5e2b-%EA%B0%9C%EB%AF%B8.jpg";
     private String profileMsg;
