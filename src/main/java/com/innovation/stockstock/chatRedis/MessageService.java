@@ -17,4 +17,6 @@ public class MessageService {
     public void sendChat(ChatMessage chatMessage) {
         redisPub.publish(channelTopic, chatMessage);
     }
+
+
 }
