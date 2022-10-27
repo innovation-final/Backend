@@ -22,9 +22,13 @@ public class ChatRoom {
 
     public void updateNum(Boolean isAdded) {
         if (isAdded) {
-            this.userCnt++;
+            this.userCnt = userCnt + 1;
         } else {
-            this.userCnt--;
+            if (this.userCnt <= 1) {
+                this.userCnt = 0L;
+            } else {
+                this.userCnt = userCnt - 1;
+            }
         }
     }
 }

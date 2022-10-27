@@ -31,5 +31,4 @@ public class RedisSub implements MessageListener {
             log.error("RedisSub.onMessage.error");
         }
     }
-
 }

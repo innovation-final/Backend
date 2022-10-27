@@ -31,13 +31,12 @@ public class StompHandler implements ChannelInterceptor {
             // 기존의 채팅방을 불러와서 업데이트
             chatRoom.updateNum(true);
             ChatMessage chatMessage = ChatMessage.builder()
-                    .type(MessageType.ENTER)
+                    .type(MessageType.CONNECT)
                     .sendTime(now.toString())
                     .nickName("서버알림")
                     .userId(0L)
                     .imageUrl("null")
-                    .message("입장")
-                    .userCnt(chatRoom.userCnt)
+                    .message(chatRoom.userCnt.toString())
                     .build();
             redisPub.publish(channelTopic, chatMessage);
         } else if (StompCommand.DISCONNECT == accessor.getCommand()) { // Websocket 종료
@@ -48,8 +47,7 @@ public class StompHandler implements ChannelInterceptor {
                     .nickName("서버알림")
                     .userId(0L)
                     .imageUrl("null")
-                    .message("퇴장")
-                    .userCnt(chatRoom.userCnt)
+                    .message(chatRoom.userCnt.toString())
                     .build();
             redisPub.publish(channelTopic, chatMessage);
         }
