@@ -8,6 +8,8 @@ import com.innovation.stockstock.achievement.domain.MemberAchievement;
 import com.innovation.stockstock.achievement.repository.AchievementRepository;
 import com.innovation.stockstock.achievement.repository.MemberAchievementRepository;
 import com.innovation.stockstock.chatRedis.redis.RedisRepository;
+import com.innovation.stockstock.common.ErrorCode;
+import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.member.domain.Member;
 import com.innovation.stockstock.member.repository.MemberRepository;
 import com.innovation.stockstock.notification.domain.Event;
@@ -22,9 +24,12 @@ import com.innovation.stockstock.order.repository.SellOrderRepository;
 import com.innovation.stockstock.stock.document.Stock;
 import com.innovation.stockstock.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -47,7 +52,7 @@ public class StockScheduler {
 
     @Transactional
     @Scheduled(cron = "0 1/2 9-21 * * MON-FRI", zone = "Asia/Seoul")
-    public void contractLimitPriceOrder() throws InterruptedException {
+    public void contractLimitPriceOrder() throws InterruptedException, IllegalArgumentException {
         //TimeUnit.SECONDS.sleep(21);
         List<LimitPriceOrder> limitPriceOrders = limitPriceOrderRepository.findAll();
         for (LimitPriceOrder limitPriceOrder : limitPriceOrders) {
@@ -63,12 +68,10 @@ public class StockScheduler {
             int currentPrice;
             try {
                 currentPrice = Integer.parseInt(redisRepository.getTradePrice(stockCode));
-                if(currentPrice == 0){
-                    Stock stock = stockRepository.findByCode(stockCode);
-                    Map<String, String> current = stock.getCurrent();
-                    currentPrice = Integer.valueOf(current.get("last_price"));
+                if (currentPrice == 0) {
+                    throw new IllegalArgumentException("Order Fail");
                 }
-            }catch(Exception e){
+            } catch (Exception e) {
                 Stock stock = stockRepository.findByCode(stockCode);
                 Map<String, String> current = stock.getCurrent();
                 currentPrice = Integer.valueOf(current.get("last_price"));
@@ -188,6 +191,11 @@ public class StockScheduler {
                 }
             }
         }
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<?> handleOrderException(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.ORDER_FAIL));
     }
 //    @Transactional
 //    // @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
