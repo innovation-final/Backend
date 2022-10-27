@@ -27,7 +27,7 @@ public class StompHandler implements ChannelInterceptor {
         LocalTime now = LocalTime.now();
         ChatRoom chatRoom = chatRoomRepository.findByName("chatroom");
 
-        if (StompCommand.CONNECT == accessor.getCommand()) { // 채팅룸 구독 요청
+        if (StompCommand.SUBSCRIBE == accessor.getCommand()) { // 채팅룸 구독 요청
             // 기존의 채팅방을 불러와서 업데이트
             chatRoom.updateNum(true);
             ChatMessage chatMessage = ChatMessage.builder()

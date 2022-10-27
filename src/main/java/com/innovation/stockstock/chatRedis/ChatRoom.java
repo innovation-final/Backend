@@ -17,17 +17,18 @@ public class ChatRoom {
     @Id
     @GeneratedValue
     Long id;
+
     String name;
     Long userCnt;
 
     public void updateNum(Boolean isAdded) {
         if (isAdded) {
-            this.userCnt = userCnt + 1;
+            this.userCnt++;
         } else {
-            if (this.userCnt <= 1) {
+            if (userCnt <= 1L) {
                 this.userCnt = 0L;
             } else {
-                this.userCnt = userCnt - 1;
+                this.userCnt--;
             }
         }
     }

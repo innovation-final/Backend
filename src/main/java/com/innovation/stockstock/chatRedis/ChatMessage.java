@@ -17,6 +17,4 @@ public class ChatMessage {
     private Long userId; // sender
     private String imageUrl; // sender
     private String message;
-    private Long userCnt;
-
     }
