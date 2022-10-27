@@ -193,9 +193,9 @@ public class StockScheduler {
         }
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> handleOrderException(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.ORDER_FAIL));
+        return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.OUT_OF_MARKET_HOUR));
     }
 //    @Transactional
 //    // @Scheduled(cron = "0 1/2 * * * *", zone = "Asia/Seoul")
