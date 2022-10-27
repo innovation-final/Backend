@@ -4,7 +4,6 @@ import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.member.mypage.dto.ProfileRequestDto;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 
-@Slf4j
 @RestController
 @ControllerAdvice
 @RequiredArgsConstructor
@@ -45,12 +43,20 @@ public class MyPageController {
 
     @ExceptionHandler({SizeLimitExceededException.class,MaxUploadSizeExceededException.class})
     protected ResponseEntity<?> MaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
-        log.info("MaxUploadSizeExceededException", e);
         return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.FILE_SIZE_EXCEED));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    protected ResponseEntity<?> handleNicknameException(ConstraintViolationException e) {
-        return ResponseEntity.badRequest().body(ResponseDto.fail(ErrorCode.MAX_SIZE_OVER));
+    protected ResponseEntity<?> handleProfileChangeException(ConstraintViolationException e) {
+        String errMsg = e.getMessage();
+        ErrorCode errorCode = null;
+        if (errMsg.contains("6") && errMsg.contains("50")) {
+            errorCode = ErrorCode.BOTH_SIZE_OVER;
+        } else if (errMsg.contains("6")) {
+            errorCode = ErrorCode.NICKNAME_SIZE_OVER;
+        } else if (errMsg.contains("50")) {
+            errorCode = ErrorCode.PROFILE_MSG_SIZE_OVER;
+        }
+        return ResponseEntity.badRequest().body(ResponseDto.fail(errorCode));
     }
 }
