@@ -50,9 +50,9 @@ public class MyPageController {
     protected ResponseEntity<?> handleProfileChangeException(ConstraintViolationException e) {
         String errMsg = e.getMessage();
         ErrorCode errorCode = null;
-        if (errMsg.contains("6") && errMsg.contains("50")) {
+        if (errMsg.contains("20") && errMsg.contains("50")) {
             errorCode = ErrorCode.BOTH_SIZE_OVER;
-        } else if (errMsg.contains("6")) {
+        } else if (errMsg.contains("20")) {
             errorCode = ErrorCode.NICKNAME_SIZE_OVER;
         } else if (errMsg.contains("50")) {
             errorCode = ErrorCode.PROFILE_MSG_SIZE_OVER;

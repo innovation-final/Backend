@@ -17,7 +17,7 @@ public enum ErrorCode {
     INVALID_TOKEN("INVALID_TOKEN", "Invalid or No Token"),
 
     // 닉네임 길이 초과
-    NICKNAME_SIZE_OVER("NICKNAME_SIZE_OVER", "Over Maximum Length(6)"),
+    NICKNAME_SIZE_OVER("NICKNAME_SIZE_OVER", "Over Maximum Length(20)"),
 
     // 자기소개 길이 초과
     PROFILE_MSG_SIZE_OVER("PROFILE_MSG_SIZE_OVER", "Over Maximum Length(50)"),
