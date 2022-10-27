@@ -64,9 +64,7 @@ public class StockScheduler {
             try {
                 currentPrice = Integer.parseInt(redisRepository.getTradePrice(stockCode));
                 if(currentPrice == 0){
-                    Stock stock = stockRepository.findByCode(stockCode);
-                    Map<String, String> current = stock.getCurrent();
-                    currentPrice = Integer.valueOf(current.get("last_price"));
+                    
                 }
             }catch(Exception e){
                 Stock stock = stockRepository.findByCode(stockCode);

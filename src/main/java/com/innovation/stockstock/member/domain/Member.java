@@ -27,7 +27,7 @@ public class Member {
     @Column(name = "member_id")
     private Long id;
     private String email;
-    private String nickname;
+    private String nickname; // 6글자 제한
     private String profileImg = "https://stockstock.s3.ap-northeast-2.amazonaws.com/e00a05fd-882b-448d-8b4f-9f3a541a5e2b-%EA%B0%9C%EB%AF%B8.jpg";
     private String profileMsg;
     @JsonIgnore

@@ -38,6 +38,7 @@ public enum ErrorCode {
     NOT_DUPLICATES("ONE_ACCOUNT_PER_PERSON","Duplicate account opening is not allowed."),
 
     // 주문 불가
+    // 매도매수가 주문 불가 시 세분화 해주기
     ORDER_FAIL("ORDER_FAIL", "Unable to Proceed Ordering"),
 
     // 장외 주문 불가
