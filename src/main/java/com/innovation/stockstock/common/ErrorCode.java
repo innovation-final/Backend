@@ -16,6 +16,9 @@ public enum ErrorCode {
     //유효하지 않은 토큰
     INVALID_TOKEN("INVALID_TOKEN", "Invalid or No Token"),
 
+    // 닉네임 길이 초과
+    MAX_SIZE_OVER("MAX_SIZE_OVER", "Over Maximum Length(6)"),
+
     // refresh-token DB에 없음
     REFRESH_TOKEN_NOT_FOUND("REFRESH_TOKEN_NOT_FOUND", "No Such Refresh Token"),
 
