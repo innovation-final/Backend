@@ -38,7 +38,7 @@
 
 ## 5. API 명세서 
 Notion: [API 명세서 바로가기](https://www.notion.so/API-22041a391cbb41919f50574665c7899c)   
-Swagger: https://hakjoonkim.shop/swagger-ui.html
+Swagger: https://server-address.shop/swagger-ui.html
 
 ## 6. ERD 
 Notion: [ERD 바로가기](https://www.notion.so/ERD-fe370cf911354aea909d03b7cb45cb67)
