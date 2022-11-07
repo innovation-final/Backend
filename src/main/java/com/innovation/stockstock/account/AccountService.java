@@ -12,6 +12,8 @@ import com.innovation.stockstock.common.ErrorCode;
 import com.innovation.stockstock.common.MemberUtil;
 import com.innovation.stockstock.common.dto.ResponseDto;
 import com.innovation.stockstock.member.domain.Member;
+import com.innovation.stockstock.stock.document.Stock;
+import com.innovation.stockstock.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final RedisRepository redisRepository;
     private final MemberUtil memberUtil;
+    private final StockRepository stockRepository;
     public ResponseEntity<?> makeAccount(AccountRequestDto accountRequestDto) {
         Member member = MemberUtil.getMember();
         if (accountRepository.findByMember(member)!=null){
@@ -104,7 +107,14 @@ public class AccountService {
 
         List<StockHoldingResponseDto> responseDtoList = new ArrayList<>();
         for (StockHolding stockHolding : account.getStockHoldingsList()) {
-            int curPrice = Integer.parseInt(redisRepository.getTradePrice(stockHolding.getStockCode()));
+            int curPrice = 0;
+            try {
+                curPrice = Integer.parseInt(redisRepository.getTradePrice(stockHolding.getStockCode()));
+            }catch (Exception e){
+                Stock stock = stockRepository.findByCode(stockHolding.getStockCode());
+                Map<String, String> current = stock.getCurrent();
+                curPrice = Integer.valueOf(current.get("last_price"));
+            }
             int avgBuying = stockHolding.getAvgBuying();
 
             Long profit = (long) (curPrice - avgBuying) *stockHolding.getAmount();
