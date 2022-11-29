@@ -38,3 +38,4 @@ out/
 
 ### my ignore ###
 application.properties
+/src/main/generated
